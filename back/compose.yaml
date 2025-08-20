@@ -1,0 +1,12 @@
+networks:
+  app-network: {}
+
+volumes:
+  db-data: {}
+
+services:
+  database:
+
+  nginx:
+
+  go:
