@@ -2,6 +2,16 @@
 @import "primeicons/primeicons.css";
 
 @theme {
-    --font-*: initial;
-    --font-sans: "Lato", sans-serif;
+  --font-*: initial;
+  --font-sans: "Lato", sans-serif;
+  --shadow-card: 0 0 32px 16px rgba(0, 0, 0, 0.25);
+  --color-primary-color: #46ad49;
+  --color-secondary-color: #e9c94a;
+  --color-accent-color: #73b13e;
+}
+
+::selection,
+::-moz-selection {
+  background: theme("colors.primary-color");
+  color: theme("colors.white");
 }
