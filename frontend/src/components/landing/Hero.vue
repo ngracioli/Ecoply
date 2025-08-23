@@ -20,13 +20,13 @@
     </h2>
     <section class="flex flex-row gap-8 text-2xl font-semibold">
       <button
-        class="bg-accent-color flex items-center gap-4 rounded-2xl px-8 py-4 text-white"
+        class="bg-primary-color hover:bg-accent-color flex cursor-pointer items-center gap-4 rounded-2xl px-8 py-4 text-white transition-all duration-300 hover:scale-105"
       >
         Explorar as Ofertas
         <i class="pi pi-arrow-right text-white"></i>
       </button>
       <button
-        class="border-secondary-color text-secondary-color rounded-2xl border-2 bg-transparent px-4 py-2"
+        class="border-secondary-color text-secondary-color hover:bg-secondary-color cursor-pointer rounded-2xl border-2 bg-transparent px-4 py-2 transition-all duration-300 hover:scale-105 hover:border-transparent hover:text-white"
       >
         Saiba Mais
       </button>

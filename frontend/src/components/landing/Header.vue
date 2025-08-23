@@ -18,7 +18,7 @@
           <a href="#" class="text-zinc-600 hover:text-zinc-800">Contact</a>
         </li>
       </ul>
-      <button class="bg-accent-color rounded px-4 py-2 text-white">
+      <button class="bg-primary-color rounded px-4 py-2 text-white">
         Get Started
       </button>
     </nav>
