@@ -3,10 +3,70 @@ networks:
 
 volumes:
   db-data: {}
+  go-mod-cache: {}
 
 services:
   database:
+    image: postgres:13.22-alpine
+    hostname: database
+    container_name: database
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_HOST_AUTH_METHOD: ${POSTGRES_HOST_AUTH_METHOD:-trust}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          memory: 256M
 
   nginx:
+    image: nginx:alpine
+    hostname: nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          memory: 64M
 
   go:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: go
+    container_name: go
+    env_file:
+      - .env
+
+    volumes:
+      - go-mod-cache:/go/pkg/mod
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          memory: 512M
+    depends_on:
+      - database
