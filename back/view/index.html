@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecoply API</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #2a362c 0%, #9ff0a5 100%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 255);
+            padding: 3rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .status {
+            padding: 1rem 0 2rem 0;
+        }
+
+        .links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .link {
+            background: rgb(233, 233, 233);
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .link:hover {
+            background: rgb(233, 233, 233);
+            transform: translateY(-2px);
+        }
+
+        .version {
+            margin-top: 2rem;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🌱 Ecoply</h1>
+        <p>Welcome to the Ecoply API</p>
+
+        <div class="status">
+            <strong>Status:</strong> API is running successfully ✅
+        </div>
+
+        <div class="links">
+            <a href="/health" class="link">Health Check</a>
+        </div>
+
+        <div class="version">
+            v1.0.0
+        </div>
+    </div>
+</body>
+
+</html>
