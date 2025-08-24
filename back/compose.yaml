@@ -6,7 +6,10 @@ volumes:
 
 services:
   database:
+    image: postgres:13.22-alpine
 
   nginx:
+    image: nginx:alpine
 
   go:
+    image: golang:1.25
