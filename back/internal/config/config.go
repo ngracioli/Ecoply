@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
 )
@@ -19,7 +21,7 @@ type Config struct {
 	AppDebug       bool   `env:"APP_DEBUG" envDefault:"false"`
 
 	ServerHost string `env:"SERVER_HOST" envDefault:"localhost"`
-	ServerPort int    `env:"SERVER_PORT" envDefault:"8080"`
+	ServerPort uint16 `env:"SERVER_PORT" envDefault:"8080"`
 }
 
 var (
@@ -32,15 +34,13 @@ func Load(filenames ...string) error {
 		return nil
 	}
 
-	if filenames != nil {
-		err := godotenv.Load(filenames...)
-		if err != nil {
-			return err
+	if len(filenames) > 0 {
+		if err := godotenv.Load(filenames...); err != nil {
+			fmt.Printf("%v\n", ErrFailedToLoadEnvFile)
 		}
 	}
 
-	err := env.Parse(&config)
-	if err != nil {
+	if err := env.Parse(&config); err != nil {
 		return ErrFailedToLoadConfig
 	}
 

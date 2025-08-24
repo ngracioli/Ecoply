@@ -1,0 +1,20 @@
+FROM golang:1.25-alpine AS build
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+RUN go build -o bin/ecoply ./entrypoint
+
+
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY --from=build /app/bin/ecoply .
+RUN chmod +x ecoply
+
+CMD [ "./ecoply" ]
+

@@ -1,0 +1,20 @@
+services:
+  go:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    hostname: go
+    container_name: go
+    env_file:
+      - .env
+    working_dir: /app
+    volumes:
+      - .:/app
+      - go-mod-cache:/go/pkg/mod
+    command: ["go", "run", "./entrypoint/main.go"]
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    networks:
+      - app-network
+    depends_on:
+      - database
