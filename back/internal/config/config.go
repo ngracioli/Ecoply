@@ -7,14 +7,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-const (
-	KeyAppName     = "APP_NAME"
-	KeyEnvironment = "ENVIRONMENT"
-	KeyPort        = "PORT"
-	KeyHost        = "HOST"
-	KeyDebug       = "DEBUG"
-)
-
 type Config struct {
 	AppName        string `env:"APP_NAME" envDefault:"Ecoply"`
 	AppEnvironment string `env:"APP_ENV" envDefault:"dev"`
@@ -58,4 +50,12 @@ func GetConfig() *Config {
 
 func IsLoaded() bool {
 	return loaded
+}
+
+func IsDevelopment() bool {
+	return config.AppEnvironment == "dev"
+}
+
+func IsProduction() bool {
+	return config.AppEnvironment == "prod"
 }

@@ -14,6 +14,7 @@ FROM alpine:latest
 WORKDIR /app
 
 COPY --from=build /app/bin/ecoply .
+COPY --from=build /app/view ./view
 RUN chmod +x ecoply
 
 CMD [ "./ecoply" ]

@@ -1,6 +1,11 @@
 package server
 
-import "github.com/gin-gonic/gin"
+import (
+	domainAuth "ecoply/internal/domain/auth"
+	"strings"
+
+	"github.com/gin-gonic/gin"
+)
 
 func registerRoutes(router *gin.Engine) {
 	router.LoadHTMLGlob("view/index.html")
@@ -9,11 +14,16 @@ func registerRoutes(router *gin.Engine) {
 	router.GET("/health", healthHandler)
 	router.NoRoute(notFoundHandler)
 
-	// api := router.Group("api")
+	api := router.Group("api")
 
-	// v1 := api.Group("v1", Cors("*"), ContentType("application/json; charset=utf-8"))
-	// {
-	// }
+	v1 := api.Group("v1", Cors("*"), ContentType("application/json; charset=utf-8"))
+	{
+		auth := v1.Group("auth")
+		{
+			auth.POST("login", domainAuth.LoginHandler)
+			auth.POST("signup", domainAuth.SignUpHandler)
+		}
+	}
 }
 
 func rootHandler(c *gin.Context) {
@@ -23,6 +33,15 @@ func rootHandler(c *gin.Context) {
 }
 
 func notFoundHandler(c *gin.Context) {
+	var accept string = c.Request.Header.Get("Accept")
+
+	if strings.Contains(accept, "application/json") {
+		c.JSON(404, gin.H{
+			"message": "Not Found",
+		})
+		return
+	}
+
 	c.Redirect(302, "/")
 }
 
