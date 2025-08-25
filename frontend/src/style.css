@@ -10,6 +10,44 @@
   --color-accent-color: #73b13e;
 }
 
+@layer utilities {
+  .bg-accent-gradient {
+    --color-background-accent-gradient: linear-gradient(
+      to bottom,
+      #fff,
+      #f5fffb
+    );
+    background-image: var(--color-background-accent-gradient);
+  }
+
+  .bg-high-accent-gradient {
+    --color-background-accent-gradient: linear-gradient(
+      135deg,
+      #e2f8e9 0%,
+      #f4fcf7 100%
+    );
+    background-image: var(--color-background-accent-gradient);
+  }
+
+  .bg-primary-gradient {
+    --color-background-primary-gradient: linear-gradient(
+      to bottom,
+      #fff,
+      #fbfcfc
+    );
+    background-image: var(--color-background-primary-gradient);
+  }
+
+  .bg-secondary-gradient {
+    --color-background-secondary-gradient: linear-gradient(
+      to bottom,
+      #ececec,
+      #fff
+    );
+    background-image: var(--color-background-secondary-gradient);
+  }
+}
+
 ::selection,
 ::-moz-selection {
   background: theme("colors.primary-color");
