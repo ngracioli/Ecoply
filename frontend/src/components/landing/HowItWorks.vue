@@ -3,8 +3,8 @@ import NumericCard from "../shared/NumericCard.vue";
 </script>
 
 <template>
-  <main>
-    <section class="flex flex-col items-center justify-center">
+  <main class="bg-primary-gradient py-16">
+    <section class="flex flex-col items-center justify-center py-12">
       <h1 class="mb-6 text-6xl font-extrabold text-neutral-700">
         Como funciona o Ecoply?
       </h1>
@@ -13,7 +13,7 @@ import NumericCard from "../shared/NumericCard.vue";
         descentralizada
       </h2>
     </section>
-    <section class="flex flex-row justify-center gap-32 py-12">
+    <section class="flex flex-row justify-center gap-32">
       <NumericCard
         :step="1"
         icon="pi-user"

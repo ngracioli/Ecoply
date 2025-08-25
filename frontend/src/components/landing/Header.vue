@@ -1,7 +1,9 @@
 <script setup lang="ts"></script>
 
 <template>
-  <header class="fixed w-full bg-white py-2 shadow-xl">
+  <header
+    class="fixed z-100 w-full bg-white/30 py-2 shadow-md backdrop-blur-md"
+  >
     <nav class="flex items-center justify-evenly p-4">
       <h1 class="text-4xl font-semibold text-zinc-800">Ecoply</h1>
       <ul class="flex space-x-4 text-xl">

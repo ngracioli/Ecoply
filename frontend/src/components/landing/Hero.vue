@@ -1,7 +1,9 @@
 <script setup lang="ts"></script>
 
 <template>
-  <main class="flex h-screen flex-col items-center justify-center text-center">
+  <main
+    class="bg-accent-gradient flex h-screen flex-col items-center justify-center text-center"
+  >
     <h3
       class="text-primary-color mb-2 flex items-center gap-2 text-2xl font-bold"
     >
