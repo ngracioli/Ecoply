@@ -12,5 +12,5 @@
     "noUncheckedSideEffectImports": true,
     "moduleResolution": "node"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "src/composables/useValidations.ts"]
 }
