@@ -5,10 +5,12 @@
   --font-*: initial;
   --font-sans: "Lato", sans-serif;
   --shadow-card: 0 0 32px 16px rgba(0, 0, 0, 0.25);
-  --color-primary-bg-color: #163300;
-  --color-primary-color: #163300;
-  --color-secondary-color: #e9c94a;
-  --color-accent-color: #73b13e;
+  --color-primary-bg-color: #1e4104;
+  --color-primary-color: #1e4104;
+  --color-secondary-color: #c6ffa2;
+  --color-tertiary-color: #e8ffda;
+  --color-accent-color: #346412;
+  --color-secondary-bg-color: #edefeb;
 }
 
 @layer utilities {
@@ -47,6 +49,18 @@
     );
     background-image: var(--color-background-secondary-gradient);
   }
+}
+
+/* Prevenir overflow horizontal em todos os breakpoints */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+#app {
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 ::selection,
