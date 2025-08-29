@@ -1,30 +1,93 @@
 <script setup lang="ts"></script>
 
 <template>
-  <header
-    class="fixed z-100 w-full bg-white/30 py-2 shadow-md backdrop-blur-md"
-  >
+  <header class="bg-primary-bg-color fixed z-100 w-full py-2">
     <nav class="flex items-center justify-evenly p-4">
-      <h1 class="text-4xl font-semibold text-zinc-800">Ecoply</h1>
-      <ul class="flex space-x-4 text-xl">
+      <div
+        class="logo-container group flex cursor-default flex-row items-center"
+      >
+        <i
+          class="pi pi-bolt text-secondary-color text-4xl font-extrabold transition-transform duration-300 ease-out group-hover:scale-110 group-hover:rotate-12"
+        ></i>
+        <h1
+          class="text-secondary-color text-4xl font-bold transition-transform duration-300 ease-out group-hover:scale-105"
+        >
+          Ecoply
+        </h1>
+      </div>
+      <ul class="flex space-x-12 text-xl">
         <li>
-          <a href="#" class="text-zinc-600 hover:text-zinc-800">Home</a>
+          <router-link
+            to="/#home"
+            class="nav-link text-secondary-color hover:text-tertiary-color relative inline-block py-2 transition-all duration-300 ease-out hover:-translate-y-0.5"
+            >Início</router-link
+          >
         </li>
         <li>
-          <a href="#" class="text-zinc-600 hover:text-zinc-800">About</a>
+          <router-link
+            to="/#how-it-works"
+            class="nav-link text-secondary-color hover:text-tertiary-color relative inline-block py-2 transition-all duration-300 ease-out hover:-translate-y-0.5"
+            >Como funciona</router-link
+          >
         </li>
         <li>
-          <a href="#" class="text-zinc-600 hover:text-zinc-800">Services</a>
+          <router-link
+            to="/#benefits"
+            class="nav-link text-secondary-color hover:text-tertiary-color relative inline-block py-2 transition-all duration-300 ease-out hover:-translate-y-0.5"
+            >Benefícios</router-link
+          >
         </li>
         <li>
-          <a href="#" class="text-zinc-600 hover:text-zinc-800">Contact</a>
+          <router-link
+            to="/#offer-demonstration"
+            class="nav-link text-secondary-color hover:text-tertiary-color relative inline-block py-2 transition-all duration-300 ease-out hover:-translate-y-0.5"
+            >Ofertas</router-link
+          >
         </li>
       </ul>
-      <button class="bg-primary-color rounded px-4 py-2 text-white">
-        Get Started
+      <button
+        class="cta-button bg-secondary-color text-primary-color text-md relative cursor-pointer overflow-hidden rounded border-2 border-transparent px-4 py-2 font-bold transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-105 hover:border-white/20 hover:shadow-xl active:-translate-y-0.5 active:scale-[1.02]"
+      >
+        Acessar Dashboard
       </button>
     </nav>
   </header>
 </template>
 
-<style scoped></style>
+<style scoped>
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: currentColor;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.cta-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.cta-button:hover::before {
+  left: 100%;
+}
+</style>
