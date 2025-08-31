@@ -9,7 +9,7 @@ var (
 )
 
 func makeError(message string) error {
-	const prefix string = "Config : "
+	const prefix string = "Config -> "
 
 	return errors.New(prefix + message)
 }

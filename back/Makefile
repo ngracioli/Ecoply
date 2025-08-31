@@ -2,7 +2,7 @@
 
 run:
 	@cd entrypoint
-	go run ./entrypoint/main.go
+	APP_ENV=dev go run ./entrypoint/main.go
 
 build:
 	go build -o bin/ecoply ./entrypoint

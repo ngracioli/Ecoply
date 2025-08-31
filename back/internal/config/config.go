@@ -22,6 +22,8 @@ type Config struct {
 	DBUsername   string `env:"DB_USERNAME" envDefault:"root"`
 	DBPassword   string `env:"DB_PASSWORD" envDefault:"root"`
 	DBTimezone   string `env:"DB_TIMEZONE" envDefault:"UTC"`
+
+	MigrationsPath string `env:"MIGRATIONS_PATH" envDefault:"internal/database/migrations"`
 }
 
 var (
