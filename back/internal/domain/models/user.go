@@ -1,8 +1,6 @@
 package models
 
-import (
-	"gorm.io/gorm"
-)
+import "gorm.io/gorm"
 
 type User struct {
 	gorm.Model
@@ -16,17 +14,4 @@ type User struct {
 	UserType   UserType
 	AddressId  uint `gorm:"references:ID;not null"`
 	Address    Address
-}
-
-type UserType struct {
-	ID   uint   `gorm:"primarykey"`
-	Type string `gorm:"varchar(20);not null;unique"`
-}
-
-type Address struct {
-	ID      uint   `gorm:"primarykey"`
-	Cep     string `gorm:"varchar(8);not null"`
-	State   string `gorm:"varchar(255);not null"`
-	City    string `gorm:"varchar(255);not null"`
-	Country string `gorm:"varchar(255);not null"`
 }
