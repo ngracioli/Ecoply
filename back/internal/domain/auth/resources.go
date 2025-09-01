@@ -1,7 +1,13 @@
 package auth
 
 type MeResource struct {
-	Name     string `json:"name" binding:"required,min=2,max=100"`
-	Email    string `json:"email" binding:"required,email"`
-	UserType string `json:"user_type" binding:"required,oneof=supplier buyer"`
+	ID       uint   `json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	UserType string `json:"user_type"`
+}
+
+type LoginResource struct {
+	Token string     `json:"token"`
+	User  MeResource `json:"user"`
 }

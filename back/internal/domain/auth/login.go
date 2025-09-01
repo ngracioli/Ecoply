@@ -6,46 +6,53 @@ import (
 	"ecoply/internal/domain/messages"
 	"ecoply/internal/domain/models"
 	"ecoply/internal/mlog"
+	"ecoply/internal/services"
+	"errors"
+
+	"gorm.io/gorm"
 )
 
-func login(request *LoginRequest) (*MeResource, *merr.ResponseError) {
-	if err := checkEmail(request); err != nil {
-		return nil, err
-	}
-
-	user, err := checkLogin(request)
+func login(request *LoginRequest) (*LoginResource, *merr.ResponseError) {
+	user, err := authenticateUser(request)
 	if err != nil {
 		return nil, err
 	}
 
-	var response MeResource = MeResource{
-		Name:     user.Name,
-		Email:    user.Email,
-		UserType: user.UserType.Type,
+	jwtService := services.NewJWTService()
+	token, tokenErr := jwtService.GenerateToken(user.ID, user.Email, user.UserType.Type)
+	if tokenErr != nil {
+		mlog.Log("Failed to generate JWT token: " + tokenErr.Error())
+		return nil, merr.NewResponseError(500, messages.AuthFailedToGenerateToken, nil)
 	}
 
-	return &response, nil
+	response := &LoginResource{
+		Token: token,
+		User: MeResource{
+			ID:       user.ID,
+			Name:     user.Name,
+			Email:    user.Email,
+			UserType: user.UserType.Type,
+		},
+	}
+
+	return response, nil
 }
 
-func checkEmail(request *LoginRequest) *merr.ResponseError {
+func authenticateUser(request *LoginRequest) (*models.User, *merr.ResponseError) {
 	var user models.User
+
 	result := database.Con.Where("email = ?", request.Email).First(&user)
 	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, merr.NewResponseError(401, messages.AuthEmailNotFound, nil)
+		}
 		mlog.Log(result.Error.Error())
-		return merr.NewResponseError(404, messages.UserWithEmailNotFound, nil)
+		return nil, merr.NewResponseError(500, messages.DatabaseError, nil)
 	}
-	return nil
-}
 
-func checkLogin(request *LoginRequest) (*models.User, *merr.ResponseError) {
-	var user models.User
-	// TODO implement hash
-	var hashedPasswrod string = request.Password
-
-	result := database.Con.Where("email = ? AND password = ?", request.Email, hashedPasswrod).First(&user)
-	if result.Error != nil {
-		mlog.Log(result.Error.Error())
-		return nil, merr.NewResponseError(404, messages.UserWithEmailNotFound, nil)
+	if user.Password != request.Password {
+		return nil, merr.NewResponseError(401, messages.AuthIncorrectPassword, nil)
 	}
+
 	return &user, nil
 }

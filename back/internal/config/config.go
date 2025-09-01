@@ -24,6 +24,8 @@ type Config struct {
 	DBTimezone   string `env:"DB_TIMEZONE" envDefault:"UTC"`
 
 	MigrationsPath string `env:"MIGRATIONS_PATH" envDefault:"internal/database/migrations"`
+
+	JWTSigningKey string `env:"JWT_SIGNING_KEY" envDefault:"your-secret-key"`
 }
 
 var (
