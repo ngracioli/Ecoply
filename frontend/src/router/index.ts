@@ -20,12 +20,11 @@ const routes = [
     name: "Register",
     component: Register,
   },
-  // Manter lazy loading apenas para páginas acessadas
-  // {
-  //   path: "/dashboard",
-  //   name: "Dashboard",
-  //   component: () => import("../views/Dashboard.vue"),
-  // },
+  {
+    path: "/dashboard",
+    name: "Dashboard",
+    component: () => import("../views/dashboard/Dashboard.vue"),
+  },
 ];
 
 const router = createRouter({
