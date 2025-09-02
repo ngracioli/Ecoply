@@ -16,7 +16,7 @@ defineProps<NumericCardProps>();
     class="group hover:shadow-card relative flex w-full max-w-sm flex-col items-center gap-8 rounded-2xl px-4 py-8 transition-shadow duration-300"
   >
     <span
-      class="bg-secondary-color absolute -top-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full font-bold text-white shadow transition-transform duration-300 group-hover:scale-90"
+      class="bg-accent-color text-secondary-color absolute -top-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full font-bold shadow transition-transform duration-300 group-hover:scale-90"
     >
       {{ step }}
     </span>
