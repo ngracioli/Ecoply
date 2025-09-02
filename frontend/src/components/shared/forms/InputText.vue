@@ -8,7 +8,7 @@ defineProps<{
 
 <template>
   <div
-    class="w-full flex items-center rounded-lg border border-gray-500 transition-all duration-200 focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-100"
+    class="focus-within:border-primary-color flex w-full items-center rounded-lg border border-gray-500 transition-all duration-200 focus-within:ring-2 focus-within:ring-green-100"
   >
     <input
       :placeholder="placeholder"
