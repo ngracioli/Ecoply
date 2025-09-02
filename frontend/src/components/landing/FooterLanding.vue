@@ -13,32 +13,32 @@ import IconSquared from "../shared/IconSquared.vue";
         <div class="mb-2">
           <h1 class="text-primary-color text-2xl font-extrabold">Ecoply</h1>
         </div>
-        <p class="mt-2 text-base text-gray-700">
+        <p class="mt-2 text-base text-gray-800">
           Conectando produtores e consumidores de energia renovável para um
           futuro mais sustentável e descentralizado.
         </p>
         <div class="mt-6 flex space-x-4 text-2xl">
           <a
             href="#"
-            class="transform transition hover:scale-110 hover:text-green-500"
+            class="hover:text-accent-color transform transition hover:scale-110"
           >
             <IconSquared :icon="'pi-facebook'" />
           </a>
           <a
             href="#"
-            class="transform transition hover:scale-110 hover:text-green-500"
+            class="hover:text-accent-color transform transition hover:scale-110"
           >
             <IconSquared :icon="'pi-twitter'" />
           </a>
           <a
             href="#"
-            class="transform transition hover:scale-110 hover:text-green-500"
+            class="hover:text-accent-color transform transition hover:scale-110"
           >
             <IconSquared :icon="'pi-instagram'" />
           </a>
           <a
             href="#"
-            class="transform transition hover:scale-110 hover:text-green-500"
+            class="hover:text-accent-color transform transition hover:scale-110"
           >
             <IconSquared :icon="'pi-linkedin'" />
           </a>
@@ -49,21 +49,23 @@ import IconSquared from "../shared/IconSquared.vue";
         <h2 class="text-primary-color mb-3 text-lg font-semibold">Navegação</h2>
         <ul class="space-y-2 text-base text-gray-700">
           <li>
-            <a href="#" class="transition hover:text-green-500">Início</a>
+            <a href="#" class="hover:text-accent-color transition">Início</a>
           </li>
           <li>
-            <a href="#" class="transition hover:text-green-500"
+            <a href="#" class="hover:text-accent-color transition"
               >Como Funciona</a
             >
           </li>
           <li>
-            <a href="#" class="transition hover:text-green-500">Benefícios</a>
+            <a href="#" class="hover:text-accent-color transition"
+              >Benefícios</a
+            >
           </li>
           <li>
-            <a href="#" class="transition hover:text-green-500">Impacto</a>
+            <a href="#" class="hover:text-accent-color transition">Impacto</a>
           </li>
           <li>
-            <a href="#" class="transition hover:text-green-500">Contato</a>
+            <a href="#" class="hover:text-accent-color transition">Contato</a>
           </li>
         </ul>
       </div>
@@ -74,12 +76,14 @@ import IconSquared from "../shared/IconSquared.vue";
           <li>
             <a
               href="mailto:contato@sunshare.com.br"
-              class="transition hover:text-green-500"
+              class="hover:text-accent-color transition"
               >contato@ecoply.com.br</a
             >
           </li>
           <li>
-            <a href="tel:+551999999999" class="transition hover:text-green-500"
+            <a
+              href="tel:+551999999999"
+              class="hover:text-accent-color transition"
               >(19) 9999-9999</a
             >
           </li>
@@ -89,7 +93,7 @@ import IconSquared from "../shared/IconSquared.vue";
     </div>
 
     <div
-      class="mx-auto mt-8 max-w-3/4 border-t border-gray-200 py-4 text-center text-sm text-gray-500"
+      class="mx-auto mt-8 max-w-3/4 border-t border-gray-200 py-4 text-center text-sm text-gray-800"
     >
       © 2025 <span class="text-primary-color font-bold">Ecoply</span>. Todos os
       direitos reservados.

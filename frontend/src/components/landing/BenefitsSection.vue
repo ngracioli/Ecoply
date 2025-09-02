@@ -3,12 +3,12 @@ import BenefitsCard from "./benefits/BenefitsCard.vue";
 </script>
 
 <template>
-  <main class="bg-primary-gradient py-16">
+  <main class="bg-primary-gradient py-16" id="benefits">
     <section class="flex flex-col items-center justify-center">
-      <h1 class="mb-6 text-6xl font-extrabold text-neutral-700">
+      <h1 class="mb-6 text-6xl font-extrabold text-neutral-900">
         Benefícios para Todos
       </h1>
-      <h2 class="mb-10 text-2xl font-bold text-neutral-600">
+      <h2 class="mb-10 text-2xl font-bold text-neutral-700">
         Uma plataforma que gera valor para produtores, compradores e toda a
         comunidade
       </h2>

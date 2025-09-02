@@ -3,12 +3,12 @@ import NumericCard from "../shared/NumericCard.vue";
 </script>
 
 <template>
-  <main class="bg-primary-gradient py-16">
+  <main class="bg-primary-gradient py-16" id="how-it-works">
     <section class="flex flex-col items-center justify-center py-12">
-      <h1 class="mb-6 text-6xl font-extrabold text-neutral-700">
+      <h1 class="mb-6 text-6xl font-extrabold text-neutral-900">
         Como funciona o Ecoply?
       </h1>
-      <h2 class="mb-10 text-2xl font-bold text-neutral-600">
+      <h2 class="mb-10 text-2xl font-bold text-neutral-700">
         Em apenas três passos simples, você faz parte da revolução da energia
         descentralizada
       </h2>
