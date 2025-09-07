@@ -54,8 +54,8 @@ func MeHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": response})
 }
 
-func IsEmailAvailableHandler(c *gin.Context) {
-	var payload IsEmailAvailableRequest
+func AvailabilityHandler(c *gin.Context) {
+	var payload AvailabilityRequest
 
 	if err := c.ShouldBindQuery(&payload); err != nil {
 		var response *merr.ResponseError = merr.BindValidationErrorsToResponse(err)
@@ -63,30 +63,7 @@ func IsEmailAvailableHandler(c *gin.Context) {
 		return
 	}
 
-	response, err := IsEmailAvailable(&payload)
-	if err != nil {
-		c.JSON(err.StatusCode, err)
-		return
-	}
-
-	if !response {
-		c.AbortWithStatus(http.StatusConflict)
-		return
-	}
-
-	c.AbortWithStatus(http.StatusNoContent)
-}
-
-func IsCpfCnpjAvailableHandler(c *gin.Context) {
-	var payload IsCpfCnpjAvailableRequest
-
-	if err := c.ShouldBindQuery(&payload); err != nil {
-		var response *merr.ResponseError = merr.BindValidationErrorsToResponse(err)
-		c.JSON(response.StatusCode, response)
-		return
-	}
-
-	response, err := IsCpfCnpjAvailable(&payload)
+	response, err := Availability(&payload)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return

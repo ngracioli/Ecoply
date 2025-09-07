@@ -18,7 +18,7 @@ func registerRoutes(router *gin.Engine) {
 
 	api := router.Group("api")
 
-	v1 := api.Group("v1", middlewares.Cors("*"), middlewares.ContentType("application/json; charset=utf-8"))
+	v1 := api.Group("v1", middlewares.Cors("*"), middlewares.ContentType(gin.MIMEJSON))
 	{
 		auth := v1.Group("auth")
 		{
@@ -28,8 +28,7 @@ func registerRoutes(router *gin.Engine) {
 
 			available := auth.Group("available")
 			{
-				available.GET("cpf-cnpj", domainAuth.IsCpfCnpjAvailableHandler)
-				available.GET("email", domainAuth.IsEmailAvailableHandler)
+				available.GET("", domainAuth.AvailabilityHandler)
 			}
 		}
 	}
@@ -44,7 +43,7 @@ func rootHandler(c *gin.Context) {
 func notFoundHandler(c *gin.Context) {
 	var accept string = c.Request.Header.Get("Accept")
 
-	if strings.Contains(accept, "application/json") {
+	if strings.Contains(accept, gin.MIMEJSON) {
 		c.JSON(http.StatusNotFound, gin.H{
 			"message": "Not Found",
 		})

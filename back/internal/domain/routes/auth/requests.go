@@ -22,10 +22,7 @@ type AddressRequest struct {
 	Country string `json:"country" binding:"required,min=2,max=50"`
 }
 
-type IsEmailAvailableRequest struct {
-	Email string `form:"email" binding:"required,email"`
-}
-
-type IsCpfCnpjAvailableRequest struct {
-	CpfCnpj string `form:"cpf_cnpj" binding:"required,min=11,max=14,numeric"`
+type AvailabilityRequest struct {
+	Type  string `form:"type" json:"type" binding:"omitempty,oneof=email cpf cnpj"`
+	Value string `form:"value" json:"value" binding:"omitempty"`
 }

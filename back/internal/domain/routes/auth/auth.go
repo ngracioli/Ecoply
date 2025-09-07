@@ -107,9 +107,20 @@ func newMeResource(user *models.User) MeResource {
 	}
 }
 
-func IsEmailAvailable(request *IsEmailAvailableRequest) (bool, *merr.ResponseError) {
+func Availability(request *AvailabilityRequest) (bool, *merr.ResponseError) {
+	switch request.Type {
+	case "email":
+		return IsEmailAvailable(request.Value)
+	case "cpf", "cnpj":
+		return IsCpfCnpjAvailable(request.Value)
+	default:
+		return false, merr.NewResponseError(http.StatusBadRequest, ErrInvalidAvailabilityType)
+	}
+}
+
+func IsEmailAvailable(email string) (bool, *merr.ResponseError) {
 	var userRepo repository.UserRepository = repository.NewUserRepository(database.Con)
-	user, err := userRepo.FindByEmail(request.Email)
+	user, err := userRepo.FindByEmail(email)
 	if err != nil {
 		if err.StatusCode == http.StatusNotFound {
 			return true, nil
@@ -124,9 +135,9 @@ func IsEmailAvailable(request *IsEmailAvailableRequest) (bool, *merr.ResponseErr
 	return true, nil
 }
 
-func IsCpfCnpjAvailable(request *IsCpfCnpjAvailableRequest) (bool, *merr.ResponseError) {
+func IsCpfCnpjAvailable(cpfCnpj string) (bool, *merr.ResponseError) {
 	var userRepo repository.UserRepository = repository.NewUserRepository(database.Con)
-	user, err := userRepo.FindByCpfCnpj(request.CpfCnpj)
+	user, err := userRepo.FindByCpfCnpj(cpfCnpj)
 	if err != nil {
 		if err.StatusCode == http.StatusNotFound {
 			return true, nil
