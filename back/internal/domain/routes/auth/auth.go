@@ -53,7 +53,7 @@ func SignUp(request *SignUpRequest) (*LoginResource, *merr.ResponseError) {
 		Name:     request.Name,
 		Email:    request.Email,
 		Password: request.Password,
-		CpfCnpj:  request.CpfCnpj,
+		Cnpj:     request.Cnpj,
 		UserType: request.UserType,
 		Address: repository.AddressCreateParams{
 			Cep:     request.Address.Cep,
@@ -107,9 +107,20 @@ func newMeResource(user *models.User) MeResource {
 	}
 }
 
-func IsEmailAvailable(request *IsEmailAvailableRequest) (bool, *merr.ResponseError) {
+func Availability(request *AvailabilityRequest) (bool, *merr.ResponseError) {
+	switch request.Type {
+	case "email":
+		return IsEmailAvailable(request.Value)
+	case "cpf", "cnpj":
+		return IsCnpjAvailable(request.Value)
+	default:
+		return false, merr.NewResponseError(http.StatusBadRequest, ErrInvalidAvailabilityType)
+	}
+}
+
+func IsEmailAvailable(email string) (bool, *merr.ResponseError) {
 	var userRepo repository.UserRepository = repository.NewUserRepository(database.Con)
-	user, err := userRepo.FindByEmail(request.Email)
+	user, err := userRepo.FindByEmail(email)
 	if err != nil {
 		if err.StatusCode == http.StatusNotFound {
 			return true, nil
@@ -124,9 +135,9 @@ func IsEmailAvailable(request *IsEmailAvailableRequest) (bool, *merr.ResponseErr
 	return true, nil
 }
 
-func IsCpfCnpjAvailable(request *IsCpfCnpjAvailableRequest) (bool, *merr.ResponseError) {
+func IsCnpjAvailable(cnpj string) (bool, *merr.ResponseError) {
 	var userRepo repository.UserRepository = repository.NewUserRepository(database.Con)
-	user, err := userRepo.FindByCpfCnpj(request.CpfCnpj)
+	user, err := userRepo.FindByCnpj(cnpj)
 	if err != nil {
 		if err.StatusCode == http.StatusNotFound {
 			return true, nil

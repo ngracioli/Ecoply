@@ -10,7 +10,7 @@ type SignUpRequest struct {
 	Email           string          `json:"email" binding:"required,email"`
 	Password        string          `json:"password" binding:"required,min=8,max=50,containsuppercase,containslowercase,containsdigit,containsspecial"`
 	ConfirmPassword string          `json:"confirm_password" binding:"required,eqfield=Password"`
-	CpfCnpj         string          `json:"cpf_cnpj" binding:"required,min=11,max=14,numeric"`
+	Cnpj            string          `json:"cnpj" binding:"required,len=14,numeric,cnpj"`
 	UserType        string          `json:"user_type" binding:"required,oneof=supplier buyer"`
 	Address         *AddressRequest `json:"address" binding:"required"`
 }
@@ -22,10 +22,7 @@ type AddressRequest struct {
 	Country string `json:"country" binding:"required,min=2,max=50"`
 }
 
-type IsEmailAvailableRequest struct {
-	Email string `form:"email" binding:"required,email"`
-}
-
-type IsCpfCnpjAvailableRequest struct {
-	CpfCnpj string `form:"cpf_cnpj" binding:"required,min=11,max=14,numeric"`
+type AvailabilityRequest struct {
+	Type  string `form:"type" json:"type" binding:"required,oneof=email cnpj"`
+	Value string `form:"value" json:"value" binding:"required"`
 }
