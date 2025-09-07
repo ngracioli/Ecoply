@@ -1,0 +1,8 @@
+.vscode
+bin
+
+.env.example
+.gitignore
+
+Makefile
+README.md
