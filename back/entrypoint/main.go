@@ -2,6 +2,8 @@ package main
 
 import (
 	"ecoply/internal/config"
+	"ecoply/internal/database"
+	"ecoply/internal/domain/validation"
 	"ecoply/internal/server"
 	"log"
 	"os"
@@ -11,24 +13,29 @@ import (
 
 func main() {
 	loadEnvironment()
+
+	validation.RegisterCustomValidators()
+
+	database.New()
+
 	server.NewAndRun()
 }
 
 func loadEnvironment() {
-	var envFiles []string = make([]string, 0, 3)
-	mode := os.Getenv("APP_ENV")
+	var envFilePath string
+	var mode string = os.Getenv("APP_ENV")
 
-	if mode != "" && mode != "prod" {
+	if mode != "prod" {
 		_, filename, _, _ := runtime.Caller(0)
 		var projectRoot string = filename
 
 		// Going directories up to reach project root, where the .env file should be placed
 		projectRoot = filepath.Dir(filepath.Dir(projectRoot))
 
-		envFiles = append(envFiles, filepath.Join(projectRoot, ".env"))
+		envFilePath = filepath.Join(projectRoot, ".env")
 	}
 
-	if err := config.Load(envFiles...); err != nil {
+	if err := config.Load(envFilePath); err != nil {
 		log.Fatalf("%v\n", err)
 	}
 }

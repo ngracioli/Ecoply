@@ -1,8 +1,11 @@
-.PHONY: docker-run docker-run-dev run build clear test
+.PHONY: docker-run docker-run-dev run run-debug build clear test
 
 run:
 	@cd entrypoint
-	go run ./entrypoint/main.go
+	APP_ENV=dev go run ./entrypoint/main.go
+
+run-debug:
+	APP_ENV=dev dlv debug --headless --listen=:2345 --api-version=2 --accept-multiclient ./entrypoint/main.go
 
 build:
 	go build -o bin/ecoply ./entrypoint
