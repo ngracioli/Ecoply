@@ -2,9 +2,9 @@ package auth
 
 import (
 	"ecoply/internal/database"
-	"ecoply/internal/domain/execute"
 	"ecoply/internal/domain/merr"
 	"ecoply/internal/domain/models"
+	"ecoply/internal/domain/repository"
 	"ecoply/internal/domain/services"
 	"ecoply/internal/mlog"
 	"net/http"
@@ -12,14 +12,14 @@ import (
 
 func Login(request *LoginRequest) (*LoginResource, *merr.ResponseError) {
 	var user *models.User
-	var userExec execute.UserExecute = execute.NewUserExecute(database.Con)
+	var userRepo repository.UserRepository = repository.NewUserRepository(database.Con)
 
-	user, err := userExec.FindUserByCredentials(request.Email, request.Password)
+	user, err := userRepo.FindUserByCredentials(request.Email, request.Password)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := userExec.PreloadUserType(user); err != nil {
+	if err := userRepo.PreloadUserType(user); err != nil {
 		return nil, err
 	}
 
@@ -38,7 +38,7 @@ func Login(request *LoginRequest) (*LoginResource, *merr.ResponseError) {
 
 func generateJwtToken(user *models.User) (string, *merr.ResponseError) {
 	jwtService := services.NewJwtService()
-	token, tokenErr := jwtService.GenerateToken(user.ID, user.Email, user.UserType.Type)
+	token, tokenErr := jwtService.GenerateToken(user.Uuid, user.Email, user.UserType.Type)
 	if tokenErr != nil {
 		mlog.Log("Failed to generate JWT token: " + tokenErr.Error())
 		return "", merr.NewResponseError(http.StatusInternalServerError, ErrFailedToGenerateToken)
@@ -47,15 +47,15 @@ func generateJwtToken(user *models.User) (string, *merr.ResponseError) {
 }
 
 func SignUp(request *SignUpRequest) (*LoginResource, *merr.ResponseError) {
-	var userExec execute.UserExecute = execute.NewUserExecute(database.Con)
+	var userRepo repository.UserRepository = repository.NewUserRepository(database.Con)
 
-	user, err := userExec.CreateWithAddressAndType(execute.UserCreateWithAddressAndTypeParams{
+	user, err := userRepo.CreateWithAddressAndType(repository.UserCreateWithAddressAndTypeParams{
 		Name:     request.Name,
 		Email:    request.Email,
 		Password: request.Password,
 		CpfCnpj:  request.CpfCnpj,
 		UserType: request.UserType,
-		Address: execute.AddressCreateParams{
+		Address: repository.AddressCreateParams{
 			Cep:     request.Address.Cep,
 			State:   request.Address.State,
 			City:    request.Address.City,
@@ -67,7 +67,7 @@ func SignUp(request *SignUpRequest) (*LoginResource, *merr.ResponseError) {
 		return nil, err
 	}
 
-	if err := userExec.PreloadUserType(user); err != nil {
+	if err := userRepo.PreloadUserType(user); err != nil {
 		return nil, err
 	}
 
@@ -84,14 +84,14 @@ func SignUp(request *SignUpRequest) (*LoginResource, *merr.ResponseError) {
 	return response, nil
 }
 
-func Me(userId uint) (*MeResource, *merr.ResponseError) {
-	var userExec execute.UserExecute = execute.NewUserExecute(database.Con)
-	user, err := userExec.FindById(userId)
+func Me(userUuid string) (*MeResource, *merr.ResponseError) {
+	var userRepo repository.UserRepository = repository.NewUserRepository(database.Con)
+	user, err := userRepo.FindByUuid(userUuid)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := userExec.PreloadUserType(user); err != nil {
+	if err := userRepo.PreloadUserType(user); err != nil {
 		return nil, err
 	}
 
@@ -108,8 +108,8 @@ func newMeResource(user *models.User) MeResource {
 }
 
 func IsEmailAvailable(request *IsEmailAvailableRequest) (bool, *merr.ResponseError) {
-	var userExec execute.UserExecute = execute.NewUserExecute(database.Con)
-	user, err := userExec.FindByEmail(request.Email)
+	var userRepo repository.UserRepository = repository.NewUserRepository(database.Con)
+	user, err := userRepo.FindByEmail(request.Email)
 	if err != nil {
 		if err.StatusCode == http.StatusNotFound {
 			return true, nil
@@ -125,8 +125,8 @@ func IsEmailAvailable(request *IsEmailAvailableRequest) (bool, *merr.ResponseErr
 }
 
 func IsCpfCnpjAvailable(request *IsCpfCnpjAvailableRequest) (bool, *merr.ResponseError) {
-	var userExec execute.UserExecute = execute.NewUserExecute(database.Con)
-	user, err := userExec.FindByCpfCnpj(request.CpfCnpj)
+	var userRepo repository.UserRepository = repository.NewUserRepository(database.Con)
+	user, err := userRepo.FindByCpfCnpj(request.CpfCnpj)
 	if err != nil {
 		if err.StatusCode == http.StatusNotFound {
 			return true, nil

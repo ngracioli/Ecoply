@@ -5,7 +5,7 @@ import (
 )
 
 type User struct {
-	UUID       string `gorm:"type:uuid;uniqueIndex;not null"`
+	Uuid       string `gorm:"type:uuid;uniqueIndex;not null"`
 	Name       string `gorm:"type:varchar(255);not null"`
 	Email      string `gorm:"type:text;not null;unique"`
 	Password   string `gorm:"type:varchar(255);not null"`

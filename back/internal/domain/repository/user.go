@@ -1,4 +1,4 @@
-package execute
+package repository
 
 import (
 	"ecoply/internal/domain/merr"
@@ -11,23 +11,24 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserExecute interface {
+type UserRepository interface {
 	Create(params UserCreateParams) (*models.User, *merr.ResponseError)
 	CreateWithAddressAndType(params UserCreateWithAddressAndTypeParams) (*models.User, *merr.ResponseError)
 	FindByEmail(email string) (*models.User, *merr.ResponseError)
 	FindById(id uint) (*models.User, *merr.ResponseError)
+	FindByUuid(uuid string) (*models.User, *merr.ResponseError)
 	FindUserByCredentials(email string, password string) (*models.User, *merr.ResponseError)
 	FindByCpfCnpj(cpfCnpj string) (*models.User, *merr.ResponseError)
 	PreloadUserType(user *models.User) *merr.ResponseError
 	PreloadAddress(user *models.User) *merr.ResponseError
 }
 
-type userExecute struct {
+type userRepository struct {
 	db *gorm.DB
 }
 
-func NewUserExecute(db *gorm.DB) UserExecute {
-	return &userExecute{db: db}
+func NewUserRepository(db *gorm.DB) UserRepository {
+	return &userRepository{db: db}
 }
 
 type UserCreateParams struct {
@@ -39,7 +40,7 @@ type UserCreateParams struct {
 	AddressId  uint
 }
 
-func (e *userExecute) Create(params UserCreateParams) (*models.User, *merr.ResponseError) {
+func (e *userRepository) Create(params UserCreateParams) (*models.User, *merr.ResponseError) {
 	result, err := e.FindByEmail(params.Email)
 
 	if err != nil && err.StatusCode != http.StatusNotFound {
@@ -50,8 +51,18 @@ func (e *userExecute) Create(params UserCreateParams) (*models.User, *merr.Respo
 		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrUserEmailAlreadyExists)
 	}
 
+	result, err = e.FindByCpfCnpj(params.CpfCnpj)
+
+	if err != nil && err.StatusCode != http.StatusNotFound {
+		return nil, err
+	}
+
+	if result != nil {
+		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrUserCpfCnpjAlreadyExists)
+	}
+
 	user := &models.User{
-		UUID:       services.NewUuidV7String(),
+		Uuid:       services.NewUuidV7String(),
 		Name:       params.Name,
 		Email:      params.Email,
 		Password:   params.Password,
@@ -77,12 +88,12 @@ type UserCreateWithAddressAndTypeParams struct {
 	Address  AddressCreateParams
 }
 
-func (e *userExecute) CreateWithAddressAndType(params UserCreateWithAddressAndTypeParams) (*models.User, *merr.ResponseError) {
+func (e *userRepository) CreateWithAddressAndType(params UserCreateWithAddressAndTypeParams) (*models.User, *merr.ResponseError) {
 	var user *models.User
 	var responseError *merr.ResponseError
 
 	err := e.db.Transaction(func(tx *gorm.DB) error {
-		var addressExec AddressExecute = NewAddressExecute(tx)
+		var addressExec AddressRepository = NewAddressRepository(tx)
 		address, addressErr := addressExec.Create(params.Address)
 
 		if addressErr != nil {
@@ -90,7 +101,7 @@ func (e *userExecute) CreateWithAddressAndType(params UserCreateWithAddressAndTy
 			return addressErr.Error
 		}
 
-		var userTypeExec UserTypeExecute = NewUserTypeExecute(e.db)
+		var userTypeExec UserTypeRepository = NewUserTypeRepository(tx)
 		userType, userTypeErr := userTypeExec.FindByName(params.UserType)
 
 		if userTypeErr != nil {
@@ -98,7 +109,7 @@ func (e *userExecute) CreateWithAddressAndType(params UserCreateWithAddressAndTy
 			return userTypeErr.Error
 		}
 
-		var userExec UserExecute = NewUserExecute(tx)
+		var userExec UserRepository = NewUserRepository(tx)
 		var userCreateParams = UserCreateParams{
 			Name:       params.Name,
 			Email:      params.Email,
@@ -129,7 +140,7 @@ func (e *userExecute) CreateWithAddressAndType(params UserCreateWithAddressAndTy
 	return user, nil
 }
 
-func (e *userExecute) FindByEmail(email string) (*models.User, *merr.ResponseError) {
+func (e *userRepository) FindByEmail(email string) (*models.User, *merr.ResponseError) {
 	var user models.User
 	err := e.db.Where("email = ?", email).First(&user).Error
 
@@ -145,7 +156,7 @@ func (e *userExecute) FindByEmail(email string) (*models.User, *merr.ResponseErr
 	return &user, nil
 }
 
-func (e *userExecute) FindById(id uint) (*models.User, *merr.ResponseError) {
+func (e *userRepository) FindById(id uint) (*models.User, *merr.ResponseError) {
 	var user models.User
 	err := e.db.First(&user, id).Error
 
@@ -161,7 +172,7 @@ func (e *userExecute) FindById(id uint) (*models.User, *merr.ResponseError) {
 	return &user, nil
 }
 
-func (e *userExecute) FindByCpfCnpj(cpfCnpj string) (*models.User, *merr.ResponseError) {
+func (e *userRepository) FindByCpfCnpj(cpfCnpj string) (*models.User, *merr.ResponseError) {
 	var user models.User
 	err := e.db.Where("cpf_cnpj = ?", cpfCnpj).First(&user).Error
 
@@ -177,7 +188,7 @@ func (e *userExecute) FindByCpfCnpj(cpfCnpj string) (*models.User, *merr.Respons
 	return &user, nil
 }
 
-func (e *userExecute) FindUserByCredentials(email string, password string) (*models.User, *merr.ResponseError) {
+func (e *userRepository) FindUserByCredentials(email string, password string) (*models.User, *merr.ResponseError) {
 	user, err := e.FindByEmail(email)
 	if err != nil {
 		return nil, err
@@ -190,7 +201,23 @@ func (e *userExecute) FindUserByCredentials(email string, password string) (*mod
 	return user, nil
 }
 
-func (e *userExecute) PreloadUserType(user *models.User) *merr.ResponseError {
+func (e *userRepository) FindByUuid(uuid string) (*models.User, *merr.ResponseError) {
+	var user models.User
+	err := e.db.Where("uuid = ?", uuid).First(&user).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, merr.NewResponseError(http.StatusNotFound, ErrNotFound)
+	}
+
+	if err != nil {
+		mlog.Log("Failed to find user by UUID: " + err.Error())
+		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+	}
+
+	return &user, nil
+}
+
+func (e *userRepository) PreloadUserType(user *models.User) *merr.ResponseError {
 	if err := e.db.Preload("UserType").First(user).Error; err != nil {
 		mlog.Log("Failed to preload user type: " + err.Error())
 		return merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
@@ -198,7 +225,7 @@ func (e *userExecute) PreloadUserType(user *models.User) *merr.ResponseError {
 	return nil
 }
 
-func (e *userExecute) PreloadAddress(user *models.User) *merr.ResponseError {
+func (e *userRepository) PreloadAddress(user *models.User) *merr.ResponseError {
 	if err := e.db.Preload("Address").First(user).Error; err != nil {
 		mlog.Log("Failed to preload address: " + err.Error())
 		return merr.NewResponseError(http.StatusInternalServerError, ErrInternal)

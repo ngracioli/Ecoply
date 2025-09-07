@@ -14,9 +14,9 @@ var (
 )
 
 type Claims struct {
-	UserID   uint   `json:"user_id"`
-	Email    string `json:"email"`
-	UserType string `json:"user_type"`
+	UserUuid  string `json:"user_uuid"`
+	UserEmail string `json:"user_email"`
+	UserType  string `json:"user_type"`
 	jwt.RegisteredClaims
 }
 
@@ -33,14 +33,14 @@ func NewJwtService() *JwtService {
 	}
 }
 
-func (j *JwtService) GenerateToken(userID uint, email string, userType string) (string, error) {
+func (j *JwtService) GenerateToken(userUuid string, email string, userType string) (string, error) {
 	now := time.Now()
 	expirationTime := now.Add(24 * time.Hour)
 
 	claims := &Claims{
-		UserID:   userID,
-		Email:    email,
-		UserType: userType,
+		UserUuid:  userUuid,
+		UserEmail: email,
+		UserType:  userType,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			IssuedAt:  jwt.NewNumericDate(now),

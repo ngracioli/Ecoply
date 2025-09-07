@@ -44,8 +44,8 @@ func SignUpHandler(c *gin.Context) {
 }
 
 func MeHandler(c *gin.Context) {
-	userId, _ := c.Get("user_id")
-	response, err := Me(userId.(uint))
+	userUuid, _ := c.Get("user_uuid")
+	response, err := Me(userUuid.(string))
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return

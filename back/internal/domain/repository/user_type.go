@@ -1,4 +1,4 @@
-package execute
+package repository
 
 import (
 	"ecoply/internal/domain/merr"
@@ -9,20 +9,20 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserTypeExecute interface {
+type UserTypeRepository interface {
 	FindById(id uint) (*models.UserType, *merr.ResponseError)
 	FindByName(name string) (*models.UserType, *merr.ResponseError)
 }
 
-type userTypeExecute struct {
+type userTypeRepository struct {
 	db *gorm.DB
 }
 
-func NewUserTypeExecute(db *gorm.DB) UserTypeExecute {
-	return &userTypeExecute{db: db}
+func NewUserTypeRepository(db *gorm.DB) UserTypeRepository {
+	return &userTypeRepository{db: db}
 }
 
-func (e *userTypeExecute) FindById(id uint) (*models.UserType, *merr.ResponseError) {
+func (e *userTypeRepository) FindById(id uint) (*models.UserType, *merr.ResponseError) {
 	var userType models.UserType
 	err := e.db.First(&userType, id).Error
 
@@ -38,7 +38,7 @@ func (e *userTypeExecute) FindById(id uint) (*models.UserType, *merr.ResponseErr
 	return &userType, nil
 }
 
-func (e *userTypeExecute) FindByName(name string) (*models.UserType, *merr.ResponseError) {
+func (e *userTypeRepository) FindByName(name string) (*models.UserType, *merr.ResponseError) {
 	var userType models.UserType
 	err := e.db.Where("type = ?", name).First(&userType).Error
 

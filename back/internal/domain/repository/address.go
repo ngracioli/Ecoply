@@ -1,4 +1,4 @@
-package execute
+package repository
 
 import (
 	"ecoply/internal/domain/merr"
@@ -9,17 +9,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type AddressExecute interface {
+type AddressRepository interface {
 	Create(params AddressCreateParams) (*models.Address, *merr.ResponseError)
 	FindById(id uint) (*models.Address, *merr.ResponseError)
 }
 
-type addressExecute struct {
+type addressRepository struct {
 	db *gorm.DB
 }
 
-func NewAddressExecute(db *gorm.DB) AddressExecute {
-	return &addressExecute{db: db}
+func NewAddressRepository(db *gorm.DB) AddressRepository {
+	return &addressRepository{db: db}
 }
 
 type AddressCreateParams struct {
@@ -29,7 +29,7 @@ type AddressCreateParams struct {
 	Country string
 }
 
-func (a *addressExecute) Create(params AddressCreateParams) (*models.Address, *merr.ResponseError) {
+func (a *addressRepository) Create(params AddressCreateParams) (*models.Address, *merr.ResponseError) {
 	address := &models.Address{
 		Cep:     params.Cep,
 		State:   params.State,
@@ -45,7 +45,7 @@ func (a *addressExecute) Create(params AddressCreateParams) (*models.Address, *m
 	return address, nil
 }
 
-func (a *addressExecute) FindById(id uint) (*models.Address, *merr.ResponseError) {
+func (a *addressRepository) FindById(id uint) (*models.Address, *merr.ResponseError) {
 	var address models.Address
 	err := a.db.First(&address, id).Error
 
