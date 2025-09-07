@@ -2,6 +2,19 @@
 
 Go 1.25.0
 
+# How to run for development
+
+### 1. Create Environment File
+Copy the example environment file and configure it:
+```bash
+cp .env.example .env
+```
+
+### 2. Run the API with Docker
+```bash
+make docker-run
+```
+
 # Dependencies
 
 - [Gin](https://gin-gonic.com/) Web framework
