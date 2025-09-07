@@ -18,7 +18,7 @@ type UserRepository interface {
 	FindById(id uint) (*models.User, *merr.ResponseError)
 	FindByUuid(uuid string) (*models.User, *merr.ResponseError)
 	FindUserByCredentials(email string, password string) (*models.User, *merr.ResponseError)
-	FindByCpfCnpj(cpfCnpj string) (*models.User, *merr.ResponseError)
+	FindByCnpj(cnpj string) (*models.User, *merr.ResponseError)
 	PreloadUserType(user *models.User) *merr.ResponseError
 	PreloadAddress(user *models.User) *merr.ResponseError
 }
@@ -35,7 +35,7 @@ type UserCreateParams struct {
 	Name       string
 	Email      string
 	Password   string
-	CpfCnpj    string
+	Cnpj       string
 	UserTypeId uint
 	AddressId  uint
 }
@@ -51,14 +51,14 @@ func (e *userRepository) Create(params UserCreateParams) (*models.User, *merr.Re
 		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrUserEmailAlreadyExists)
 	}
 
-	result, err = e.FindByCpfCnpj(params.CpfCnpj)
+	result, err = e.FindByCnpj(params.Cnpj)
 
 	if err != nil && err.StatusCode != http.StatusNotFound {
 		return nil, err
 	}
 
 	if result != nil {
-		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrUserCpfCnpjAlreadyExists)
+		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrUserCnpjAlreadyExists)
 	}
 
 	user := &models.User{
@@ -66,7 +66,7 @@ func (e *userRepository) Create(params UserCreateParams) (*models.User, *merr.Re
 		Name:       params.Name,
 		Email:      params.Email,
 		Password:   params.Password,
-		CpfCnpj:    params.CpfCnpj,
+		Cnpj:       params.Cnpj,
 		UserTypeId: params.UserTypeId,
 		AddressId:  params.AddressId,
 	}
@@ -83,7 +83,7 @@ type UserCreateWithAddressAndTypeParams struct {
 	Name     string
 	Email    string
 	Password string
-	CpfCnpj  string
+	Cnpj     string
 	UserType string
 	Address  AddressCreateParams
 }
@@ -114,7 +114,7 @@ func (e *userRepository) CreateWithAddressAndType(params UserCreateWithAddressAn
 			Name:       params.Name,
 			Email:      params.Email,
 			Password:   params.Password,
-			CpfCnpj:    params.CpfCnpj,
+			Cnpj:       params.Cnpj,
 			UserTypeId: userType.ID,
 			AddressId:  address.ID,
 		}
@@ -172,9 +172,9 @@ func (e *userRepository) FindById(id uint) (*models.User, *merr.ResponseError) {
 	return &user, nil
 }
 
-func (e *userRepository) FindByCpfCnpj(cpfCnpj string) (*models.User, *merr.ResponseError) {
+func (e *userRepository) FindByCnpj(cnpj string) (*models.User, *merr.ResponseError) {
 	var user models.User
-	err := e.db.Where("cpf_cnpj = ?", cpfCnpj).First(&user).Error
+	err := e.db.Where("cnpj = ?", cnpj).First(&user).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, merr.NewResponseError(http.StatusNotFound, ErrNotFound)
