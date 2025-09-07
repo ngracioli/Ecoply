@@ -14,6 +14,18 @@ type Config struct {
 
 	ServerHost string `env:"SERVER_HOST" envDefault:"localhost"`
 	ServerPort uint16 `env:"SERVER_PORT" envDefault:"8080"`
+
+	DBConnection string `env:"DB_CONNECTION" envDefault:"postgres"`
+	DBHost       string `env:"DB_HOST" envDefault:"localhost"`
+	DBPort       uint16 `env:"DB_PORT" envDefault:"5432"`
+	DBDatabase   string `env:"DB_DATABASE" envDefault:"ecoply"`
+	DBUsername   string `env:"DB_USERNAME" envDefault:"root"`
+	DBPassword   string `env:"DB_PASSWORD" envDefault:"root"`
+	DBTimezone   string `env:"DB_TIMEZONE" envDefault:"UTC"`
+
+	MigrationsPath string `env:"MIGRATIONS_PATH" envDefault:"internal/database/migrations"`
+
+	JWTSigningKey string `env:"JWT_SIGNING_KEY" envDefault:"your-secret-key"`
 }
 
 var (
