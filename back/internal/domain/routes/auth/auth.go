@@ -53,7 +53,7 @@ func SignUp(request *SignUpRequest) (*LoginResource, *merr.ResponseError) {
 		Name:     request.Name,
 		Email:    request.Email,
 		Password: request.Password,
-		CpfCnpj:  request.CpfCnpj,
+		Cnpj:     request.Cnpj,
 		UserType: request.UserType,
 		Address: repository.AddressCreateParams{
 			Cep:     request.Address.Cep,
@@ -112,7 +112,7 @@ func Availability(request *AvailabilityRequest) (bool, *merr.ResponseError) {
 	case "email":
 		return IsEmailAvailable(request.Value)
 	case "cpf", "cnpj":
-		return IsCpfCnpjAvailable(request.Value)
+		return IsCnpjAvailable(request.Value)
 	default:
 		return false, merr.NewResponseError(http.StatusBadRequest, ErrInvalidAvailabilityType)
 	}
@@ -135,9 +135,9 @@ func IsEmailAvailable(email string) (bool, *merr.ResponseError) {
 	return true, nil
 }
 
-func IsCpfCnpjAvailable(cpfCnpj string) (bool, *merr.ResponseError) {
+func IsCnpjAvailable(cnpj string) (bool, *merr.ResponseError) {
 	var userRepo repository.UserRepository = repository.NewUserRepository(database.Con)
-	user, err := userRepo.FindByCpfCnpj(cpfCnpj)
+	user, err := userRepo.FindByCnpj(cnpj)
 	if err != nil {
 		if err.StatusCode == http.StatusNotFound {
 			return true, nil
