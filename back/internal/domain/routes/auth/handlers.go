@@ -57,7 +57,7 @@ func MeHandler(c *gin.Context) {
 func IsEmailAvailableHandler(c *gin.Context) {
 	var payload IsEmailAvailableRequest
 
-	if err := c.ShouldBindBodyWithJSON(&payload); err != nil {
+	if err := c.ShouldBindQuery(&payload); err != nil {
 		var response *merr.ResponseError = merr.BindValidationErrorsToResponse(err)
 		c.JSON(response.StatusCode, response)
 		return
@@ -80,7 +80,7 @@ func IsEmailAvailableHandler(c *gin.Context) {
 func IsCpfCnpjAvailableHandler(c *gin.Context) {
 	var payload IsCpfCnpjAvailableRequest
 
-	if err := c.ShouldBindBodyWithJSON(&payload); err != nil {
+	if err := c.ShouldBindQuery(&payload); err != nil {
 		var response *merr.ResponseError = merr.BindValidationErrorsToResponse(err)
 		c.JSON(response.StatusCode, response)
 		return

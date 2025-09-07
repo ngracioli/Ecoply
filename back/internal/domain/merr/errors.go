@@ -24,7 +24,7 @@ func NewResponseError(status int, err error) *ResponseError {
 	}
 }
 
-func NewReponseErrorInfo(status int, err error, info map[string]any) *ResponseError {
+func NewResponseErrorInfo(status int, err error, info map[string]any) *ResponseError {
 	return &ResponseError{
 		StatusCode: status,
 		Message:    err.Error(),

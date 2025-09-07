@@ -52,10 +52,9 @@ func LogGinRoutes(engine *gin.Engine) {
 func ensureLogDirExists() {
 	_, err := os.Stat("log")
 	if err != nil {
-		switch true {
-		case os.IsNotExist(err):
+		if os.IsNotExist(err) {
 			os.Mkdir("log", 0766)
-		case false:
+		} else {
 			fmt.Printf("Failed to check log dir stat: %v\n", err)
 		}
 	}

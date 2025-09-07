@@ -23,9 +23,9 @@ type AddressRequest struct {
 }
 
 type IsEmailAvailableRequest struct {
-	Email string `form:"email" json:"email" binding:"required,email"`
+	Email string `form:"email" binding:"required,email"`
 }
 
 type IsCpfCnpjAvailableRequest struct {
-	CpfCnpj string `form:"cpf_cnpj" json:"cpf_cnpj" binding:"required,min=11,max=14,numeric"`
+	CpfCnpj string `form:"cpf_cnpj" binding:"required,min=11,max=14,numeric"`
 }

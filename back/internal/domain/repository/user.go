@@ -93,23 +93,23 @@ func (e *userRepository) CreateWithAddressAndType(params UserCreateWithAddressAn
 	var responseError *merr.ResponseError
 
 	err := e.db.Transaction(func(tx *gorm.DB) error {
-		var addressExec AddressRepository = NewAddressRepository(tx)
-		address, addressErr := addressExec.Create(params.Address)
+		var addressRepo AddressRepository = NewAddressRepository(tx)
+		address, addressErr := addressRepo.Create(params.Address)
 
 		if addressErr != nil {
 			responseError = addressErr
 			return addressErr.Error
 		}
 
-		var userTypeExec UserTypeRepository = NewUserTypeRepository(tx)
-		userType, userTypeErr := userTypeExec.FindByName(params.UserType)
+		var userTypeRepo UserTypeRepository = NewUserTypeRepository(tx)
+		userType, userTypeErr := userTypeRepo.FindByName(params.UserType)
 
 		if userTypeErr != nil {
 			responseError = userTypeErr
 			return userTypeErr.Error
 		}
 
-		var userExec UserRepository = NewUserRepository(tx)
+		var userRepo UserRepository = NewUserRepository(tx)
 		var userCreateParams = UserCreateParams{
 			Name:       params.Name,
 			Email:      params.Email,
@@ -119,7 +119,7 @@ func (e *userRepository) CreateWithAddressAndType(params UserCreateWithAddressAn
 			AddressId:  address.ID,
 		}
 
-		createdUser, userErr := userExec.Create(userCreateParams)
+		createdUser, userErr := userRepo.Create(userCreateParams)
 		if userErr != nil {
 			responseError = userErr
 			return userErr.Error

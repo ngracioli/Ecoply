@@ -10,7 +10,7 @@ import (
 
 var (
 	ErrInvalidSigningMethod = errors.New("invalid signing method")
-	ErrIvalidToken          = errors.New("invalid token")
+	ErrInvalidToken         = errors.New("invalid token")
 )
 
 type Claims struct {
@@ -76,5 +76,5 @@ func (j *JwtService) ValidateToken(tokenString string) (*Claims, error) {
 		return claims, nil
 	}
 
-	return nil, ErrIvalidToken
+	return nil, ErrInvalidToken
 }
