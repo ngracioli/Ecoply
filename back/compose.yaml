@@ -54,8 +54,8 @@ services:
     container_name: go
     env_file:
       - .env
-
     volumes:
+      - .:/app
       - go-mod-cache:/go/pkg/mod
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"

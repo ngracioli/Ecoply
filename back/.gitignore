@@ -5,4 +5,4 @@ bin/
 .env
 
 # Golang dlv debug binary
-__debug_bin*
+**/__debug_bin*
