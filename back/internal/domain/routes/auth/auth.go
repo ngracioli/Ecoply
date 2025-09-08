@@ -163,3 +163,13 @@ func IsCnpjAvailable(cnpj string) (bool, *merr.ResponseError) {
 
 	return true, nil
 }
+
+func RefreshToken(oldToken string) (string, *merr.ResponseError) {
+	jwtService := services.NewJwtService()
+	newToken, err := jwtService.RefreshToken(oldToken)
+	if err != nil {
+		mlog.Log("Failed to refresh JWT token: " + err.Error())
+		return "", merr.NewResponseError(http.StatusInternalServerError, ErrFailedToGenerateToken)
+	}
+	return newToken, nil
+}

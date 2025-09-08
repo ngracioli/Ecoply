@@ -26,6 +26,7 @@ func registerRoutes(router *gin.Engine) {
 			auth.POST("login", authHandlers.LoginHandler)
 			auth.POST("signup", authHandlers.SignUpHandler)
 			auth.GET("me", middlewares.JwtAuthMiddleware(), authHandlers.MeHandler)
+			auth.POST("refresh-token", middlewares.JwtAuthMiddleware(), authHandlers.RefreshTokenHandler)
 
 			available := auth.Group("available")
 			{

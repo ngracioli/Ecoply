@@ -76,3 +76,14 @@ func AvailabilityHandler(c *gin.Context) {
 
 	c.AbortWithStatus(http.StatusNoContent)
 }
+
+func RefreshTokenHandler(c *gin.Context) {
+	token := c.GetString("token")
+	response, err := RefreshToken(token)
+	if err != nil {
+		c.JSON(err.StatusCode, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": gin.H{"token": response}})
+}

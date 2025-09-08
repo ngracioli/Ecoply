@@ -78,3 +78,21 @@ func (j *JwtService) ValidateToken(tokenString string) (*Claims, error) {
 
 	return nil, ErrInvalidToken
 }
+
+func (j *JwtService) RefreshToken(oldToken string) (string, error) {
+	claims, err := j.ValidateToken(oldToken)
+	if err != nil {
+		return "", err
+	}
+
+	if time.Until(claims.ExpiresAt.Time) > 5*time.Minute {
+		return oldToken, nil
+	}
+
+	newToken, err := j.GenerateToken(claims.UserUuid, claims.UserEmail, claims.UserType)
+	if err != nil {
+		return "", err
+	}
+
+	return newToken, nil
+}
