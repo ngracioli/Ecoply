@@ -4,6 +4,7 @@ import (
 	"ecoply/internal/domain/merr"
 	"ecoply/internal/domain/models"
 	"ecoply/internal/mlog"
+	"errors"
 	"net/http"
 
 	"gorm.io/gorm"
@@ -23,21 +24,68 @@ func NewAddressRepository(db *gorm.DB) AddressRepository {
 }
 
 type AddressCreateParams struct {
-	Cep     string
-	State   string
-	City    string
-	Country string
+	Cep           string
+	Complement    string
+	Street        string
+	Number        string
+	Neighborhood  string
+	City          string
+	State         string
+	StateInitials string
 }
 
 func (a *addressRepository) Create(params AddressCreateParams) (*models.Address, *merr.ResponseError) {
-	address := &models.Address{
-		Cep:     params.Cep,
-		State:   params.State,
-		City:    params.City,
-		Country: params.Country,
-	}
+	var state models.AddressState
+	var city models.AddressCity
+	var neighborhood models.AddressNeighborhood
+	var street models.AddressStreet
+	var address *models.Address
 
-	if err := a.db.Create(address).Error; err != nil {
+	err := a.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.FirstOrCreate(&state, models.AddressState{
+			State: params.State,
+		}).Error; err != nil {
+			return err
+		}
+
+		if err := tx.FirstOrCreate(&city, models.AddressCity{
+			City:    params.City,
+			StateId: state.ID,
+		}).Error; err != nil {
+			return err
+		}
+
+		if err := tx.FirstOrCreate(&neighborhood, models.AddressNeighborhood{
+			Neighborhood: params.Neighborhood,
+			CityId:       city.ID,
+		}).Error; err != nil {
+			return err
+		}
+
+		if err := tx.FirstOrCreate(&street, models.AddressStreet{
+			Street:         params.Street,
+			NeighborhoodId: neighborhood.ID,
+		}).Error; err != nil {
+			return err
+		}
+
+		createdAddress := &models.Address{
+			Cep:        params.Cep,
+			Complement: params.Complement,
+			Number:     params.Number,
+			StreetId:   street.ID,
+		}
+
+		if err := tx.Create(createdAddress).Error; err != nil {
+			return err
+		}
+
+		address = createdAddress
+
+		return nil
+	})
+
+	if err != nil {
 		mlog.Log("Failed to create address: " + err.Error())
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
@@ -49,7 +97,7 @@ func (a *addressRepository) FindById(id uint) (*models.Address, *merr.ResponseEr
 	var address models.Address
 	err := a.db.First(&address, id).Error
 
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, merr.NewResponseError(http.StatusNotFound, ErrNotFound)
 	}
 

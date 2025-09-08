@@ -12,20 +12,21 @@ import (
 
 func Login(request *LoginRequest) (*LoginResource, *merr.ResponseError) {
 	var user *models.User
+	var err *merr.ResponseError
 	var userRepo repository.UserRepository = repository.NewUserRepository(database.Con)
 
-	user, err := userRepo.FindUserByCredentials(request.Email, request.Password)
+	user, err = userRepo.FindUserByCredentials(request.Email, request.Password)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := userRepo.PreloadUserType(user); err != nil {
+	if err = userRepo.PreloadUserType(user); err != nil {
 		return nil, err
 	}
 
-	token, tokenErr := generateJwtToken(user)
-	if tokenErr != nil {
-		return nil, tokenErr
+	token, err := generateJwtToken(user)
+	if err != nil {
+		return nil, err
 	}
 
 	response := &LoginResource{
@@ -47,6 +48,13 @@ func generateJwtToken(user *models.User) (string, *merr.ResponseError) {
 }
 
 func SignUp(request *SignUpRequest) (*LoginResource, *merr.ResponseError) {
+	var addressData *services.AddressData
+	var err *merr.ResponseError
+
+	if addressData, err = services.LoadAddressByCep(request.Address.Cep); err != nil {
+		return nil, err
+	}
+
 	var userRepo repository.UserRepository = repository.NewUserRepository(database.Con)
 
 	user, err := userRepo.CreateWithAddressAndType(repository.UserCreateWithAddressAndTypeParams{
@@ -56,10 +64,14 @@ func SignUp(request *SignUpRequest) (*LoginResource, *merr.ResponseError) {
 		Cnpj:     request.Cnpj,
 		UserType: request.UserType,
 		Address: repository.AddressCreateParams{
-			Cep:     request.Address.Cep,
-			State:   request.Address.State,
-			City:    request.Address.City,
-			Country: request.Address.Country,
+			Cep:           request.Address.Cep,
+			Number:        request.Address.Number,
+			Complement:    request.Address.Complement,
+			State:         addressData.State,
+			City:          addressData.City,
+			Neighborhood:  addressData.Neighborhood,
+			Street:        addressData.Street,
+			StateInitials: addressData.StateInitials,
 		},
 	})
 
@@ -71,9 +83,9 @@ func SignUp(request *SignUpRequest) (*LoginResource, *merr.ResponseError) {
 		return nil, err
 	}
 
-	token, tokenErr := generateJwtToken(user)
-	if tokenErr != nil {
-		return nil, tokenErr
+	token, err := generateJwtToken(user)
+	if err != nil {
+		return nil, err
 	}
 
 	response := &LoginResource{
@@ -150,4 +162,14 @@ func IsCnpjAvailable(cnpj string) (bool, *merr.ResponseError) {
 	}
 
 	return true, nil
+}
+
+func RefreshToken(oldToken string) (string, *merr.ResponseError) {
+	jwtService := services.NewJwtService()
+	newToken, err := jwtService.RefreshToken(oldToken)
+	if err != nil {
+		mlog.Log("Failed to refresh JWT token: " + err.Error())
+		return "", merr.NewResponseError(http.StatusInternalServerError, ErrFailedToGenerateToken)
+	}
+	return newToken, nil
 }

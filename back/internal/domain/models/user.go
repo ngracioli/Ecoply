@@ -5,6 +5,8 @@ import (
 )
 
 type User struct {
+	gorm.Model
+
 	Uuid       string `gorm:"type:uuid;uniqueIndex;not null"`
 	Name       string `gorm:"type:varchar(255);not null"`
 	Email      string `gorm:"type:text;not null;unique"`
@@ -14,6 +16,4 @@ type User struct {
 	UserType   UserType
 	AddressId  uint `gorm:"references:ID;not null"`
 	Address    Address
-
-	gorm.Model
 }

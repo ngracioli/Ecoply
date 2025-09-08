@@ -2,7 +2,8 @@ package server
 
 import (
 	"ecoply/internal/domain/middlewares"
-	domainAuth "ecoply/internal/domain/routes/auth"
+	addressHandlers "ecoply/internal/domain/routes/address"
+	authHandlers "ecoply/internal/domain/routes/auth"
 	"net/http"
 	"strings"
 
@@ -22,14 +23,20 @@ func registerRoutes(router *gin.Engine) {
 	{
 		auth := v1.Group("auth")
 		{
-			auth.POST("login", domainAuth.LoginHandler)
-			auth.POST("signup", domainAuth.SignUpHandler)
-			auth.GET("me", middlewares.JwtAuthMiddleware(), domainAuth.MeHandler)
+			auth.POST("login", authHandlers.LoginHandler)
+			auth.POST("signup", authHandlers.SignUpHandler)
+			auth.GET("me", middlewares.JwtAuthMiddleware(), authHandlers.MeHandler)
+			auth.POST("refresh-token", middlewares.JwtAuthMiddleware(), authHandlers.RefreshTokenHandler)
 
 			available := auth.Group("available")
 			{
-				available.GET("", domainAuth.AvailabilityHandler)
+				available.GET("", authHandlers.AvailabilityHandler)
 			}
+		}
+
+		address := v1.Group("address")
+		{
+			address.GET(":cep", addressHandlers.GetAddressByCepHandler)
 		}
 	}
 }

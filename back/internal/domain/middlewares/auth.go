@@ -42,6 +42,7 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		c.Set("user_uuid", claims.UserUuid)
 		c.Set("user_email", claims.UserEmail)
 		c.Set("user_type", claims.UserType)
+		c.Set("token", tokenString)
 		c.Set("claims", claims)
 
 		if err := ensureClaimsExists(c); err != nil {

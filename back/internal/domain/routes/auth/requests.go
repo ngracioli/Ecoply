@@ -16,10 +16,9 @@ type SignUpRequest struct {
 }
 
 type AddressRequest struct {
-	Cep     string `json:"cep" binding:"required,len=8,numeric"`
-	State   string `json:"state" binding:"required,min=2,max=50"`
-	City    string `json:"city" binding:"required,min=2,max=100"`
-	Country string `json:"country" binding:"required,min=2,max=50"`
+	Cep        string `json:"cep" binding:"required,len=8,numeric"`
+	Number     string `json:"number" binding:"required,min=1,max=20"`
+	Complement string `json:"complement" binding:"max=50"`
 }
 
 type AvailabilityRequest struct {

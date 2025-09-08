@@ -4,6 +4,7 @@ import (
 	"ecoply/internal/config"
 	"ecoply/internal/database"
 	"ecoply/internal/domain/validation"
+	"ecoply/internal/mlog"
 	"ecoply/internal/server"
 	"log"
 	"os"
@@ -17,6 +18,9 @@ func main() {
 	validation.RegisterCustomValidators()
 
 	database.New()
+
+	mlog.CreateServerLogger()
+	defer mlog.CloseLogFiles()
 
 	server.NewAndRun()
 }
