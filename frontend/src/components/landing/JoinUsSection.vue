@@ -8,7 +8,7 @@ import IconCircle from "../shared/IconCircle.vue";
       <div class="flex w-full max-w-2/3 flex-col items-center justify-center">
         <IconCircle
           :icon="'pi-user'"
-          class="mb-4 transition-transform duration-300 group-hover:scale-110"
+          class="mb-4 transition-all duration-400 ease-out hover:scale-110 hover:rotate-6"
         />
         <h1 class="mb-8 text-center text-6xl font-extrabold text-neutral-900">
           Participe do futuro da energia descentralizada
@@ -19,10 +19,12 @@ import IconCircle from "../shared/IconCircle.vue";
           local.
         </h2>
         <button
-          class="bg-primary-color mb-16 flex flex-row items-center gap-4 rounded-2xl px-8 py-4 text-xl text-white transition-colors duration-300 hover:bg-neutral-600"
+          class="bg-primary-color group hover:bg-primary-dark-color mb-16 flex cursor-pointer flex-row items-center gap-4 rounded-2xl px-8 py-4 text-xl text-white transition-all duration-400 ease-out hover:-translate-y-1 hover:scale-105 hover:shadow-xl"
         >
           Testar Agora
-          <i class="pi pi-arrow-right text-sm"></i>
+          <i
+            class="pi pi-arrow-right text-sm transition-transform duration-300 group-hover:translate-x-1"
+          ></i>
         </button>
         <article>
           <ul
