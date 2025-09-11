@@ -3,7 +3,7 @@ import OfferCard from "../shared/OfferCard.vue";
 </script>
 
 <template>
-  <main class="bg-primary-gradient py-24" id="offer-demonstration">
+  <main class="bg-primary-gradient mb-10 py-24" id="offer-demonstration">
     <section class="mb-12 flex flex-col items-center justify-center">
       <h1 class="mb-6 text-6xl font-extrabold text-neutral-900">
         Marketplace de Energia
@@ -13,10 +13,43 @@ import OfferCard from "../shared/OfferCard.vue";
         comunidade
       </h2>
     </section>
-    <section class="flex flex-row justify-center gap-32">
-      <OfferCard />
-      <OfferCard />
-      <OfferCard />
+    <section class="flex flex-row items-center justify-center px-8">
+      <!-- Left Card - Smaller -->
+      <div
+        class="transform transition-all duration-500 hover:-translate-y-2 hover:scale-105"
+      >
+        <div class="scale-90 opacity-85 hover:opacity-100">
+          <OfferCard />
+        </div>
+      </div>
+
+      <!-- Middle Card - Featured (Larger) -->
+      <div
+        class="relative z-10 mx-8 transform transition-all duration-500 hover:-translate-y-3 hover:scale-105"
+      >
+        <div class="relative">
+          <!-- Glow effect behind the card -->
+          <div
+            class="bg-accent-color/10 absolute inset-0 scale-110 rounded-3xl blur-2xl"
+          ></div>
+
+          <!-- Enhanced card with scale and shadow -->
+          <div
+            class="shadow-accent-color/20 relative scale-110 rounded-2xl shadow-2xl"
+          >
+            <OfferCard />
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Card - Smaller -->
+      <div
+        class="transform transition-all duration-500 hover:-translate-y-2 hover:scale-105"
+      >
+        <div class="scale-90 opacity-85 hover:opacity-100">
+          <OfferCard />
+        </div>
+      </div>
     </section>
   </main>
 </template>

@@ -13,17 +13,30 @@ import BenefitsCard from "./benefits/BenefitsCard.vue";
         comunidade
       </h2>
     </section>
-    <section class="flex flex-row justify-evenly gap-32 py-12 text-4xl">
-      <BenefitsCard
-        icon="pi-user"
-        title="Produtores"
-        subtitle="Conecte-se com compradores locais e venda sua energia excedente de forma fácil e segura."
-      />
-      <BenefitsCard
-        icon="pi-user"
-        title="Compradores"
-        subtitle="Encontre ofertas de energia limpa e sustentável, com preços justos e transparência total."
-      />
+    <section class="container mx-auto px-6 py-12">
+      <div class="flex items-center justify-center gap-32">
+        <BenefitsCard
+          icon="pi-user"
+          title="Produtores"
+          subtitle="Conecte-se com compradores locais e venda sua energia excedente de forma fácil e segura."
+        />
+
+        <div class="flex items-center gap-4">
+          <div
+            class="via-primary-color h-px w-12 bg-gradient-to-r from-transparent to-transparent"
+          ></div>
+          <div class="bg-primary-color h-3 w-3 rounded-full"></div>
+          <div
+            class="via-primary-color h-px w-12 bg-gradient-to-r from-transparent to-transparent"
+          ></div>
+        </div>
+
+        <BenefitsCard
+          icon="pi-user"
+          title="Compradores"
+          subtitle="Encontre ofertas de energia limpa e sustentável, com preços justos e transparência total."
+        />
+      </div>
     </section>
   </main>
 </template>

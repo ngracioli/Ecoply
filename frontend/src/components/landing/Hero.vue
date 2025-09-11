@@ -21,13 +21,15 @@
     </h2>
     <section class="flex flex-row gap-8 text-2xl font-semibold">
       <button
-        class="hover:bg-accent-color bg-secondary-color flex cursor-pointer items-center gap-4 rounded-2xl px-8 py-4 text-lime-900 transition-all duration-300 hover:scale-105"
+        class="hero-btn-primary group hover:bg-accent-color bg-secondary-color text-primary-color flex cursor-pointer items-center gap-4 rounded-xl px-8 py-4 transition-all duration-400 ease-out hover:-translate-y-1 hover:scale-105 hover:text-white hover:shadow-xl"
       >
         Explorar as Ofertas
-        <i class="pi pi-arrow-right text-lime-900"></i>
+        <i
+          class="pi pi-arrow-right text-primary-color transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white"
+        ></i>
       </button>
       <button
-        class="hover:bg-secondary-color cursor-pointer rounded-2xl border-2 border-lime-200 bg-transparent px-4 py-2 text-lime-200 transition-all duration-300 hover:scale-105 hover:border-transparent hover:text-white"
+        class="hero-btn-secondary group hover:bg-accent-color cursor-pointer rounded-xl border-2 border-lime-200 bg-transparent px-4 py-2 text-lime-200 transition-all duration-400 ease-out hover:-translate-y-1 hover:scale-105 hover:border-transparent hover:text-white hover:shadow-xl"
       >
         Saiba Mais
       </button>

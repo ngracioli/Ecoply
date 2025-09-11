@@ -12,9 +12,9 @@ defineProps<BenefitsCardProps>();
 
 <template>
   <article
-    class="group flex w-full max-w-sm flex-col items-start rounded-2xl px-4 py-8 ring-1 ring-neutral-200/50 transition-shadow duration-300 hover:shadow-2xl"
+    class="group hover:ring-primary-color/20 flex w-full max-w-md flex-col items-start rounded-2xl px-6 py-10 ring-1 ring-neutral-200/50 transition-all duration-500 ease-out hover:-translate-y-2 hover:scale-102 hover:shadow-2xl"
   >
-    <IconSquared :icon="icon" class="mb-4" />
+    <IconSquared :icon="icon" class="mb-4 text-3xl" />
     <h1 class="text-center text-2xl font-bold text-neutral-900">
       {{ title }}
     </h1>
