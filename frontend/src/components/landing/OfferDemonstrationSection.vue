@@ -14,7 +14,6 @@ import OfferCard from "../shared/OfferCard.vue";
       </h2>
     </section>
     <section class="flex flex-row items-center justify-center px-8">
-      <!-- Left Card - Smaller -->
       <div
         class="transform transition-all duration-500 hover:-translate-y-2 hover:scale-105"
       >
@@ -23,17 +22,14 @@ import OfferCard from "../shared/OfferCard.vue";
         </div>
       </div>
 
-      <!-- Middle Card - Featured (Larger) -->
       <div
         class="relative z-10 mx-8 transform transition-all duration-500 hover:-translate-y-3 hover:scale-105"
       >
         <div class="relative">
-          <!-- Glow effect behind the card -->
           <div
             class="bg-accent-color/10 absolute inset-0 scale-110 rounded-3xl blur-2xl"
           ></div>
 
-          <!-- Enhanced card with scale and shadow -->
           <div
             class="shadow-accent-color/20 relative scale-110 rounded-2xl shadow-2xl"
           >
@@ -42,7 +38,6 @@ import OfferCard from "../shared/OfferCard.vue";
         </div>
       </div>
 
-      <!-- Right Card - Smaller -->
       <div
         class="transform transition-all duration-500 hover:-translate-y-2 hover:scale-105"
       >
