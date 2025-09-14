@@ -10,8 +10,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const htmlPath = "web/static"
+
 func registerRoutes(router *gin.Engine) {
-	router.LoadHTMLGlob("view/index.html")
+	router.LoadHTMLGlob(htmlPath + "/index.html")
 
 	router.Use(middlewares.Cors("*"))
 
