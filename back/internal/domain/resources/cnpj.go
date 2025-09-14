@@ -1,7 +1,7 @@
 package resources
 
-type CompanyResource struct {
-	TaxId   string         `json:"taxId"`
+type Company struct {
+	Cnpj    string         `json:"cnpj"`
 	Name    string         `json:"name"`
 	Address CompanyAddress `json:"address"`
 }
