@@ -1,16 +1,14 @@
 package repository
 
 import (
-	"ecoply/internal/domain/merr"
 	"ecoply/internal/domain/models"
 	"ecoply/internal/mlog"
-	"net/http"
 
 	"gorm.io/gorm"
 )
 
 type SubmarketRepository interface {
-	FindByName(name string) (*models.Submarket, *merr.ResponseError)
+	FindByName(name string) (*models.Submarket, error)
 }
 
 type submarketRepository struct {
@@ -21,15 +19,14 @@ func NewSubmarketRepository(db *gorm.DB) SubmarketRepository {
 	return &submarketRepository{db: db}
 }
 
-func (r *submarketRepository) FindByName(name string) (*models.Submarket, *merr.ResponseError) {
+func (r *submarketRepository) FindByName(name string) (*models.Submarket, error) {
 	var submarket models.Submarket
 
 	if err := r.db.Where("name = ?", name).First(&submarket).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, merr.NewResponseError(http.StatusNotFound, ErrNotFound)
+		if err != gorm.ErrRecordNotFound {
+			mlog.Log("Failed to find submarket by name: " + err.Error())
 		}
-		mlog.Log("Failed to find submarket by name: " + err.Error())
-		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+		return nil, err
 	}
 
 	return &submarket, nil

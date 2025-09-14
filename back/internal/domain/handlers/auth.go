@@ -1,14 +1,26 @@
-package auth
+package handlers
 
 import (
+	"ecoply/internal/database"
 	"ecoply/internal/domain/merr"
+	"ecoply/internal/domain/requests"
+	"ecoply/internal/domain/services"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
+var authService services.AuthService
+
+func GetAuthService() services.AuthService {
+	if authService == nil {
+		authService = services.NewAuthService(database.Con)
+	}
+	return authService
+}
+
 func LoginHandler(c *gin.Context) {
-	var payload LoginRequest
+	var payload requests.Login
 
 	if err := c.ShouldBindBodyWithJSON(&payload); err != nil {
 		var response *merr.ResponseError = merr.BindValidationErrorsToResponse(err)
@@ -16,7 +28,7 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
-	response, err := Login(&payload)
+	response, err := GetAuthService().Login(&payload)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -26,7 +38,7 @@ func LoginHandler(c *gin.Context) {
 }
 
 func SignUpHandler(c *gin.Context) {
-	var payload SignUpRequest
+	var payload requests.SignUp
 
 	if err := c.ShouldBindBodyWithJSON(&payload); err != nil {
 		var response *merr.ResponseError = merr.BindValidationErrorsToResponse(err)
@@ -34,7 +46,7 @@ func SignUpHandler(c *gin.Context) {
 		return
 	}
 
-	response, err := SignUp(&payload)
+	response, err := GetAuthService().SignUp(&payload)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -45,7 +57,7 @@ func SignUpHandler(c *gin.Context) {
 
 func MeHandler(c *gin.Context) {
 	userUuid, _ := c.Get("user_uuid")
-	response, err := Me(userUuid.(string))
+	response, err := GetAuthService().Me(userUuid.(string))
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -55,7 +67,7 @@ func MeHandler(c *gin.Context) {
 }
 
 func AvailabilityHandler(c *gin.Context) {
-	var payload AvailabilityRequest
+	var payload requests.Availability
 
 	if err := c.ShouldBindQuery(&payload); err != nil {
 		var response *merr.ResponseError = merr.BindValidationErrorsToResponse(err)
@@ -63,7 +75,7 @@ func AvailabilityHandler(c *gin.Context) {
 		return
 	}
 
-	response, err := Availability(&payload)
+	response, err := GetAuthService().Availability(&payload)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -79,7 +91,7 @@ func AvailabilityHandler(c *gin.Context) {
 
 func RefreshTokenHandler(c *gin.Context) {
 	token := c.GetString("token")
-	response, err := RefreshToken(token)
+	response, err := GetAuthService().RefreshToken(token)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return

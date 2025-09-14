@@ -1,20 +1,18 @@
 package repository
 
 import (
-	"ecoply/internal/domain/merr"
 	"ecoply/internal/domain/models"
 	"ecoply/internal/mlog"
 	"errors"
-	"net/http"
 
 	"gorm.io/gorm"
 )
 
 type AgentRepository interface {
-	Create(params AgentCreateParams) (*models.Agent, *merr.ResponseError)
-	FindById(id uint) (*models.Agent, *merr.ResponseError)
-	FindByCnpj(cnpj string) (*models.Agent, *merr.ResponseError)
-	FindByCceeCode(cceeCode string) (*models.Agent, *merr.ResponseError)
+	Create(params AgentCreateParams) (*models.Agent, error)
+	FindById(id uint) (*models.Agent, error)
+	FindByCnpj(cnpj string) (*models.Agent, error)
+	FindByCceeCode(cceeCode string) (*models.Agent, error)
 }
 
 type agentRepository struct {
@@ -33,25 +31,7 @@ type AgentCreateParams struct {
 	Address     *models.Address
 }
 
-func (a *agentRepository) Create(params AgentCreateParams) (*models.Agent, *merr.ResponseError) {
-	existing, err := a.FindByCnpj(params.Cnpj)
-	if err != nil && err.StatusCode != http.StatusNotFound {
-		return nil, err
-	}
-
-	if existing != nil {
-		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrAgentCnpjAlreadyExists)
-	}
-
-	existing, err = a.FindByCceeCode(params.CceeCode)
-	if err != nil && err.StatusCode != http.StatusNotFound {
-		return nil, err
-	}
-
-	if existing != nil {
-		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrAgentCceeCodeAlreadyExists)
-	}
-
+func (a *agentRepository) Create(params AgentCreateParams) (*models.Agent, error) {
 	agent := &models.Agent{
 		Cnpj:        params.Cnpj,
 		CompanyName: params.CompanyName,
@@ -62,55 +42,49 @@ func (a *agentRepository) Create(params AgentCreateParams) (*models.Agent, *merr
 
 	if err := a.db.Create(agent).Error; err != nil {
 		mlog.Log("Failed to create agent: " + err.Error())
-		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+		return nil, err
 	}
 
 	return agent, nil
 }
 
-func (a *agentRepository) FindById(id uint) (*models.Agent, *merr.ResponseError) {
+func (a *agentRepository) FindById(id uint) (*models.Agent, error) {
 	var agent models.Agent
 	err := a.db.First(&agent, id).Error
 
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, merr.NewResponseError(http.StatusNotFound, ErrNotFound)
-	}
-
 	if err != nil {
-		mlog.Log("Failed to find agent by ID: " + err.Error())
-		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			mlog.Log("Failed to find agent by ID: " + err.Error())
+		}
+		return nil, err
 	}
 
 	return &agent, nil
 }
 
-func (a *agentRepository) FindByCnpj(cnpj string) (*models.Agent, *merr.ResponseError) {
+func (a *agentRepository) FindByCnpj(cnpj string) (*models.Agent, error) {
 	var agent models.Agent
 	err := a.db.Where("cnpj = ?", cnpj).First(&agent).Error
 
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, merr.NewResponseError(http.StatusNotFound, ErrNotFound)
-	}
-
 	if err != nil {
-		mlog.Log("Failed to find agent by CNPJ: " + err.Error())
-		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			mlog.Log("Failed to find agent by CNPJ: " + err.Error())
+		}
+		return nil, err
 	}
 
 	return &agent, nil
 }
 
-func (a *agentRepository) FindByCceeCode(cceeCode string) (*models.Agent, *merr.ResponseError) {
+func (a *agentRepository) FindByCceeCode(cceeCode string) (*models.Agent, error) {
 	var agent models.Agent
 	err := a.db.Where("ccee_code = ?", cceeCode).First(&agent).Error
 
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, merr.NewResponseError(http.StatusNotFound, ErrNotFound)
-	}
-
 	if err != nil {
-		mlog.Log("Failed to find agent by CCEE Code: " + err.Error())
-		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			mlog.Log("Failed to find agent by CCEE Code: " + err.Error())
+		}
+		return nil, err
 	}
 
 	return &agent, nil

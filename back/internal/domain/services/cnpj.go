@@ -2,6 +2,7 @@ package services
 
 import (
 	"ecoply/internal/domain/merr"
+	"ecoply/internal/domain/resources"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -34,7 +35,7 @@ type CnpjAddress struct {
 	Details  string `json:"details"`
 }
 
-func LoadCnpjData(cnpj string) (*CnpjData, *merr.ResponseError) {
+func LoadCnpjData(cnpj string) (*resources.CompanyResource, *merr.ResponseError) {
 	resp, err := http.Get("https://open.cnpja.com/office/" + cnpj)
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrFailedToFetchCnpj)
@@ -54,5 +55,19 @@ func LoadCnpjData(cnpj string) (*CnpjData, *merr.ResponseError) {
 		return nil, merr.NewResponseError(http.StatusNotFound, ErrCnpjNotFound)
 	}
 
-	return &cnpjData, nil
+	response := resources.CompanyResource{
+		TaxId: cnpjData.TaxId,
+		Name:  cnpjData.Company.Name,
+		Address: resources.CompanyAddress{
+			Cep:          cnpjData.Address.Zip,
+			Street:       cnpjData.Address.Street,
+			Number:       cnpjData.Address.Number,
+			Neighborhood: cnpjData.Address.District,
+			City:         cnpjData.Address.City,
+			State:        cnpjData.Address.State,
+			Complement:   cnpjData.Address.Details,
+		},
+	}
+
+	return &response, nil
 }
