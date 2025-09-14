@@ -7,16 +7,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetAddressByCepHandler(c *gin.Context) {
-	cep := c.Param("cep")
+func CompanyByCnpj(c *gin.Context) {
+	cnpj := c.Param("cnpj")
 
-	addressData, err := services.LoadAddressByCep(cep)
+	companyData, err := services.LoadCnpjData(cnpj)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
 	}
 
-	response := addressDataToResource(addressData)
+	response := companyDataToResource(companyData)
 
 	c.JSON(http.StatusOK, gin.H{"data": response})
 }
