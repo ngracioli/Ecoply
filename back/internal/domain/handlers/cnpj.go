@@ -1,4 +1,4 @@
-package address
+package handlers
 
 import (
 	"ecoply/internal/domain/services"
@@ -10,13 +10,11 @@ import (
 func CompanyByCnpj(c *gin.Context) {
 	cnpj := c.Param("cnpj")
 
-	companyData, err := services.LoadCnpjData(cnpj)
+	response, err := services.LoadCnpjData(cnpj)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
 	}
-
-	response := companyDataToResource(companyData)
 
 	c.JSON(http.StatusOK, gin.H{"data": response})
 }
