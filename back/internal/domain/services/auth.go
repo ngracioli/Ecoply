@@ -176,7 +176,8 @@ func (s *authService) createUser(request *requests.SignUp) (*models.User, *merr.
 	var user *models.User
 
 	s.db.Transaction(func(tx *gorm.DB) error {
-		addressModel, err := s.addressRepo.Create(repository.AddressCreateParams{
+		var addressRepo = repository.NewAddressRepository(tx)
+		addressModel, err := addressRepo.Create(repository.AddressCreateParams{
 			Cep:           request.Address.Cep,
 			Number:        request.Address.Number,
 			Complement:    request.Address.Complement,
@@ -191,7 +192,8 @@ func (s *authService) createUser(request *requests.SignUp) (*models.User, *merr.
 			return err
 		}
 
-		submarketModel, err := s.submarketRepo.FindByName(request.Agent.SubmarketName)
+		var submarketRepo = repository.NewSubmarketRepository(tx)
+		submarketModel, err := submarketRepo.FindByName(request.Agent.SubmarketName)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				responseError = merr.NewResponseError(http.StatusNotFound, ErrSubmarketNotFound)
@@ -201,7 +203,8 @@ func (s *authService) createUser(request *requests.SignUp) (*models.User, *merr.
 			return err
 		}
 
-		agentModel, err := s.agentRepo.Create(repository.AgentCreateParams{
+		var agentRepo = repository.NewAgentRepository(tx)
+		agentModel, err := agentRepo.Create(repository.AgentCreateParams{
 			Cnpj:        request.Agent.Cnpj,
 			CompanyName: request.Agent.CompanyName,
 			CceeCode:    request.Agent.CceeCode,
@@ -209,11 +212,12 @@ func (s *authService) createUser(request *requests.SignUp) (*models.User, *merr.
 			Address:     addressModel,
 		})
 		if err != nil {
-			responseError = merr.NewResponseError(http.StatusInternalServerError, err)
+			responseError = merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 			return err
 		}
 
-		userTypeModel, err := s.userTypeRepo.FindByName(request.UserType)
+		var userTypeRepo = repository.NewUserTypeRepository(tx)
+		userTypeModel, err := userTypeRepo.FindByName(request.UserType)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				responseError = merr.NewResponseError(http.StatusNotFound, ErrUserTypeNotFound)
@@ -223,7 +227,9 @@ func (s *authService) createUser(request *requests.SignUp) (*models.User, *merr.
 			return err
 		}
 
-		user, err = s.userRepo.Create(repository.UserCreateParams{
+		var userRepo = repository.NewUserRepository(tx)
+		user, err = userRepo.Create(repository.UserCreateParams{
+			Uuid:     NewUuidV7String(),
 			Name:     request.Name,
 			Email:    request.Email,
 			Password: request.Password,
@@ -231,7 +237,7 @@ func (s *authService) createUser(request *requests.SignUp) (*models.User, *merr.
 			Agent:    agentModel,
 		})
 		if err != nil {
-			responseError = merr.NewResponseError(http.StatusInternalServerError, err)
+			responseError = merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 			return err
 		}
 
