@@ -43,7 +43,8 @@ func (a *addressRepository) Create(params AddressCreateParams) (*models.Address,
 
 	err := a.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.FirstOrCreate(&state, models.AddressState{
-			State: params.State,
+			State:    params.State,
+			Initials: params.StateInitials,
 		}).Error; err != nil {
 			return err
 		}

@@ -2,8 +2,8 @@ package server
 
 import (
 	"ecoply/internal/domain/middlewares"
-	addressHandlers "ecoply/internal/domain/routes/address"
 	authHandlers "ecoply/internal/domain/routes/auth"
+	cnpjHandlers "ecoply/internal/domain/routes/cnpj"
 	"net/http"
 	"strings"
 
@@ -13,13 +13,15 @@ import (
 func registerRoutes(router *gin.Engine) {
 	router.LoadHTMLGlob("view/index.html")
 
+	router.Use(middlewares.Cors("*"))
+
 	router.GET("/", rootHandler)
 	router.GET("/health", healthHandler)
 	router.NoRoute(notFoundHandler)
 
 	api := router.Group("api")
 
-	v1 := api.Group("v1", middlewares.Cors("*"), middlewares.ContentType(gin.MIMEJSON))
+	v1 := api.Group("v1", middlewares.ContentType(gin.MIMEJSON))
 	{
 		auth := v1.Group("auth")
 		{
@@ -34,9 +36,9 @@ func registerRoutes(router *gin.Engine) {
 			}
 		}
 
-		address := v1.Group("address")
+		address := v1.Group("cnpj")
 		{
-			address.GET(":cep", addressHandlers.GetAddressByCepHandler)
+			address.GET(":cnpj", cnpjHandlers.CompanyByCnpj)
 		}
 	}
 }

@@ -7,13 +7,14 @@ import (
 type User struct {
 	gorm.Model
 
-	Uuid       string `gorm:"type:uuid;uniqueIndex;not null"`
-	Name       string `gorm:"type:varchar(255);not null"`
-	Email      string `gorm:"type:text;not null;unique"`
-	Password   string `gorm:"type:varchar(255);not null"`
-	Cnpj       string `gorm:"type:varchar(14);not null;unique"`
-	UserTypeId uint   `gorm:"references:ID;not null"`
+	Uuid     string `gorm:"type:uuid;uniqueIndex;not null"`
+	Name     string `gorm:"type:varchar(255);not null"`
+	Email    string `gorm:"type:text;not null;unique"`
+	Password string `gorm:"type:varchar(255);not null"`
+
+	UserTypeId uint `gorm:"references:ID;not null"`
 	UserType   UserType
-	AddressId  uint `gorm:"references:ID;not null"`
-	Address    Address
+
+	AgentId uint `gorm:"references:ID;not null"`
+	Agent   Agent
 }
