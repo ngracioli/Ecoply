@@ -9,8 +9,11 @@ var (
 
 	// User creation errors
 	ErrUserEmailAlreadyExists = errors.New("email already exists")
-	ErrUserCnpjAlreadyExists  = errors.New("CNPJ already exists")
 	ErrUserCreationFailed     = errors.New("failed to create user")
+
+	// Agent creation errors
+	ErrAgentCnpjAlreadyExists     = errors.New("CNPJ already exists")
+	ErrAgentCceeCodeAlreadyExists = errors.New("CCEE code already exists")
 
 	// User authentication errors
 	ErrInvalidCredentials = errors.New("invalid credentials")
