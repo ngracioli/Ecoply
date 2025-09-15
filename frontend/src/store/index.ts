@@ -1,14 +1,11 @@
 import { createStore } from "vuex";
 
-export interface RootState {
-  // count: number;
-}
+// Importe seus módulos aqui
+import auth from "./modules/auth";
 
-export const store = createStore<RootState>({
-  state: {
-    // count: 0,
+export default createStore({
+  modules: {
+    // Adicione seus módulos importados aqui
+    auth,
   },
-  mutations: {},
-  actions: {},
-  getters: {},
 });

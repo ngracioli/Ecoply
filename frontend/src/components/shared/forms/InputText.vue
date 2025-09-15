@@ -4,6 +4,8 @@ defineProps<{
   type?: string;
   id?: string;
 }>();
+
+const model = defineModel<string>();
 </script>
 
 <template>
@@ -14,6 +16,7 @@ defineProps<{
       :placeholder="placeholder"
       :type="type || 'text'"
       :id="id"
+      v-model="model"
       class="flex-1 bg-transparent px-4 py-3 text-base placeholder-gray-600 outline-none"
     />
   </div>
