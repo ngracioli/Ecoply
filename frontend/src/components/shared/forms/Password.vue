@@ -8,6 +8,8 @@ defineProps<{
 
 const showPassword = ref(false);
 
+const model = defineModel<string>();
+
 const togglePassword = () => {
   showPassword.value = !showPassword.value;
 };
@@ -21,6 +23,7 @@ const togglePassword = () => {
       :type="showPassword ? 'text' : 'password'"
       :placeholder="placeholder"
       :id="id"
+      v-model="model"
       class="flex-1 bg-transparent px-4 py-3 text-base placeholder-gray-600 outline-none"
     />
     <button

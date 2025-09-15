@@ -1,6 +1,24 @@
 <script setup lang="ts">
 import InputText from "../../components/shared/forms/InputText.vue";
 import Password from "../../components/shared/forms/Password.vue";
+
+import { ref } from "vue";
+import { useStore } from "vuex";
+const store = useStore();
+
+const email = ref<string>("");
+const password = ref<string>("");
+
+const login = async () => {
+  try {
+    await store.dispatch("auth/login", {
+      email: email.value,
+      password: password.value,
+    });
+  } catch (error) {
+    console.error("Erro ao fazer login:", error);
+  }
+};
 </script>
 
 <template>
@@ -15,12 +33,17 @@ import Password from "../../components/shared/forms/Password.vue";
       <p class="text-gray-600">Acesse sua conta para continuar</p>
     </div>
 
-    <form class="space-y-6">
+    <form class="space-y-6" @submit.prevent="login">
       <div>
         <label for="email" class="mb-2 block text-sm font-medium text-gray-700">
           E-mail
         </label>
-        <InputText id="email" placeholder="Digite seu e-mail" class="w-full" />
+        <InputText
+          id="email"
+          v-model="email"
+          placeholder="Digite seu e-mail"
+          class="w-full"
+        />
       </div>
 
       <div>
@@ -30,7 +53,12 @@ import Password from "../../components/shared/forms/Password.vue";
         >
           Senha
         </label>
-        <Password id="password" placeholder="Digite sua senha" class="w-full" />
+        <Password
+          id="password"
+          v-model="password"
+          placeholder="Digite sua senha"
+          class="w-full"
+        />
       </div>
 
       <button
