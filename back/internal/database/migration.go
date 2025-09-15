@@ -7,10 +7,13 @@ import (
 )
 
 func Migrate(con *gorm.DB) {
-	con.AutoMigrate(
+	con.Migrator().AutoMigrate(
 		&models.User{},
-		&models.UserType{},
 		&models.Address{},
+		&models.Agent{},
+		&models.Submarket{},
+		&models.Offer{},
+		&models.Purchase{},
 	)
 
 	initUserTypes()
