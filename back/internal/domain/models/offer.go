@@ -19,8 +19,11 @@ type Offer struct {
 
 	Uuid string `gorm:"type:uuid;uniqueIndex;not null"`
 
-	PricePerMwh float64 `gorm:"type:decimal(10,2);not null"`
-	QuantityMwh int     `gorm:"type:decimal(10,3)not null"`
+	PricePerMwh          float64 `gorm:"type:decimal(10,2);not null"`
+	InitialQuantityMwh   float64 `gorm:"type:decimal(10,3);not null"`
+	RemainingQuantityMwh float64 `gorm:"type:decimal(10,3);not null"`
+
+	EnergyType string `gorm:"type:varchar(50);not null"`
 
 	PeriodStart string `gorm:"type:date;not null"`
 	PeriodEnd   string `gorm:"type:date;not null"`
@@ -30,6 +33,8 @@ type Offer struct {
 	SubmarketId uint `gorm:"references:ID;not null"`
 	Submarket   Submarket
 
-	AgentId uint `gorm:"references:ID;not null"`
-	Agent   Agent
+	SellerAgentId uint `gorm:"references:ID;not null"`
+	SellerAgent   Agent
+
+	Purchase []Purchase `gorm:"foreignKey:OfferId"`
 }

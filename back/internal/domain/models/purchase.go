@@ -12,13 +12,16 @@ type Purchase struct {
 	Uuid string `gorm:"type:uuid;uniqueIndex;not null"`
 
 	QuantityMwh int     `gorm:"type:decimal(10,3) not null"`
-	TotalPrice  float64 `gorm:"type:decimal(10,2) not null"`
+	PricePerMwh float64 `gorm:"type:decimal(10,2) not null"`
 
 	Status string `gorm:"type:varchar(50);not null"`
 
-	BuyerAgentId uint `gorm:"references:ID;not null"`
-	BuyerAgent   Agent
+	EnergyTypeId uint       `gorm:"references:ID;not null"`
+	EnergyType   EnergyType `gorm:"foreignKey:EnergyTypeId"`
 
-	OfferId uint `gorm:"references:ID;not null"`
-	Offer   Offer
+	BuyerAgentId uint  `gorm:"references:ID;not null"`
+	BuyerAgent   Agent `gorm:"foreignKey:BuyerAgentId"`
+
+	OfferId uint  `gorm:"references:ID;not null"`
+	Offer   Offer `gorm:"foreignKey:OfferId"`
 }
