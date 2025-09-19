@@ -16,9 +16,6 @@ type Purchase struct {
 
 	Status string `gorm:"type:varchar(50);not null"`
 
-	EnergyTypeId uint       `gorm:"references:ID;not null"`
-	EnergyType   EnergyType `gorm:"foreignKey:EnergyTypeId"`
-
 	BuyerAgentId uint  `gorm:"references:ID;not null"`
 	BuyerAgent   Agent `gorm:"foreignKey:BuyerAgentId"`
 
