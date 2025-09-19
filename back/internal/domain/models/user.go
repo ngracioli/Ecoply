@@ -12,9 +12,9 @@ type User struct {
 	Email    string `gorm:"type:text;not null;unique"`
 	Password string `gorm:"type:varchar(255);not null"`
 
-	UserTypeId uint `gorm:"references:ID;not null"`
-	UserType   UserType
+	UserTypeId uint     `gorm:"references:ID;not null"`
+	UserType   UserType `gorm:"foreignKey:UserTypeId"`
 
-	AgentId uint `gorm:"references:ID;not null"`
-	Agent   Agent
+	AgentId uint  `gorm:"references:ID;not null"`
+	Agent   Agent `gorm:"foreignKey:AgentId"`
 }
