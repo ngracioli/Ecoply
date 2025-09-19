@@ -6,12 +6,25 @@ import (
 	"gorm.io/gorm"
 )
 
+type Migration struct {
+	ID   uint   `gorm:"primarykey"`
+	Name string `gorm:"type:varchar(255);not null;uniqueIndex"`
+}
+
 func Migrate(con *gorm.DB) {
 	con.Migrator().AutoMigrate(
-		&models.User{},
-		&models.Address{},
-		&models.Agent{},
+		&models.UserType{},
 		&models.Submarket{},
+		&models.User{},
+		&models.Agent{},
+
+		&models.Address{},
+		&models.AddressStreet{},
+		&models.AddressNeighborhood{},
+		&models.AddressCity{},
+		&models.AddressState{},
+
+		&models.EnergyType{},
 		&models.Offer{},
 		&models.Purchase{},
 	)
