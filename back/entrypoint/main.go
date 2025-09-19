@@ -12,17 +12,57 @@ import (
 	"runtime"
 )
 
+var commands map[string]byte = map[string]byte{
+	"migrate": 1,
+	"serve":   1,
+}
+
 func main() {
+	command := getCommand()
+
 	loadEnvironment()
-
-	validation.RegisterCustomValidators()
-
-	database.New()
 
 	mlog.CreateServerLogger()
 	defer mlog.CloseLogFiles()
 
+	runCommand(command)
+}
+
+func runCommand(command string) {
+	switch command {
+	case "migrate":
+		runMigrations()
+	case "serve":
+		runServer()
+	default:
+	}
+}
+
+func runMigrations() {
+	database.New()
+}
+
+func runServer() {
+	database.New()
+	validation.RegisterCustomValidators()
 	server.NewAndRun()
+}
+
+func getCommand() string {
+	if len(os.Args) <= 1 {
+		return ""
+	}
+
+	if commandExists(os.Args[1]) {
+		return os.Args[1]
+	}
+
+	return ""
+}
+
+func commandExists(command string) bool {
+	_, exists := commands[command]
+	return exists
 }
 
 func loadEnvironment() {

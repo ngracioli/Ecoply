@@ -1,8 +1,13 @@
+GO = $(shell asdf which go)
+
 .PHONY: docker-run docker-run-dev run run-debug build clear test
+
+banana:
+	echo $(GOBIN)
 
 run:
 	@cd entrypoint
-	APP_ENV=dev go run ./entrypoint/main.go
+	APP_ENV=dev $(GO) run ./entrypoint/main.go serve
 
 run-debug:
 	APP_ENV=dev dlv debug --headless --listen=:2345 --api-version=2 --accept-multiclient ./entrypoint/main.go
