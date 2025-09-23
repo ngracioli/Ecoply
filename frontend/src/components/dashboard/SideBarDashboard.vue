@@ -1,5 +1,20 @@
 <script setup lang="ts">
-import { Leaf } from "lucide-vue-next";
+import {
+  Leaf,
+  Home,
+  FileText,
+  CreditCard,
+  User,
+  HelpCircle,
+} from "lucide-vue-next";
+
+const menuItems = [
+  { label: "Dashboard", icon: Home },
+  { label: "Ofertas", icon: FileText },
+  { label: "Transações", icon: CreditCard },
+  { label: "Perfil", icon: User },
+  { label: "Suporte", icon: HelpCircle },
+];
 const menuItemClass =
   "cursor-pointer w-full text-gray-700 rounded-sm px-2 py-1 hover:bg-neutral-200 hover:text-black transition-colors duration-200";
 </script>
@@ -22,15 +37,19 @@ const menuItemClass =
       </div>
     </header>
     <section class="flex flex-col gap-2 p-6">
-      <h1 class="px-2 text-sm font-medium text-neutral-500">
+      <h1 class="mb-2 px-2 text-sm font-medium text-neutral-500">
         Navegação Principal
       </h1>
-      <ul>
-        <li :class="menuItemClass">Dashboard</li>
-        <li :class="menuItemClass">Ofertas</li>
-        <li :class="menuItemClass">Transações</li>
-        <li :class="menuItemClass">Perfil</li>
-        <li :class="menuItemClass">Suporte</li>
+      <ul class="flex flex-col gap-2">
+        <li
+          v-for="item in menuItems"
+          :key="item.label"
+          :class="menuItemClass"
+          class="flex items-center gap-2"
+        >
+          <component :is="item.icon" class="h-5 w-5 shrink-0" />
+          {{ item.label }}
+        </li>
       </ul>
     </section>
   </nav>
