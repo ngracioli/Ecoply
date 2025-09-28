@@ -3,6 +3,7 @@ package main
 import (
 	"ecoply/internal/config"
 	"ecoply/internal/database"
+	"ecoply/internal/domain/services"
 	"ecoply/internal/domain/validation"
 	"ecoply/internal/mlog"
 	"ecoply/internal/server"
@@ -10,6 +11,8 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -17,7 +20,8 @@ func main() {
 
 	validation.RegisterCustomValidators()
 
-	database.New()
+	var db *gorm.DB = database.New()
+	services.InitServices(db)
 
 	mlog.CreateServerLogger()
 	defer mlog.CloseLogFiles()

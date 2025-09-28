@@ -1,17 +1,16 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 const (
-	OfferTypeSell     = "sell"
-	OfferTypePurchase = "buy"
-
-	OfferStatusPending    = "open"
-	OfferStatusFullFilled = "fullfilled"
-	OfferStatusExpired    = "expired"
-
-	OfferEnergyTypeConventional = "conventional"
-	OfferEnergyTypeIncentivized = "incentivized"
+	OfferStatusFresh      uint8 = 1
+	OfferStatusOpen       uint8 = 2
+	OfferStatusFullFilled uint8 = 3
+	OfferStatusExpired    uint8 = 4
 )
 
 type Offer struct {
@@ -23,19 +22,21 @@ type Offer struct {
 	InitialQuantityMwh   float64 `gorm:"type:decimal(10,3);not null"`
 	RemainingQuantityMwh float64 `gorm:"type:decimal(10,3);not null"`
 
-	PeriodStart string `gorm:"type:date;not null"`
-	PeriodEnd   string `gorm:"type:date;not null"`
+	Description string `gorm:"type:text;not null"`
 
-	Status string `gorm:"type:varchar(50);not null"`
+	PeriodStart time.Time `gorm:"type:date;not null"`
+	PeriodEnd   time.Time `gorm:"type:date;not null"`
+
+	Status uint8 `gorm:"type:int;not null"`
 
 	EnergyTypeId uint       `gorm:"references:ID;not null"`
 	EnergyType   EnergyType `gorm:"foreignKey:EnergyTypeId"`
 
-	SubmarketId uint `gorm:"references:ID;not null"`
-	Submarket   Submarket
+	SubmarketId uint      `gorm:"references:ID;not null"`
+	Submarket   Submarket `gorm:"foreignKey:SubmarketId"`
 
-	SellerAgentId uint `gorm:"references:ID;not null"`
-	SellerAgent   Agent
+	SellerId uint `gorm:"references:ID;not null"`
+	Seller   User `gorm:"foreignKey:SellerId"`
 
 	Purchase []Purchase `gorm:"foreignKey:OfferId"`
 }

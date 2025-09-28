@@ -29,28 +29,41 @@ func Migrate(con *gorm.DB) {
 		&models.Purchase{},
 	)
 
-	initUserTypes()
-	initSubmarkets()
+	insertUserTypes(con)
+	insertSubmarkets(con)
+	insertEnergyTypes(con)
 }
 
-func initUserTypes() {
+func insertUserTypes(con *gorm.DB) {
 	var count int64
-	Con.Model(&models.UserType{}).Count(&count)
+	con.Model(&models.UserType{}).Count(&count)
 
 	if count == 0 {
-		Con.Create(&models.UserType{Type: models.UserTypeSupplier})
-		Con.Create(&models.UserType{Type: models.UserTypeBuyer})
+		con.Create(&models.UserType{Type: models.UserTypeSupplier})
+		con.Create(&models.UserType{Type: models.UserTypeBuyer})
 	}
 }
 
-func initSubmarkets() {
+func insertSubmarkets(con *gorm.DB) {
 	var count int64
-	Con.Model(&models.Submarket{}).Count(&count)
+	con.Model(&models.Submarket{}).Count(&count)
 
 	if count == 0 {
-		Con.Create(&models.Submarket{Name: models.SubmarketSECO})
-		Con.Create(&models.Submarket{Name: models.SubmarketS})
-		Con.Create(&models.Submarket{Name: models.SubmarketNE})
-		Con.Create(&models.Submarket{Name: models.SubmarketN})
+		con.Create(&models.Submarket{Name: models.SubmarketSECO})
+		con.Create(&models.Submarket{Name: models.SubmarketS})
+		con.Create(&models.Submarket{Name: models.SubmarketNE})
+		con.Create(&models.Submarket{Name: models.SubmarketN})
+	}
+}
+
+func insertEnergyTypes(con *gorm.DB) {
+	var count int64
+	con.Model(&models.EnergyType{}).Count(&count)
+
+	if count == 0 {
+		con.Create(&models.EnergyType{Type: models.EnergyTypeSolar})
+		con.Create(&models.EnergyType{Type: models.EnergyTypeWind})
+		con.Create(&models.EnergyType{Type: models.EnergyTypeHydro})
+		con.Create(&models.EnergyType{Type: models.EnergyTypeGeothermal})
 	}
 }

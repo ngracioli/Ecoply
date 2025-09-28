@@ -44,7 +44,7 @@ func LoadCnpjData(cnpj string) (*resources.Company, *merr.ResponseError) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, merr.NewResponseError(http.StatusNotFound, ErrCnpjNotFound)
+		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrCnpjNotFound)
 	}
 
 	var cnpjData CnpjData
@@ -53,7 +53,7 @@ func LoadCnpjData(cnpj string) (*resources.Company, *merr.ResponseError) {
 	}
 
 	if cnpjData.TaxId == "" || cnpjData.Company.Name == "" {
-		return nil, merr.NewResponseError(http.StatusNotFound, ErrCnpjNotFound)
+		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrCnpjNotFound)
 	}
 
 	response := resources.Company{
