@@ -31,11 +31,11 @@ type Offer struct {
 	EnergyTypeId uint       `gorm:"references:ID;not null"`
 	EnergyType   EnergyType `gorm:"foreignKey:EnergyTypeId"`
 
-	SubmarketId uint `gorm:"references:ID;not null"`
-	Submarket   Submarket
+	SubmarketId uint      `gorm:"references:ID;not null"`
+	Submarket   Submarket `gorm:"foreignKey:SubmarketId"`
 
-	SellerAgentId uint `gorm:"references:ID;not null"`
-	SellerAgent   Agent
+	SellerAgentId uint  `gorm:"references:ID;not null"`
+	SellerAgent   Agent `gorm:"foreignKey:SellerAgentId"`
 
 	Purchase []Purchase `gorm:"foreignKey:OfferId"`
 }
