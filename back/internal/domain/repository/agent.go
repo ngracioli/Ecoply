@@ -3,7 +3,6 @@ package repository
 import (
 	"ecoply/internal/domain/models"
 	"ecoply/internal/mlog"
-	"errors"
 
 	"gorm.io/gorm"
 )
@@ -53,9 +52,7 @@ func (a *agentRepository) FindById(id uint) (*models.Agent, error) {
 	err := a.db.First(&agent, id).Error
 
 	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			mlog.Log("Failed to find agent by ID: " + err.Error())
-		}
+		mlog.Log("Failed to find agent by ID: " + err.Error())
 		return nil, err
 	}
 
@@ -67,9 +64,7 @@ func (a *agentRepository) FindByCnpj(cnpj string) (*models.Agent, error) {
 	err := a.db.Where("cnpj = ?", cnpj).First(&agent).Error
 
 	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			mlog.Log("Failed to find agent by CNPJ: " + err.Error())
-		}
+		mlog.Log("Failed to find agent by CNPJ: " + err.Error())
 		return nil, err
 	}
 
@@ -81,9 +76,7 @@ func (a *agentRepository) FindByCceeCode(cceeCode string) (*models.Agent, error)
 	err := a.db.Where("ccee_code = ?", cceeCode).First(&agent).Error
 
 	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			mlog.Log("Failed to find agent by CCEE Code: " + err.Error())
-		}
+		mlog.Log("Failed to find agent by CCEE Code: " + err.Error())
 		return nil, err
 	}
 
