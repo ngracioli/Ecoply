@@ -1,9 +1,10 @@
 package middlewares
 
 import (
+	"ecoply/internal/database"
 	"ecoply/internal/domain/merr"
+	"ecoply/internal/domain/models"
 	"ecoply/internal/domain/services"
-	"errors"
 	"net/http"
 	"strings"
 
@@ -39,60 +40,20 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("user_uuid", claims.UserUuid)
-		c.Set("user_email", claims.UserEmail)
-		c.Set("user_type", claims.UserType)
-		c.Set("token", tokenString)
-		c.Set("claims", claims)
+		var userService services.UserService = services.NewUserService(database.Con)
+		var user *models.User
 
-		if err := ensureClaimsExists(c); err != nil {
-			responseError = err
+		user, responseError = userService.FindByUuid(claims.UserUuid)
+		if responseError != nil {
 			return
 		}
 
+		c.Set("user", user)
+		c.Set("token", tokenString)
+		c.Set("claims", claims)
+
 		c.Next()
 	}
-}
-
-func ensureClaimsExists(c *gin.Context) *merr.ResponseError {
-	if err := ensureClaim[string](c, "user_uuid"); err != nil {
-		return err
-	}
-	if err := ensureClaim[string](c, "user_email"); err != nil {
-		return err
-	}
-	if err := ensureClaim[uint](c, "user_type"); err != nil {
-		return err
-	}
-	return nil
-}
-
-func ensureClaim[T uint | string](c *gin.Context, key string) *merr.ResponseError {
-	claim, exists := c.Get(key)
-
-	if !exists {
-		return merr.NewResponseError(http.StatusForbidden, errors.Join(ErrMissingClaim, errors.New(" "+key)))
-	}
-
-	var valid bool = false
-
-	if v, ok := claim.(string); ok {
-		if v != "" {
-			valid = true
-		}
-	}
-
-	if v, ok := claim.(uint); ok {
-		if v != 0 {
-			valid = true
-		}
-	}
-
-	if !valid {
-		return merr.NewResponseError(http.StatusForbidden, errors.Join(ErrMissingClaim, errors.New(" "+key)))
-	}
-
-	return nil
 }
 
 func extractBearerToken(header string) string {

@@ -42,6 +42,18 @@ func registerRoutes(router *gin.Engine) {
 		{
 			address.GET(":cnpj", handlers.CompanyByCnpj)
 		}
+
+		offer := v1.Group("offer").Use(
+			middlewares.JwtAuthMiddleware(),
+			middlewares.SupplierMiddleware(),
+		)
+		{
+			offer.GET(":uuid", handlers.OfferByUuidHanlder)
+			offer.GET("", handlers.OfferListHandler)
+			offer.POST("", middlewares.JwtAuthMiddleware(), handlers.CreateOfferHandler)
+			offer.PUT(":uuid", middlewares.JwtAuthMiddleware(), handlers.UpdateOfferHandler)
+			offer.DELETE(":uuid", middlewares.JwtAuthMiddleware(), handlers.DeleteOfferHandler)
+		}
 	}
 }
 

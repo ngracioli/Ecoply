@@ -3,15 +3,9 @@ package models
 import "gorm.io/gorm"
 
 const (
-	OfferTypeSell     = "sell"
-	OfferTypePurchase = "buy"
-
-	OfferStatusPending    = "open"
-	OfferStatusFullFilled = "fullfilled"
-	OfferStatusExpired    = "expired"
-
-	OfferEnergyTypeConventional = "conventional"
-	OfferEnergyTypeIncentivized = "incentivized"
+	OfferStatusOpen       uint8 = 1
+	OfferStatusFullFilled uint8 = 2
+	OfferStatusExpired    uint8 = 3
 )
 
 type Offer struct {
@@ -26,7 +20,7 @@ type Offer struct {
 	PeriodStart string `gorm:"type:date;not null"`
 	PeriodEnd   string `gorm:"type:date;not null"`
 
-	Status string `gorm:"type:varchar(50);not null"`
+	Status string `gorm:"type:int;not null"`
 
 	EnergyTypeId uint       `gorm:"references:ID;not null"`
 	EnergyType   EnergyType `gorm:"foreignKey:EnergyTypeId"`

@@ -3,8 +3,10 @@ package handlers
 import (
 	"ecoply/internal/database"
 	"ecoply/internal/domain/merr"
+	"ecoply/internal/domain/models"
 	"ecoply/internal/domain/requests"
 	"ecoply/internal/domain/services"
+	"ecoply/internal/domain/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -56,8 +58,8 @@ func SignUpHandler(c *gin.Context) {
 }
 
 func MeHandler(c *gin.Context) {
-	userUuid, _ := c.Get("user_uuid")
-	response, err := GetAuthService().Me(userUuid.(string))
+	var user *models.User = utils.GetUserFromContext(c)
+	response, err := GetAuthService().Me(user.Uuid)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return

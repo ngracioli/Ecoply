@@ -18,8 +18,7 @@ var (
 	ErrUserTypeNotFound = errors.New("user type not found")
 
 	// Agent
-	ErrAgentCnpjAlreadyExists     = errors.New("CNPJ already exists")
-	ErrAgentCceeCodeAlreadyExists = errors.New("CCEE code already exists")
+	ErrAgentAlreadyExists = errors.New("Agent already exists")
 
 	// User
 	ErrInvalidCredentials = errors.New("invalid credentials")

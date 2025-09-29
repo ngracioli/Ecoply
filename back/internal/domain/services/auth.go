@@ -8,6 +8,7 @@ import (
 	"ecoply/internal/domain/resources"
 	"errors"
 	"net/http"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -212,7 +213,11 @@ func (s *authService) createUser(request *requests.SignUp) (*models.User, *merr.
 			Address:     addressModel,
 		})
 		if err != nil {
-			responseError = merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+			if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
+				responseError = merr.NewResponseError(http.StatusConflict, ErrAgentAlreadyExists)
+			} else {
+				responseError = merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+			}
 			return err
 		}
 

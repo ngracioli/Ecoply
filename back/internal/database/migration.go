@@ -54,3 +54,15 @@ func initSubmarkets() {
 		Con.Create(&models.Submarket{Name: models.SubmarketN})
 	}
 }
+
+func initEnergyTypes() {
+	var count int64
+	Con.Model(&models.EnergyType{}).Count(&count)
+
+	if count == 0 {
+		Con.Create(&models.EnergyType{Type: models.EnergyTypeSolar})
+		Con.Create(&models.EnergyType{Type: models.EnergyTypeWind})
+		Con.Create(&models.EnergyType{Type: models.EnergyTypeHydro})
+		Con.Create(&models.EnergyType{Type: models.EnergyTypeGeothermal})
+	}
+}
