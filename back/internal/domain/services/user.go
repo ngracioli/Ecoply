@@ -3,6 +3,7 @@ package services
 import (
 	"ecoply/internal/domain/merr"
 	"ecoply/internal/domain/models"
+	"ecoply/internal/domain/repository"
 	"net/http"
 
 	"gorm.io/gorm"
@@ -13,20 +14,24 @@ type UserService interface {
 }
 
 type userService struct {
-	db *gorm.DB
+	userRepo repository.UserRepository
+	db       *gorm.DB
 }
 
 func NewUserService(db *gorm.DB) UserService {
-	return &userService{db: db}
+	return &userService{
+		userRepo: repository.NewUserRepository(db),
+		db:       db,
+	}
 }
 
 func (s *userService) FindByUuid(uuid string) (*models.User, *merr.ResponseError) {
-	var user models.User
-	if err := s.db.Where("uuid = ?", uuid).First(&user).Error; err != nil {
+	user, err := s.userRepo.FindByUuid(uuid)
+	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, merr.NewResponseError(http.StatusNotFound, ErrUserNotFound)
 		}
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
-	return &user, nil
+	return user, nil
 }

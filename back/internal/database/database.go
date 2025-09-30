@@ -18,22 +18,16 @@ type DatabaseConfig struct {
 	DBTimezone string
 }
 
-var dbConfig *DatabaseConfig = nil
-var Con *gorm.DB = nil
-
 func getDatabaseConfig() *DatabaseConfig {
-	if dbConfig == nil {
-		var cfg *config.Config = config.GetConfig()
-		dbConfig = &DatabaseConfig{
-			DBHost:     cfg.DBHost,
-			DBUsername: cfg.DBUsername,
-			DBPassword: cfg.DBPassword,
-			DBDatabase: cfg.DBDatabase,
-			DBPort:     cfg.DBPort,
-			DBTimezone: cfg.DBTimezone,
-		}
+	var cfg *config.Config = config.GetConfig()
+	return &DatabaseConfig{
+		DBHost:     cfg.DBHost,
+		DBUsername: cfg.DBUsername,
+		DBPassword: cfg.DBPassword,
+		DBDatabase: cfg.DBDatabase,
+		DBPort:     cfg.DBPort,
+		DBTimezone: cfg.DBTimezone,
 	}
-	return dbConfig
 }
 
 func mountPostgresDsn(cfg *DatabaseConfig) string {
@@ -43,9 +37,9 @@ func mountPostgresDsn(cfg *DatabaseConfig) string {
 }
 
 func New() *gorm.DB {
-	Con = Open()
-	Migrate(Con)
-	return Con
+	con := Open()
+	Migrate(con)
+	return con
 }
 
 func Open() *gorm.DB {

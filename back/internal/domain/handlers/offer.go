@@ -12,6 +12,10 @@ func OfferListHandler(c *gin.Context) {
 
 }
 
+func UserOffersHandler(c *gin.Context) {
+
+}
+
 func CreateOfferHandler(c *gin.Context) {
 
 }

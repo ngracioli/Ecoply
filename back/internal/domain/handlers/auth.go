@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"ecoply/internal/database"
 	"ecoply/internal/domain/merr"
 	"ecoply/internal/domain/models"
 	"ecoply/internal/domain/requests"
@@ -12,15 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var authService services.AuthService
-
-func GetAuthService() services.AuthService {
-	if authService == nil {
-		authService = services.NewAuthService(database.Con)
-	}
-	return authService
-}
-
 func LoginHandler(c *gin.Context) {
 	var payload requests.Login
 
@@ -30,7 +20,7 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
-	response, err := GetAuthService().Login(&payload)
+	response, err := services.Auth.Login(&payload)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -48,7 +38,7 @@ func SignUpHandler(c *gin.Context) {
 		return
 	}
 
-	response, err := GetAuthService().SignUp(&payload)
+	response, err := services.Auth.SignUp(&payload)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -59,7 +49,7 @@ func SignUpHandler(c *gin.Context) {
 
 func MeHandler(c *gin.Context) {
 	var user *models.User = utils.GetUserFromContext(c)
-	response, err := GetAuthService().Me(user.Uuid)
+	response, err := services.Auth.Me(user.Uuid)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -77,7 +67,7 @@ func AvailabilityHandler(c *gin.Context) {
 		return
 	}
 
-	response, err := GetAuthService().Availability(&payload)
+	response, err := services.Auth.Availability(&payload)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -93,7 +83,7 @@ func AvailabilityHandler(c *gin.Context) {
 
 func RefreshTokenHandler(c *gin.Context) {
 	token := c.GetString("token")
-	response, err := GetAuthService().RefreshToken(token)
+	response, err := services.Auth.RefreshToken(token)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return

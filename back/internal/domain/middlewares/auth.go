@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"ecoply/internal/database"
 	"ecoply/internal/domain/merr"
 	"ecoply/internal/domain/models"
 	"ecoply/internal/domain/services"
@@ -40,10 +39,8 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		var userService services.UserService = services.NewUserService(database.Con)
 		var user *models.User
-
-		user, responseError = userService.FindByUuid(claims.UserUuid)
+		user, responseError = services.User.FindByUuid(claims.UserUuid)
 		if responseError != nil {
 			return
 		}

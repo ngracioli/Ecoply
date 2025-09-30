@@ -29,7 +29,6 @@ func registerRoutes(router *gin.Engine) {
 		{
 			auth.POST("login", handlers.LoginHandler)
 			auth.POST("signup", handlers.SignUpHandler)
-			auth.GET("me", middlewares.JwtAuthMiddleware(), handlers.MeHandler)
 			auth.POST("refresh-token", middlewares.JwtAuthMiddleware(), handlers.RefreshTokenHandler)
 
 			available := auth.Group("available")
@@ -43,16 +42,21 @@ func registerRoutes(router *gin.Engine) {
 			address.GET(":cnpj", handlers.CompanyByCnpj)
 		}
 
-		offer := v1.Group("offer").Use(
+		offer := v1.Group("offers").Use(
 			middlewares.JwtAuthMiddleware(),
-			middlewares.SupplierMiddleware(),
 		)
 		{
 			offer.GET(":uuid", handlers.OfferByUuidHanlder)
 			offer.GET("", handlers.OfferListHandler)
-			offer.POST("", middlewares.JwtAuthMiddleware(), handlers.CreateOfferHandler)
-			offer.PUT(":uuid", middlewares.JwtAuthMiddleware(), handlers.UpdateOfferHandler)
-			offer.DELETE(":uuid", middlewares.JwtAuthMiddleware(), handlers.DeleteOfferHandler)
+			offer.POST("", middlewares.SupplierMiddleware(), handlers.CreateOfferHandler)
+			offer.PUT(":uuid", middlewares.SupplierMiddleware(), handlers.UpdateOfferHandler)
+			offer.DELETE(":uuid", middlewares.SupplierMiddleware(), handlers.DeleteOfferHandler)
+		}
+
+		me := v1.Group("me").Use(middlewares.JwtAuthMiddleware())
+		{
+			me.GET("", handlers.MeHandler)
+			me.GET("offers", middlewares.SupplierMiddleware(), handlers.UserOffersHandler)
 		}
 	}
 }
