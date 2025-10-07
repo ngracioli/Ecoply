@@ -9,7 +9,10 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "moduleResolution": "node"
+    "moduleResolution": "bundler",
+    "paths": {
+      "vuex": ["./node_modules/vuex/types/index.d.ts"]
+    }
   },
   "include": [
     "src/**/*.ts",
