@@ -58,7 +58,7 @@ func (s *authService) Login(request *requests.Login) (*resources.Login, *merr.Re
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
 
-	if user.Password != request.Password {
+	if user.Password != Hash256String(request.Password) {
 		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrIncorrectPassword)
 	}
 
@@ -232,7 +232,7 @@ func (s *authService) createUser(request *requests.SignUp) (*models.User, *merr.
 			Uuid:     NewUuidV7String(),
 			Name:     request.Name,
 			Email:    request.Email,
-			Password: request.Password,
+			Password: Hash256String(request.Password),
 			UserType: userTypeModel,
 			Agent:    agentModel,
 		})
