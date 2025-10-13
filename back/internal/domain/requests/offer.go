@@ -1,5 +1,9 @@
 package requests
 
+type GetOffer struct {
+	Uuid string `form:"uuid" binding:"required"`
+}
+
 type CreateOffer struct {
 	PricePerMwh float64 `json:"price_per_mwh" binding:"required"`
 	QuantityMwh float64 `json:"quantity_mwh" binding:"required"`

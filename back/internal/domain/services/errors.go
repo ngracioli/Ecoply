@@ -37,4 +37,5 @@ var (
 	ErrInvalidPeriodStart = errors.New("invalid period start")
 	ErrInvalidPeriodEnd   = errors.New("invalid period end")
 	ErrInvalidPeriod      = errors.New("invalid period")
+	ErrOfferNotFound      = errors.New("offer not found")
 )

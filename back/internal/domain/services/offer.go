@@ -8,14 +8,15 @@ import (
 	"ecoply/internal/domain/resources"
 	"ecoply/internal/mlog"
 	"net/http"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
 )
 
 type OfferService interface {
-	GetByUuid(uuid string) (*models.Offer, *merr.ResponseError)
-	BelongingToUser(userUuid string) ([]*models.Offer, *merr.ResponseError)
+	GetByUuid(uuid string) (*resources.Offer, *merr.ResponseError)
+	BelongingToUser(userId uint) ([]*resources.Offer, *merr.ResponseError)
 	Create(user *models.User, request *requests.CreateOffer) (*resources.Offer, *merr.ResponseError)
 	Update(offer *models.Offer) *merr.ResponseError
 	Delete(id string) *merr.ResponseError
@@ -113,22 +114,29 @@ func (s *offerService) Delete(id string) *merr.ResponseError {
 	return nil
 }
 
-func (s *offerService) GetByUuid(uuid string) (*models.Offer, *merr.ResponseError) {
-	offer, err := s.offerRepo.GetByUuid(uuid)
+func (s *offerService) GetByUuid(uuid string) (*resources.Offer, *merr.ResponseError) {
+	offer, err := s.offerRepo.GetByUuid(strings.ToLower(uuid))
 	if err != nil {
-		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrOfferNotFound)
 	}
 
-	return offer, nil
+	response := makeOfferResourceFromModel(offer)
+
+	return response, nil
 }
 
-func (s *offerService) BelongingToUser(userUuid string) ([]*models.Offer, *merr.ResponseError) {
-	offers, err := s.offerRepo.BelongingToUser(userUuid)
+func (s *offerService) BelongingToUser(userId uint) ([]*resources.Offer, *merr.ResponseError) {
+	offers, err := s.offerRepo.GetBySellerId(userId)
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
 
-	return offers, nil
+	response := make([]*resources.Offer, len(offers))
+	for i, offer := range offers {
+		response[i] = makeOfferResourceFromModel(offer)
+	}
+
+	return response, nil
 }
 
 func parseOfferPeriodFromRequest(startPeriod string, endPeriod string) (*time.Time, *time.Time, error) {
@@ -169,4 +177,23 @@ func parseAndValidateOfferPeriodFromRequest(startPeriod string, endPeriod string
 	}
 
 	return startTime, endTime, nil
+}
+
+func makeOfferResourceFromModel(offer *models.Offer) *resources.Offer {
+	var response resources.Offer = resources.Offer{
+		Uuid:                 offer.Uuid,
+		PricePerMwh:          offer.PricePerMwh,
+		InitialQuantityMwh:   offer.InitialQuantityMwh,
+		RemainingQuantityMwh: offer.RemainingQuantityMwh,
+		Description:          offer.Description,
+		PeriodStart:          offer.PeriodStart,
+		PeriodEnd:            offer.PeriodEnd,
+		Status:               offer.Status,
+		EnergyType:           offer.EnergyType.Type,
+		Submarket:            offer.Submarket.Name,
+		SellerUuid:           offer.Seller.Uuid,
+		CreatedAt:            offer.CreatedAt,
+	}
+
+	return &response
 }

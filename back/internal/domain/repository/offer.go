@@ -10,7 +10,7 @@ import (
 
 type OfferRepository interface {
 	GetByUuid(uuid string) (*models.Offer, error)
-	BelongingToUser(userUuid string) ([]*models.Offer, error)
+	GetBySellerId(userId uint) ([]*models.Offer, error)
 	Create(params *OfferCreateParams) (*models.Offer, error)
 	Update(offer *models.Offer) error
 	Delete(uuid string) error
@@ -26,15 +26,23 @@ func NewOfferRepository(db *gorm.DB) OfferRepository {
 
 func (r *offerRepository) GetByUuid(uuid string) (*models.Offer, error) {
 	var offer models.Offer
-	if err := r.db.Where("uuid = ?", uuid).First(&offer).Error; err != nil {
+	if err := r.db.Preload("Submarket").
+		Preload("EnergyType").
+		Preload("Seller").
+		Where("uuid = ?", uuid).First(&offer).Error; err != nil {
 		return nil, err
 	}
 	return &offer, nil
 }
 
-func (r *offerRepository) BelongingToUser(userUuid string) ([]*models.Offer, error) {
+func (r *offerRepository) GetBySellerId(userId uint) ([]*models.Offer, error) {
 	var offers []*models.Offer
-	if err := r.db.Where("user_id = ?", userUuid).Find(&offers).Error; err != nil {
+	if err := r.db.Preload("Submarket").
+		Preload("EnergyType").
+		Preload("Seller").
+		Where("seller_id = ?", userId).
+		Find(&offers).Error; err != nil {
+		mlog.Log("Failed to get by seller id: " + err.Error())
 		return nil, err
 	}
 	return offers, nil
