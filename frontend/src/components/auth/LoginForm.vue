@@ -2,6 +2,8 @@
 import InputText from "primevue/inputtext";
 import Password from "primevue/password";
 import Button from "primevue/button";
+import { Toast } from "primevue";
+import { useToast } from "primevue/usetoast";
 
 import { ref } from "vue";
 import { z } from "zod";
@@ -17,9 +19,6 @@ const password = ref<string>("");
 const loading = ref<boolean>(false);
 const errors = ref<{ email?: string; password?: string }>({});
 const hasLoginError = ref<boolean>(false);
-
-import { Toast } from "primevue";
-import { useToast } from "primevue/usetoast";
 const toast = useToast();
 
 const showLoginErrorToast = () => {
@@ -37,7 +36,8 @@ const loginSchema = z.object({
   email: z.email({ message: "E-mail inválido" }),
   password: z
     .string()
-    .min(6, { message: "A senha precisa ter ao menos 6 caracteres" }),
+    .min(8, { message: "A senha precisa ter ao menos 6 caracteres" })
+    .max(50, { message: "A senha pode ter no máximo 50 caracteres" }),
 });
 
 const login = async () => {
