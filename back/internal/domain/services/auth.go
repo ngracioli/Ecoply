@@ -8,6 +8,7 @@ import (
 	"ecoply/internal/domain/resources"
 	"errors"
 	"net/http"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -106,7 +107,7 @@ func (s *authService) Me(userUuid string) (*resources.Me, *merr.ResponseError) {
 	user, err := s.userRepo.FindByUuid(userUuid)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, merr.NewResponseError(http.StatusNotFound, ErrUserNotFound)
+			return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrUserNotFound)
 		}
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
@@ -135,7 +136,7 @@ func (s *authService) Availability(request *requests.Availability) (bool, *merr.
 			return s.agentRepo.FindByCceeCode(value)
 		})
 	default:
-		return false, merr.NewResponseError(http.StatusBadRequest, ErrInvalidAvailabilityType)
+		return false, merr.NewResponseError(http.StatusUnprocessableEntity, ErrInvalidAvailabilityType)
 	}
 }
 
@@ -196,7 +197,7 @@ func (s *authService) createUser(request *requests.SignUp) (*models.User, *merr.
 		submarketModel, err := submarketRepo.FindByName(request.Agent.SubmarketName)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				responseError = merr.NewResponseError(http.StatusNotFound, ErrSubmarketNotFound)
+				responseError = merr.NewResponseError(http.StatusUnprocessableEntity, ErrInvalidSubmarket)
 			} else {
 				responseError = merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 			}
@@ -212,7 +213,11 @@ func (s *authService) createUser(request *requests.SignUp) (*models.User, *merr.
 			Address:     addressModel,
 		})
 		if err != nil {
-			responseError = merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+			if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
+				responseError = merr.NewResponseError(http.StatusUnprocessableEntity, ErrAgentAlreadyExists)
+			} else {
+				responseError = merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+			}
 			return err
 		}
 
@@ -220,7 +225,7 @@ func (s *authService) createUser(request *requests.SignUp) (*models.User, *merr.
 		userTypeModel, err := userTypeRepo.FindByName(request.UserType)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				responseError = merr.NewResponseError(http.StatusNotFound, ErrUserTypeNotFound)
+				responseError = merr.NewResponseError(http.StatusUnprocessableEntity, ErrInvalidUserType)
 			} else {
 				responseError = merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 			}
