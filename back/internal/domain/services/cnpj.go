@@ -3,6 +3,7 @@ package services
 import (
 	"ecoply/internal/domain/merr"
 	"ecoply/internal/domain/resources"
+
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -35,7 +36,7 @@ type CnpjAddress struct {
 	Details  string `json:"details"`
 }
 
-func LoadCnpjData(cnpj string) (*resources.CompanyResource, *merr.ResponseError) {
+func LoadCnpjData(cnpj string) (*resources.Company, *merr.ResponseError) {
 	resp, err := http.Get("https://open.cnpja.com/office/" + cnpj)
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrFailedToFetchCnpj)
@@ -43,7 +44,7 @@ func LoadCnpjData(cnpj string) (*resources.CompanyResource, *merr.ResponseError)
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, merr.NewResponseError(http.StatusNotFound, ErrCnpjNotFound)
+		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrCnpjNotFound)
 	}
 
 	var cnpjData CnpjData
@@ -52,12 +53,12 @@ func LoadCnpjData(cnpj string) (*resources.CompanyResource, *merr.ResponseError)
 	}
 
 	if cnpjData.TaxId == "" || cnpjData.Company.Name == "" {
-		return nil, merr.NewResponseError(http.StatusNotFound, ErrCnpjNotFound)
+		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrCnpjNotFound)
 	}
 
-	response := resources.CompanyResource{
-		TaxId: cnpjData.TaxId,
-		Name:  cnpjData.Company.Name,
+	response := resources.Company{
+		Cnpj: cnpjData.TaxId,
+		Name: cnpjData.Company.Name,
 		Address: resources.CompanyAddress{
 			Cep:          cnpjData.Address.Zip,
 			Street:       cnpjData.Address.Street,

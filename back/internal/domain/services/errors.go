@@ -12,14 +12,13 @@ var (
 	ErrUserCreationFailed     = errors.New("failed to create user")
 
 	// Submarket
-	ErrSubmarketNotFound = errors.New("submarket not found")
+	ErrInvalidSubmarket = errors.New("invalid submarket")
 
 	// UserType
-	ErrUserTypeNotFound = errors.New("user type not found")
+	ErrInvalidUserType = errors.New("invalid user type")
 
 	// Agent
-	ErrAgentCnpjAlreadyExists     = errors.New("CNPJ already exists")
-	ErrAgentCceeCodeAlreadyExists = errors.New("CCEE code already exists")
+	ErrAgentAlreadyExists = errors.New("Agent already exists")
 
 	// User
 	ErrInvalidCredentials = errors.New("invalid credentials")
@@ -30,4 +29,13 @@ var (
 
 	// JWT
 	ErrFailedToGenerateToken = errors.New("failed to generate token")
+
+	// EnergyType
+	ErrInvalidEnergyType = errors.New("invalid energy type")
+
+	// Offer
+	ErrInvalidPeriodStart = errors.New("invalid period start")
+	ErrInvalidPeriodEnd   = errors.New("invalid period end")
+	ErrInvalidPeriod      = errors.New("invalid period")
+	ErrOfferNotFound      = errors.New("offer not found")
 )

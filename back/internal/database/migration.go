@@ -6,35 +6,64 @@ import (
 	"gorm.io/gorm"
 )
 
-func Migrate(con *gorm.DB) {
-	con.AutoMigrate(
-		&models.User{},
-		&models.UserType{},
-		&models.Address{},
-	)
-
-	initUserTypes()
-	initSubmarkets()
+type Migration struct {
+	ID   uint   `gorm:"primarykey"`
+	Name string `gorm:"type:varchar(255);not null;uniqueIndex"`
 }
 
-func initUserTypes() {
+func Migrate(con *gorm.DB) {
+	con.Migrator().AutoMigrate(
+		&models.UserType{},
+		&models.Submarket{},
+		&models.User{},
+		&models.Agent{},
+
+		&models.Address{},
+		&models.AddressStreet{},
+		&models.AddressNeighborhood{},
+		&models.AddressCity{},
+		&models.AddressState{},
+
+		&models.EnergyType{},
+		&models.Offer{},
+		&models.Purchase{},
+	)
+
+	insertUserTypes(con)
+	insertSubmarkets(con)
+	insertEnergyTypes(con)
+}
+
+func insertUserTypes(con *gorm.DB) {
 	var count int64
-	Con.Model(&models.UserType{}).Count(&count)
+	con.Model(&models.UserType{}).Count(&count)
 
 	if count == 0 {
-		Con.Create(&models.UserType{Type: models.UserTypeSupplier})
-		Con.Create(&models.UserType{Type: models.UserTypeBuyer})
+		con.Create(&models.UserType{Type: models.UserTypeSupplier})
+		con.Create(&models.UserType{Type: models.UserTypeBuyer})
 	}
 }
 
-func initSubmarkets() {
+func insertSubmarkets(con *gorm.DB) {
 	var count int64
-	Con.Model(&models.Submarket{}).Count(&count)
+	con.Model(&models.Submarket{}).Count(&count)
 
 	if count == 0 {
-		Con.Create(&models.Submarket{Name: models.SubmarketSECO})
-		Con.Create(&models.Submarket{Name: models.SubmarketS})
-		Con.Create(&models.Submarket{Name: models.SubmarketNE})
-		Con.Create(&models.Submarket{Name: models.SubmarketN})
+		con.Create(&models.Submarket{Name: models.SubmarketSECO})
+		con.Create(&models.Submarket{Name: models.SubmarketS})
+		con.Create(&models.Submarket{Name: models.SubmarketNE})
+		con.Create(&models.Submarket{Name: models.SubmarketN})
+	}
+}
+
+func insertEnergyTypes(con *gorm.DB) {
+	var count int64
+	con.Model(&models.EnergyType{}).Count(&count)
+
+	if count == 0 {
+		con.Create(&models.EnergyType{Type: models.EnergyTypeSolar})
+		con.Create(&models.EnergyType{Type: models.EnergyTypeWind})
+		con.Create(&models.EnergyType{Type: models.EnergyTypeHydro})
+		con.Create(&models.EnergyType{Type: models.EnergyTypeGeothermal})
 	}
 }
