@@ -62,7 +62,7 @@ func insertEnergyTypes(con *gorm.DB) {
 
 	if count == 0 {
 		con.Create(&models.EnergyType{Type: models.EnergyTypeSolar})
-		con.Create(&models.EnergyType{Type: models.EnergyTypeWind})
+		con.Create(&models.EnergyType{Type: models.EnergyTypeEolic})
 		con.Create(&models.EnergyType{Type: models.EnergyTypeHydro})
 		con.Create(&models.EnergyType{Type: models.EnergyTypeGeothermal})
 	}

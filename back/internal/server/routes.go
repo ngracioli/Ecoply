@@ -1,8 +1,10 @@
 package server
 
 import (
+	"ecoply/internal/config"
 	"ecoply/internal/domain/handlers"
 	"ecoply/internal/domain/middlewares"
+	"time"
 
 	"net/http"
 	"strings"
@@ -12,10 +14,13 @@ import (
 
 const htmlPath = "web/static"
 
-func registerRoutes(router *gin.Engine) {
+func registerRoutes(router *gin.Engine, cfg *config.Config) {
 	router.LoadHTMLGlob(htmlPath + "/index.html")
 
-	router.Use(middlewares.Cors("*"))
+	router.Use(
+		middlewares.Cors("*"),
+		middlewares.Delay(time.Duration(cfg.ServerDelay)),
+	)
 
 	router.GET("/", rootHandler)
 	router.GET("/health", healthHandler)
