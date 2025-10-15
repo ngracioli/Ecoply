@@ -18,9 +18,9 @@ type Server struct {
 func New() *Server {
 	var cfg *config.Config = config.GetConfig()
 
-	var engine *gin.Engine = gin.Default(
-		registerRoutes,
-	)
+	var engine *gin.Engine = gin.Default()
+
+	registerRoutes(engine, cfg)
 
 	mlog.LogGinRoutes(engine)
 

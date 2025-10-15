@@ -18,7 +18,7 @@ type SignUp struct {
 type Agent struct {
 	Cnpj          string `json:"cnpj" binding:"required,len=14,numeric,cnpj"`
 	CompanyName   string `json:"company_name" binding:"required,min=2,max=255"`
-	CceeCode      string `json:"ccee_code" binding:"required,min=1,max=50"`
+	CceeCode      string `json:"ccee_code" binding:"required,min=1,max=20"`
 	SubmarketName string `json:"submarket_name" binding:"required,oneof=N S SE_CO NE"`
 }
 

@@ -10,8 +10,8 @@ type Offer struct {
 	InitialQuantityMwh   float64   `json:"initial_quantity_mwh"`
 	RemainingQuantityMwh float64   `json:"remaining_quantity_mwh"`
 	Description          string    `json:"description"`
-	PeriodStart          time.Time `json:"period_start"`
-	PeriodEnd            time.Time `json:"period_end"`
+	PeriodStart          string    `json:"period_start"`
+	PeriodEnd            string    `json:"period_end"`
 	Status               uint8     `json:"status"`
 	EnergyType           string    `json:"energy_type"`
 	Submarket            string    `json:"submarket"`

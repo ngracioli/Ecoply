@@ -24,8 +24,8 @@ type Offer struct {
 
 	Description string `gorm:"type:text;not null"`
 
-	PeriodStart time.Time `gorm:"type:datetime;not null"`
-	PeriodEnd   time.Time `gorm:"type:datetime;not null"`
+	PeriodStart time.Time `gorm:"type:date;not null"`
+	PeriodEnd   time.Time `gorm:"type:date;not null"`
 
 	Status uint8 `gorm:"type:int;not null"`
 

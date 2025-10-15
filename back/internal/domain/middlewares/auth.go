@@ -42,6 +42,7 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		var user *models.User
 		user, responseError = services.User.FindByUuid(claims.UserUuid)
 		if responseError != nil {
+			responseError.StatusCode = http.StatusUnauthorized
 			return
 		}
 
