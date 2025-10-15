@@ -12,8 +12,9 @@ type Config struct {
 	AppEnvironment string `env:"APP_ENV" envDefault:"dev"`
 	AppDebug       bool   `env:"APP_DEBUG" envDefault:"false"`
 
-	ServerHost string `env:"SERVER_HOST" envDefault:"localhost"`
-	ServerPort uint16 `env:"SERVER_PORT" envDefault:"8080"`
+	ServerHost  string `env:"SERVER_HOST" envDefault:"localhost"`
+	ServerPort  uint16 `env:"SERVER_PORT" envDefault:"8080"`
+	ServerDelay int64  `env:"SERVER_DELAY" envDefault:"500"`
 
 	DBConnection string `env:"DB_CONNECTION" envDefault:"postgres"`
 	DBHost       string `env:"DB_HOST" envDefault:"localhost"`

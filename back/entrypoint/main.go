@@ -11,12 +11,13 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	"gorm.io/gorm"
 )
 
 func main() {
-	loadEnvironment()
+	var cfg *config.Config = loadEnvironment()
 
 	validation.RegisterCustomValidators()
 
@@ -26,10 +27,17 @@ func main() {
 	mlog.CreateServerLogger()
 	defer mlog.CloseLogFiles()
 
+	loc, err := time.LoadLocation(cfg.DBTimezone)
+	if err != nil {
+		log.Fatalf("Failed to load location: %v", err)
+	}
+
+	time.Local = loc
+
 	server.NewAndRun()
 }
 
-func loadEnvironment() {
+func loadEnvironment() *config.Config {
 	var envFilePath string
 	var mode string = os.Getenv("APP_ENV")
 
@@ -46,4 +54,6 @@ func loadEnvironment() {
 	if err := config.Load(envFilePath); err != nil {
 		log.Fatalf("%v\n", err)
 	}
+
+	return config.GetConfig()
 }

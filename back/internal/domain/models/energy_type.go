@@ -2,7 +2,7 @@ package models
 
 const (
 	EnergyTypeSolar      = "solar"
-	EnergyTypeWind       = "wind"
+	EnergyTypeEolic      = "eolic"
 	EnergyTypeHydro      = "hydroelectric"
 	EnergyTypeGeothermal = "geothermal"
 )

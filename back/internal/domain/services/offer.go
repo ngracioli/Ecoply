@@ -40,17 +40,18 @@ func (s *offerService) Create(user *models.User, request *requests.CreateOffer) 
 		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrInvalidEnergyType)
 	}
 
-	startTime, endTime, err := parseAndValidateOfferPeriodFromRequest(request.PeriodStart, request.PeriodEnd)
-	if err != nil {
+	if err := validateCreateRequest(request); err != nil {
 		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, err)
 	}
 
-	if err := s.db.Preload("Agent", func(db *gorm.DB) *gorm.DB {
-		return db.Select("id, submarket_id")
-	}).Find(user).Error; err != nil {
+	if err := s.db.Preload("Agent", func(db *gorm.DB) *gorm.DB { return db.Select("id, submarket_id") }).
+		Find(user).Error; err != nil {
 		mlog.Log("Failed to preload agent: " + err.Error())
 		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrInternal)
 	}
+
+	parsedStartPeriod, _ := parseDate(request.PeriodStart)
+	parsedEndPeriod, _ := parseDate(request.PeriodEnd)
 
 	params := &repository.OfferCreateParams{
 		Uuid:                 NewUuidV7String(),
@@ -58,8 +59,8 @@ func (s *offerService) Create(user *models.User, request *requests.CreateOffer) 
 		InitialQuantityMwh:   request.QuantityMwh,
 		RemainingQuantityMwh: request.QuantityMwh,
 		Description:          request.Description,
-		PeriodStart:          *startTime,
-		PeriodEnd:            *endTime,
+		PeriodStart:          parsedStartPeriod,
+		PeriodEnd:            parsedEndPeriod,
 		Status:               models.OfferStatusFresh,
 		EnergyTypeId:         energyType.ID,
 		SellerId:             user.ID,
@@ -71,29 +72,16 @@ func (s *offerService) Create(user *models.User, request *requests.CreateOffer) 
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
 
-	if err := s.db.Preload("Submarket", func(db *gorm.DB) *gorm.DB {
-		return db.Select("id, name")
-	}).Find(offer).Error; err != nil {
-		mlog.Log("Failed to preload submarket: " + err.Error())
+	if err := s.db.
+		Preload("EnergyType", func(db *gorm.DB) *gorm.DB { return db.Select("id", "type") }).
+		Preload("Submarket", func(db *gorm.DB) *gorm.DB { return db.Select("id", "name") }).
+		Preload("Seller", func(db *gorm.DB) *gorm.DB { return db.Select("id", "uuid") }).
+		First(offer, offer.ID).Error; err != nil {
+		mlog.Log("Failed to preload offer relations: " + err.Error())
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
 
-	var response *resources.Offer = &resources.Offer{
-		Uuid:                 offer.Uuid,
-		PricePerMwh:          offer.PricePerMwh,
-		InitialQuantityMwh:   offer.InitialQuantityMwh,
-		RemainingQuantityMwh: offer.RemainingQuantityMwh,
-		Description:          offer.Description,
-		PeriodStart:          offer.PeriodStart,
-		PeriodEnd:            offer.PeriodEnd,
-		Status:               offer.Status,
-		EnergyType:           energyType.Type,
-		Submarket:            offer.Submarket.Name,
-		SellerUuid:           user.Uuid,
-		CreatedAt:            offer.CreatedAt,
-	}
-
-	return response, nil
+	return makeOfferResourceFromModel(offer), nil
 }
 
 func (s *offerService) Update(offer *models.Offer) *merr.ResponseError {
@@ -139,44 +127,61 @@ func (s *offerService) BelongingToUser(userId uint) ([]*resources.Offer, *merr.R
 	return response, nil
 }
 
-func parseOfferPeriodFromRequest(startPeriod string, endPeriod string) (*time.Time, *time.Time, error) {
-	const layout = "2006-01-02"
-
-	startTime, err := time.ParseInLocation(layout, startPeriod, time.Local)
-	if err != nil {
-		return nil, nil, ErrInvalidPeriodStart
-	}
-
-	endTime, err := time.ParseInLocation(layout, endPeriod, time.Local)
-	if err != nil {
-		return nil, nil, ErrInvalidPeriodEnd
-	}
-
-	return &startTime, &endTime, nil
+func parseDate(date string) (time.Time, error) {
+	layout := "2006-01-02"
+	return time.ParseInLocation(layout, date, time.Local)
 }
 
-func validateOfferPeriodFromRequest(startPeriod time.Time, endPeriod time.Time) error {
+func validatePeriodFromRequest(startPeriod string, endPeriod string) error {
 	now := time.Now()
-	nowDateOnly := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
 
-	if startPeriod.After(endPeriod) || startPeriod.Before(nowDateOnly) {
+	parsedStartPeriod, err := parseDate(startPeriod)
+	if err != nil {
+		return ErrInvalidPeriod
+	}
+
+	parsedEndPeriod, err := parseDate(endPeriod)
+	if err != nil {
+		return ErrInvalidPeriod
+	}
+
+	if parsedStartPeriod.After(parsedEndPeriod) || parsedStartPeriod.Before(now) {
 		return ErrInvalidPeriod
 	}
 
 	return nil
 }
 
-func parseAndValidateOfferPeriodFromRequest(startPeriod string, endPeriod string) (*time.Time, *time.Time, error) {
-	startTime, endTime, err := parseOfferPeriodFromRequest(startPeriod, endPeriod)
-	if err != nil {
-		return nil, nil, err
+func validatePrice(price float64) error {
+	if price <= 0 {
+		return ErrInvalidPrice
 	}
 
-	if err := validateOfferPeriodFromRequest(*startTime, *endTime); err != nil {
-		return nil, nil, err
+	return nil
+}
+
+func validateQuantity(quantity float64) error {
+	if quantity <= 0 {
+		return ErrInvalidQuantity
 	}
 
-	return startTime, endTime, nil
+	return nil
+}
+
+func validateCreateRequest(request *requests.CreateOffer) error {
+	if err := validatePrice(request.PricePerMwh); err != nil {
+		return err
+	}
+
+	if err := validateQuantity(request.QuantityMwh); err != nil {
+		return err
+	}
+
+	if err := validatePeriodFromRequest(request.PeriodStart, request.PeriodEnd); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func makeOfferResourceFromModel(offer *models.Offer) *resources.Offer {
@@ -186,8 +191,8 @@ func makeOfferResourceFromModel(offer *models.Offer) *resources.Offer {
 		InitialQuantityMwh:   offer.InitialQuantityMwh,
 		RemainingQuantityMwh: offer.RemainingQuantityMwh,
 		Description:          offer.Description,
-		PeriodStart:          offer.PeriodStart,
-		PeriodEnd:            offer.PeriodEnd,
+		PeriodStart:          offer.PeriodStart.Format("2006-01-02"),
+		PeriodEnd:            offer.PeriodEnd.Format("2006-01-02"),
 		Status:               offer.Status,
 		EnergyType:           offer.EnergyType.Type,
 		Submarket:            offer.Submarket.Name,

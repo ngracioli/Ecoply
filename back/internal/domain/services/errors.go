@@ -23,6 +23,7 @@ var (
 	// User
 	ErrInvalidCredentials = errors.New("invalid credentials")
 	ErrIncorrectPassword  = errors.New("incorrect password")
+	ErrUserAlreadyExists  = errors.New("user already exists")
 
 	// Availability
 	ErrInvalidAvailabilityType = errors.New("invalid availability type")
@@ -38,4 +39,6 @@ var (
 	ErrInvalidPeriodEnd   = errors.New("invalid period end")
 	ErrInvalidPeriod      = errors.New("invalid period")
 	ErrOfferNotFound      = errors.New("offer not found")
+	ErrInvalidPrice       = errors.New("invalid price")
+	ErrInvalidQuantity    = errors.New("invalid quantity")
 )
