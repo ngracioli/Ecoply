@@ -45,9 +45,8 @@ func (s *offerService) Create(user *models.User, request *requests.CreateOffer) 
 		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, err)
 	}
 
-	if err := s.db.Preload("Agent", func(db *gorm.DB) *gorm.DB {
-		return db.Select("id, submarket_id")
-	}).Find(user).Error; err != nil {
+	if err := s.db.Preload("Agent", func(db *gorm.DB) *gorm.DB { return db.Select("id, submarket_id") }).
+		Find(user).Error; err != nil {
 		mlog.Log("Failed to preload agent: " + err.Error())
 		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrInternal)
 	}
@@ -71,29 +70,16 @@ func (s *offerService) Create(user *models.User, request *requests.CreateOffer) 
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
 
-	if err := s.db.Preload("Submarket", func(db *gorm.DB) *gorm.DB {
-		return db.Select("id, name")
-	}).Find(offer).Error; err != nil {
-		mlog.Log("Failed to preload submarket: " + err.Error())
+	if err := s.db.
+		Preload("EnergyType", func(db *gorm.DB) *gorm.DB { return db.Select("id", "type") }).
+		Preload("Submarket", func(db *gorm.DB) *gorm.DB { return db.Select("id", "name") }).
+		Preload("Seller", func(db *gorm.DB) *gorm.DB { return db.Select("id", "uuid") }).
+		First(offer, offer.ID).Error; err != nil {
+		mlog.Log("Failed to preload offer relations: " + err.Error())
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
 
-	var response *resources.Offer = &resources.Offer{
-		Uuid:                 offer.Uuid,
-		PricePerMwh:          offer.PricePerMwh,
-		InitialQuantityMwh:   offer.InitialQuantityMwh,
-		RemainingQuantityMwh: offer.RemainingQuantityMwh,
-		Description:          offer.Description,
-		PeriodStart:          offer.PeriodStart,
-		PeriodEnd:            offer.PeriodEnd,
-		Status:               offer.Status,
-		EnergyType:           energyType.Type,
-		Submarket:            offer.Submarket.Name,
-		SellerUuid:           user.Uuid,
-		CreatedAt:            offer.CreatedAt,
-	}
-
-	return response, nil
+	return makeOfferResourceFromModel(offer), nil
 }
 
 func (s *offerService) Update(offer *models.Offer) *merr.ResponseError {

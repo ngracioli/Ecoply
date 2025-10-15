@@ -45,7 +45,9 @@ func New() *gorm.DB {
 func Open() *gorm.DB {
 	var cfg *DatabaseConfig = getDatabaseConfig()
 	var dsn string = mountPostgresDsn(cfg)
-	con, err := gorm.Open(postgres.Open(dsn))
+	con, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		TranslateError: true,
+	})
 	if err != nil {
 		log.Fatalf("%v: %v\n", ErrFailedToOpenConnectionPostgres, err)
 	}
