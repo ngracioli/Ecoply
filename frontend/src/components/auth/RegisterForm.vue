@@ -1,30 +1,400 @@
 <script setup lang="ts">
-import InputText from "../../components/shared/forms/InputText.vue";
-import Password from "../../components/shared/forms/Password.vue";
-import { ref } from "vue";
+import InputText from "primevue/inputtext";
+import InputMask from "primevue/inputmask";
+import Password from "primevue/password";
+import Dropdown from "primevue/dropdown";
+import Button from "primevue/button";
+import Toast from "primevue/toast";
+import Message from "primevue/message";
+import { useToast } from "primevue/usetoast";
 
-const step = ref(1);
+import { ref, reactive } from "vue";
+import { z } from "zod";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+import type { RegisterRequest } from "../../types/requests/auth";
+import axios from "axios";
+import api from "../../axios";
+import type { StateConsult } from "../../types/responses/brazilStates";
 
-const form = ref({
-  nome: "",
-  email: "",
-  senha: "",
-  endereco: "",
-  cidade: "",
-  cep: "",
-});
+const toast = useToast();
+const store = useStore();
+const router = useRouter();
 
-function nextStep() {
-  if (step.value < 3) step.value++;
+async function loadStates() {
+  try {
+    const resp = await axios.get<StateConsult>(
+      "https://brasilapi.com.br/api/ibge/uf/v1",
+    );
+
+    brazilStates.value = resp.data.sort(
+      (a: { sigla: string }, b: { sigla: string }) =>
+        a.sigla.localeCompare(b.sigla),
+    );
+  } catch (err) {
+    console.error("Erro ao carregar estados:", err);
+  }
 }
 
-function prevStep() {
+loadStates();
+
+const step = ref<number>(1);
+const loading = ref(false);
+const brazilStates = ref<StateConsult>([]);
+const cceeAgents = ref<
+  Array<{ label: string; value: string; submarket: string }>
+>([]);
+
+const form = reactive<RegisterRequest>({
+  name: "",
+  email: "",
+  password: "",
+  confirm_password: "",
+  user_type: "buyer" as "buyer" | "supplier",
+  address: {
+    cep: "",
+    state_initials: "",
+    state: "",
+    city: "",
+    neighborhood: "",
+    street: "",
+    number: "",
+    complement: "",
+  },
+  agent: {
+    cnpj: "",
+    ccee_code: "",
+    submarket_name: "",
+    company_name: "",
+  },
+});
+
+const errors = reactive<Record<string, string>>({});
+
+const step1Schema = z
+  .object({
+    name: z.string().min(1, "Nome completo é obrigatório"),
+    email: z.string().email("E-mail inválido"),
+    password: z
+      .string()
+      .regex(/[^a-zA-Z0-9]/, "A senha deve conter ao menos um símbolo")
+      .regex(/[0-9]/, "A senha deve conter ao menos um número")
+      .regex(/[A-Z]/, "A senha deve conter ao menos uma letra maiúscula")
+      .regex(/[a-z]/, "A senha deve conter ao menos uma letra minúscula")
+      .max(50, "A senha pode ter no máximo 50 caracteres")
+      .min(8, "A senha precisa ter ao menos 8 caracteres"),
+    confirm_password: z.string().min(1, "Confirmação de senha é obrigatória"),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Senhas não conferem",
+    path: ["confirm_password"],
+  });
+
+const showSuccess = (detail: string) =>
+  toast.add({ severity: "success", summary: "Sucesso", detail, life: 3000 });
+
+function clearErrors() {
+  Object.keys(errors).forEach((k) => delete errors[k]);
+}
+
+function validateStep(n: number): boolean {
+  clearErrors();
+  if (n === 1) {
+    const res = step1Schema.safeParse({
+      name: form.name,
+      email: form.email,
+      password: form.password,
+      confirm_password: form.confirm_password,
+    });
+    if (!res.success) {
+      res.error.issues.forEach(
+        (i) => (errors[String(i.path[0] ?? "")] = i.message),
+      );
+      return false;
+    }
+    return true;
+  }
+
+  if (n === 2) {
+    const digits = form.agent.cnpj.replace(/\D/g, "");
+    if (!/^\d{14}$/.test(digits)) {
+      errors["agent.cnpj"] = "CNPJ deve ter 14 dígitos.";
+      return false;
+    }
+    return true;
+  }
+
+  if (n === 3) {
+    if (!form.agent.company_name) {
+      errors["agent.cnpj"] = "CNPJ não confirmado.";
+      return false;
+    }
+    if (!form.agent.ccee_code) {
+      errors["agent.ccee_code"] = "Selecione o código CCEE.";
+      return false;
+    }
+    return true;
+  }
+
+  if (n === 4) {
+    const cepDigits = form.address.cep.replace(/\D/g, "");
+    if (!/^\d{8}$/.test(cepDigits)) {
+      errors["address.cep"] = "CEP inválido.";
+      return false;
+    }
+    if (!form.address.city) {
+      errors["address.city"] = "Cidade obrigatória.";
+      return false;
+    }
+    if (!form.address.state_initials) {
+      errors["address.state_initials"] = "UF obrigatória.";
+      return false;
+    }
+    return true;
+  }
+
+  return true;
+}
+
+async function checkEmailAvailability(): Promise<boolean> {
+  try {
+    await api.get<void>("/api/v1/auth/available", {
+      params: {
+        type: "email",
+        value: form.email,
+      },
+    });
+
+    return true;
+  } catch (err: any) {
+    if (err.response?.status === 409) {
+      errors["email"] = "Este e-mail já está cadastrado.";
+      return false;
+    }
+
+    console.error("Erro ao verificar disponibilidade do email:", err);
+    errors["email"] = "Erro ao verificar disponibilidade do e-mail.";
+    return false;
+  }
+}
+
+async function checkCNPJAvailability(): Promise<boolean> {
+  try {
+    await api.get<void>("/api/v1/auth/available", {
+      params: {
+        type: "cnpj",
+        value: onlyDigits(form.agent.cnpj),
+      },
+    });
+
+    return true;
+  } catch (err: any) {
+    if (err.response?.status === 409) {
+      errors["agent.cnpj"] = "Este CNPJ já está cadastrado.";
+      return false;
+    }
+
+    console.error("Erro ao verificar disponibilidade do CNPJ:", err);
+    errors["agent.cnpj"] = "Erro ao verificar disponibilidade do CNPJ.";
+    return false;
+  }
+}
+
+async function next() {
+  if (!validateStep(step.value)) return;
+
+  if (step.value === 1) {
+    const isEmailAvailable = await checkEmailAvailability();
+    if (!isEmailAvailable) return;
+  }
+
+  step.value++;
+}
+function back() {
   if (step.value > 1) step.value--;
 }
 
-function submitForm() {
-  console.log("Form enviado:", form.value);
-  alert("Registro concluído!");
+function onlyDigits(s: string) {
+  return (s || "").replace(/\D/g, "");
+}
+
+function mapSubmarketToCode(submarket: string): string {
+  const submarketMap: Record<string, string> = {
+    SUDESTE: "SE_CO",
+    SUL: "S",
+    NORTE: "N",
+    NORDESTE: "NE",
+  };
+
+  const upperSubmarket = (submarket || "").toUpperCase().trim();
+  return submarketMap[upperSubmarket] || submarket;
+}
+
+async function confirmCnpj() {
+  clearErrors();
+  if (!validateStep(2)) return;
+
+  const isCNPJAvailable = await checkCNPJAvailability();
+  if (!isCNPJAvailable) return;
+
+  loading.value = true;
+  try {
+    const cnpjDigits = onlyDigits(form.agent.cnpj);
+
+    const respBrasil = await fetch(
+      `https://brasilapi.com.br/api/cnpj/v1/${cnpjDigits}`,
+    );
+    if (!respBrasil.ok) {
+      const errorData = await respBrasil.json().catch(() => ({}));
+      errors["agent.cnpj"] = errorData.message || "Erro ao consultar CNPJ.";
+      return;
+    }
+    const dataBrasil = await respBrasil.json();
+
+    const respCCEE = await fetch(
+      `https://dadosabertos.ccee.org.br/api/3/action/datastore_search?resource_id=71169d34-7171-47bb-8217-4ff140fed41d&q=${cnpjDigits}`,
+    );
+    if (!respCCEE.ok) {
+      errors["agent.cnpj"] = "Erro ao consultar dados CCEE.";
+      return;
+    }
+    const dataCCEE = await respCCEE.json();
+
+    if (!dataCCEE.success || !dataCCEE.result || dataCCEE.result.total === 0) {
+      errors["agent.cnpj"] = "CNPJ não está vinculado a nenhum agente CCEE.";
+      return;
+    }
+
+    const validRecords = dataCCEE.result.records.filter(
+      (record: any) => onlyDigits(record.CNPJ) === cnpjDigits,
+    );
+
+    if (validRecords.length === 0) {
+      errors["agent.cnpj"] =
+        "CNPJ não corresponde exatamente aos registros CCEE.";
+      return;
+    }
+
+    form.agent.company_name =
+      dataBrasil.razao_social || dataBrasil.nome_fantasia || "";
+
+    cceeAgents.value = validRecords.map((record: any) => ({
+      label: `${record.COD_PERF_AGENTE} - ${record.SIGLA_PERFIL_AGENTE}`,
+      value: String(record.COD_PERF_AGENTE),
+      submarket: mapSubmarketToCode(record.SUBMERCADO),
+    }));
+
+    form.agent.ccee_code = "";
+    form.agent.submarket_name = "";
+
+    showSuccess(
+      "Dados do CNPJ carregados. Verifique e selecione o agente CCEE.",
+    );
+    step.value = 3;
+  } catch (err: any) {
+    console.error(err);
+    errors["agent.cnpj"] = "Falha ao consultar CNPJ. Tente novamente.";
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function fetchCep() {
+  clearErrors();
+  const cepDigits = onlyDigits(form.address.cep);
+  if (!/^\d{8}$/.test(cepDigits)) {
+    errors["address.cep"] = "CEP inválido.";
+    return;
+  }
+
+  loading.value = true;
+  try {
+    const resp = await fetch(
+      `https://brasilapi.com.br/api/cep/v1/${cepDigits}`,
+    );
+    if (!resp.ok) {
+      const errorData = await resp.json().catch(() => ({}));
+      errors["address.cep"] = errorData.message || "CEP não encontrado.";
+      return;
+    }
+    const data = await resp.json();
+
+    form.address.street = data.street || "";
+    form.address.neighborhood = data.neighborhood || "";
+    form.address.city = data.city || "";
+    form.address.state_initials = data.state || "";
+    const estadoEncontrado = brazilStates.value.find(
+      (e) => e.sigla === data.state,
+    );
+    if (estadoEncontrado) {
+      form.address.state = estadoEncontrado.nome;
+    }
+    showSuccess("Endereço preenchido a partir do CEP.");
+  } catch (err: any) {
+    console.error(err);
+    errors["address.cep"] = "Erro ao consultar CEP.";
+  } finally {
+    loading.value = false;
+  }
+}
+
+function onStateChange() {
+  const estadoSelecionado = brazilStates.value.find(
+    (e) => e.sigla === form.address.state_initials,
+  );
+  if (estadoSelecionado) {
+    form.address.state = estadoSelecionado.nome;
+  } else {
+    form.address.state = "";
+  }
+}
+
+function onCCEEAgentChange() {
+  const agenteEscolhido = cceeAgents.value.find(
+    (a) => a.value === form.agent.ccee_code,
+  );
+  if (agenteEscolhido) {
+    form.agent.submarket_name = agenteEscolhido.submarket;
+  } else {
+    form.agent.submarket_name = "";
+  }
+}
+
+async function submitFinal() {
+  if (!validateStep(4)) return;
+
+  loading.value = true;
+  try {
+    const payload = {
+      name: form.name,
+      email: form.email,
+      password: form.password,
+      confirm_password: form.confirm_password,
+      user_type: form.user_type,
+      address: {
+        ...form.address,
+        cep: onlyDigits(form.address.cep),
+      },
+      agent: {
+        ...form.agent,
+        cnpj: onlyDigits(form.agent.cnpj),
+        submarket_name: form.agent.submarket_name || null,
+      },
+    };
+
+    console.log("Payload sendo enviado:", JSON.stringify(payload, null, 2));
+
+    await store.dispatch("auth/register", payload);
+
+    showSuccess("Cadastro realizado com sucesso!");
+    router.push({ name: "Dashboard" });
+  } catch (err: any) {
+    console.error(err);
+    errors["submit"] =
+      err.response?.data?.message || "Erro ao finalizar cadastro.";
+  } finally {
+    loading.value = false;
+  }
 }
 </script>
 
@@ -34,150 +404,439 @@ function submitForm() {
       <div
         class="bg-primary-color/10 mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full"
       >
-        <i class="pi pi-users text-primary-color text-2xl"></i>
+        <i class="pi pi-user-plus text-primary-color !text-3xl"></i>
       </div>
       <h1 class="mb-2 text-2xl font-bold text-gray-900">
-        Registrar-se no Ecoply
+        Criar conta no Ecoply
       </h1>
-      <div class="mb-4 flex items-center justify-center space-x-2">
-        <div
-          v-for="i in 3"
-          :key="i"
-          class="h-2 w-8 rounded-full transition-colors duration-200"
-          :class="i <= step ? 'bg-primary-color' : 'bg-gray-200'"
-        ></div>
-      </div>
-      <p class="text-primary-color font-medium">Passo {{ step }} de 3</p>
+      <p class="text-gray-600">Preencha os passos para criar sua conta</p>
     </div>
 
-    <!-- Conteúdo dos Steps -->
-    <div class="min-h-[280px]">
-      <!-- Step 1 -->
-      <div v-if="step === 1" class="space-y-6">
-        <h2 class="mb-6 text-center text-lg font-semibold text-gray-900">
-          Informações de acesso
-        </h2>
-        <div>
-          <label
-            for="email"
-            class="mb-2 block text-sm font-medium text-gray-700"
+    <form
+      @submit.prevent="step < 4 ? next() : submitFinal()"
+      class="flex flex-col gap-5"
+    >
+      <Toast />
+
+      <!-- STEP 1: Dados Pessoais -->
+      <div v-show="step === 1" class="flex flex-col gap-5">
+        <div class="flex flex-col gap-2">
+          <label for="name" class="font-medium text-gray-700"
+            >Nome completo</label
           >
-            E-mail
-          </label>
+          <InputText
+            id="name"
+            v-model="form.name"
+            :disabled="loading"
+            :invalid="!!errors.name"
+            placeholder="Digite seu nome completo"
+            class="w-full"
+            size="large"
+          />
+          <small v-if="errors.name" class="text-red-600">{{
+            errors.name
+          }}</small>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="email" class="font-medium text-gray-700">E-mail</label>
           <InputText
             id="email"
             v-model="form.email"
-            placeholder="Digite seu e-mail"
+            :disabled="loading"
+            :invalid="!!errors.email"
+            placeholder="exemplo@dominio.com"
             class="w-full"
+            size="large"
           />
+          <small v-if="errors.email" class="text-red-600">{{
+            errors.email
+          }}</small>
         </div>
-        <div>
-          <label
-            for="password"
-            class="mb-2 block text-sm font-medium text-gray-700"
-          >
-            Senha
-          </label>
+
+        <div class="flex flex-col gap-2">
+          <label for="password" class="font-medium text-gray-700">Senha</label>
           <Password
             id="password"
-            v-model="form.senha"
-            placeholder="Crie uma senha segura"
+            v-model="form.password"
+            :disabled="loading"
+            :invalid="!!errors.password"
+            :feedback="false"
+            toggleMask
+            placeholder="Digite sua senha"
             class="w-full"
+            inputClass="w-full"
+            size="large"
+          />
+          <small v-if="errors.password" class="text-red-600">{{
+            errors.password
+          }}</small>
+          <small v-else class="text-gray-600">
+            A senha deve ter 8-50 caracteres, incluindo letras maiúsculas e
+            minúsculas, números e símbolos.
+          </small>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="confirm_password" class="font-medium text-gray-700"
+            >Confirmar senha</label
+          >
+          <Password
+            id="confirm_password"
+            v-model="form.confirm_password"
+            :disabled="loading"
+            :invalid="!!errors.confirm_password"
+            :feedback="false"
+            toggleMask
+            placeholder="Confirme sua senha"
+            class="w-full"
+            inputClass="w-full"
+            size="large"
+          />
+          <small v-if="errors.confirm_password" class="text-red-600">{{
+            errors.confirm_password
+          }}</small>
+        </div>
+
+        <Button
+          type="submit"
+          label="Próximo"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          :loading="loading"
+          :disabled="loading"
+          severity="primary"
+          size="large"
+          class="mt-2 w-full"
+        />
+      </div>
+
+      <!-- STEP 2: Tipo e CNPJ -->
+      <div v-show="step === 2" class="flex flex-col gap-5">
+        <Message
+          severity="info"
+          :closable="false"
+          icon="pi pi-exclamation-circle"
+        >
+          O CNPJ do agente é obrigatório para todos os usuários.
+        </Message>
+
+        <div class="flex flex-col gap-2">
+          <label for="user_type" class="font-medium text-gray-700"
+            >Tipo de usuário</label
+          >
+          <Dropdown
+            id="user_type"
+            :options="[
+              { label: 'Comprador', value: 'buyer' },
+              { label: 'Fornecedor', value: 'supplier' },
+            ]"
+            optionLabel="label"
+            optionValue="value"
+            v-model="form.user_type"
+            :disabled="loading"
+            placeholder="Selecione o tipo"
+            class="w-full"
+            size="large"
+          />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="cnpj" class="font-medium text-gray-700"
+            >CNPJ do Agente CCEE</label
+          >
+          <InputMask
+            id="cnpj"
+            v-model="form.agent.cnpj"
+            mask="99.999.999/9999-99"
+            :disabled="loading"
+            :invalid="!!errors['agent.cnpj']"
+            placeholder="00.000.000/0000-00"
+            class="w-full"
+            size="large"
+          />
+          <small v-if="errors['agent.cnpj']" class="text-red-600">{{
+            errors["agent.cnpj"]
+          }}</small>
+        </div>
+
+        <div class="mt-2 flex gap-3">
+          <Button
+            label="Voltar"
+            icon="pi pi-arrow-left"
+            severity="secondary"
+            size="large"
+            class="flex-1"
+            @click.prevent="back"
+          />
+          <Button
+            label="Confirmar CNPJ"
+            icon="pi pi-search"
+            iconPos="right"
+            :loading="loading"
+            :disabled="loading"
+            severity="primary"
+            size="large"
+            class="flex-1"
+            @click.prevent="confirmCnpj"
           />
         </div>
       </div>
 
-      <!-- Step 2 -->
-      <div v-if="step === 2" class="space-y-6">
-        <h2 class="mb-6 text-center text-lg font-semibold text-gray-900">
-          Informações pessoais
-        </h2>
-        <div>
-          <label
-            for="nome"
-            class="mb-2 block text-sm font-medium text-gray-700"
+      <!-- STEP 3: Confirma CNPJ (readonly fields) -->
+      <div v-show="step === 3" class="flex flex-col gap-5">
+        <Message
+          severity="info"
+          :closable="false"
+          icon="pi pi-exclamation-circle"
+        >
+          Confirme os dados retornados pelo CNPJ e selecione o código CCEE.
+        </Message>
+
+        <div class="flex flex-col gap-2">
+          <label for="company_name" class="font-medium text-gray-700"
+            >Razão Social / Nome</label
           >
-            Nome completo
-          </label>
           <InputText
-            id="nome"
-            v-model="form.nome"
-            placeholder="Digite seu nome completo"
+            id="company_name"
+            v-model="form.agent.company_name"
+            :disabled="true"
             class="w-full"
+            size="large"
           />
         </div>
-        <div>
-          <label
-            for="endereco"
-            class="mb-2 block text-sm font-medium text-gray-700"
+
+        <div class="flex flex-col gap-2">
+          <label for="cnpj_confirm" class="font-medium text-gray-700"
+            >CNPJ</label
           >
-            Endereço
-          </label>
           <InputText
-            id="endereco"
-            v-model="form.endereco"
-            placeholder="Digite seu endereço"
+            id="cnpj_confirm"
+            v-model="form.agent.cnpj"
+            :disabled="true"
             class="w-full"
+            size="large"
+          />
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="ccee_code" class="font-medium text-gray-700"
+            >Código de Perfil do Agente CCEE</label
+          >
+          <Dropdown
+            id="ccee_code"
+            v-model="form.agent.ccee_code"
+            :options="cceeAgents"
+            optionLabel="label"
+            optionValue="value"
+            :disabled="loading"
+            :invalid="!!errors['agent.ccee_code']"
+            placeholder="Selecione o código CCEE"
+            class="w-full"
+            size="large"
+            @change="onCCEEAgentChange"
+          />
+          <small v-if="errors['agent.ccee_code']" class="text-red-600">{{
+            errors["agent.ccee_code"]
+          }}</small>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="submarket" class="font-medium text-gray-700"
+            >Submercado Energético</label
+          >
+          <InputText
+            id="submarket"
+            v-model="form.agent.submarket_name"
+            :disabled="true"
+            placeholder="Agente não selecionado"
+            class="w-full"
+            size="large"
+          />
+          <small class="text-gray-600"
+            >Será preenchido automaticamente ao selecionar o código CCEE.</small
+          >
+        </div>
+
+        <div class="mt-2 flex gap-3">
+          <Button
+            label="Voltar"
+            icon="pi pi-arrow-left"
+            severity="secondary"
+            size="large"
+            class="flex-1"
+            @click.prevent="back"
+          />
+          <Button
+            label="Confirmar"
+            icon="pi pi-check"
+            iconPos="right"
+            severity="primary"
+            size="large"
+            class="flex-1"
+            @click.prevent="next"
           />
         </div>
       </div>
 
-      <!-- Step 3 -->
-      <div v-if="step === 3" class="space-y-6">
-        <h2 class="mb-6 text-center text-lg font-semibold text-gray-900">
-          Localização
-        </h2>
-        <div>
-          <label
-            for="cidade"
-            class="mb-2 block text-sm font-medium text-gray-700"
-          >
-            Cidade
-          </label>
+      <!-- STEP 4: Endereço via CEP -->
+      <div v-show="step === 4" class="flex flex-col gap-5">
+        <div class="flex flex-col gap-2">
+          <label for="cep" class="font-medium text-gray-700">CEP</label>
+          <div class="flex gap-2">
+            <InputMask
+              id="cep"
+              v-model="form.address.cep"
+              mask="99999-999"
+              :disabled="loading"
+              :invalid="!!errors['address.cep']"
+              placeholder="00000-000"
+              class="flex-1"
+              size="large"
+            />
+            <Button
+              label="Buscar"
+              icon="pi pi-search"
+              :loading="loading"
+              :disabled="loading"
+              size="large"
+              @click.prevent="fetchCep"
+            />
+          </div>
+          <small v-if="errors['address.cep']" class="text-red-600">{{
+            errors["address.cep"]
+          }}</small>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="street" class="font-medium text-gray-700">Rua</label>
           <InputText
-            id="cidade"
-            v-model="form.cidade"
-            placeholder="Digite sua cidade"
+            id="street"
+            v-model="form.address.street"
+            :disabled="loading"
+            placeholder="Nome da rua"
             class="w-full"
+            size="large"
           />
         </div>
-        <div>
-          <label for="cep" class="mb-2 block text-sm font-medium text-gray-700">
-            CEP
-          </label>
+
+        <div class="flex gap-3">
+          <div class="flex flex-1 flex-col gap-2">
+            <label for="neighborhood" class="font-medium text-gray-700"
+              >Bairro</label
+            >
+            <InputText
+              id="neighborhood"
+              v-model="form.address.neighborhood"
+              :disabled="loading"
+              placeholder="Bairro"
+              size="large"
+            />
+          </div>
+          <div class="flex w-32 flex-col gap-2">
+            <label for="number" class="font-medium text-gray-700">Número</label>
+            <InputText
+              id="number"
+              v-model="form.address.number"
+              :disabled="loading"
+              placeholder="Nº"
+              size="large"
+            />
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <div class="flex flex-1 flex-col gap-2">
+            <label for="city" class="font-medium text-gray-700">Cidade</label>
+            <InputText
+              id="city"
+              v-model="form.address.city"
+              :disabled="loading"
+              :invalid="!!errors['address.city']"
+              placeholder="Cidade"
+              size="large"
+            />
+            <small v-if="errors['address.city']" class="text-red-600">{{
+              errors["address.city"]
+            }}</small>
+          </div>
+          <div class="flex w-32 flex-col gap-2">
+            <label for="state" class="font-medium text-gray-700">Estado</label>
+            <Dropdown
+              id="state"
+              v-model="form.address.state_initials"
+              :options="brazilStates"
+              optionLabel="sigla"
+              optionValue="sigla"
+              :disabled="loading"
+              :invalid="!!errors['address.state_initials']"
+              placeholder="UF"
+              size="large"
+              :showClear="true"
+              @change="onStateChange"
+            />
+            <small
+              v-if="errors['address.state_initials']"
+              class="text-red-600"
+              >{{ errors["address.state_initials"] }}</small
+            >
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="complement" class="font-medium text-gray-700"
+            >Complemento (opcional)</label
+          >
           <InputText
-            id="cep"
-            v-model="form.cep"
-            placeholder="Digite seu CEP"
+            id="complement"
+            v-model="form.address.complement"
+            :disabled="loading"
+            placeholder="Apto, bloco, etc"
             class="w-full"
+            size="large"
+          />
+        </div>
+
+        <div class="mt-2 flex gap-3">
+          <Button
+            label="Voltar"
+            icon="pi pi-arrow-left"
+            severity="secondary"
+            size="large"
+            class="flex-1"
+            @click.prevent="back"
+          />
+          <Button
+            type="submit"
+            label="Finalizar Cadastro"
+            icon="pi pi-check"
+            iconPos="right"
+            :loading="loading"
+            :disabled="loading"
+            severity="primary"
+            size="large"
+            class="flex-1"
           />
         </div>
       </div>
-    </div>
+    </form>
 
-    <!-- Botões de navegação -->
-    <div class="mt-8 flex gap-4">
-      <button
-        v-if="step > 1"
-        @click="prevStep"
-        class="flex-1 rounded-xl bg-gray-100 px-6 py-3 font-semibold text-gray-700 transition duration-200 hover:bg-gray-200"
-      >
-        Voltar
-      </button>
-      <button
-        v-if="step < 3"
-        @click="nextStep"
-        class="bg-primary-color hover:bg-primary-dark-color flex-1 transform rounded-xl px-6 py-3 font-semibold text-white transition duration-200 ease-in-out hover:scale-[1.02]"
-      >
-        Próximo
-      </button>
-      <button
-        v-if="step === 3"
-        @click="submitForm"
-        class="bg-primary-color hover:bg-primary-dark-color flex-1 transform rounded-xl px-6 py-3 font-semibold text-white transition duration-200 ease-in-out hover:scale-[1.02]"
-      >
-        Finalizar cadastro
-      </button>
+    <div class="mt-6 text-center">
+      <p class="text-gray-600">
+        Já tem uma conta?
+        <router-link
+          to="/login"
+          class="text-primary-color hover:text-primary-dark-color ml-1 font-medium transition-colors duration-200"
+        >
+          Entrar
+        </router-link>
+      </p>
     </div>
   </div>
 </template>
+
+<style scoped>
+:deep(.p-message-text) {
+  padding-left: 0.5rem;
+}
+</style>
