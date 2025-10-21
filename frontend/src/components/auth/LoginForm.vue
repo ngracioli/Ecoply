@@ -34,10 +34,7 @@ const showLoginErrorToast = () => {
 
 const loginSchema = z.object({
   email: z.email({ message: "E-mail inválido" }),
-  password: z
-    .string()
-    .min(8, { message: "A senha precisa ter ao menos 6 caracteres" })
-    .max(50, { message: "A senha pode ter no máximo 50 caracteres" }),
+  password: z.string().min(1, { message: "Senha é obrigatória" }),
 });
 
 const login = async () => {

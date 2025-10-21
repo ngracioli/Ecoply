@@ -241,6 +241,7 @@ func (s *authService) createUser(request *requests.SignUp) (*models.User, *merr.
 			UserType: userTypeModel,
 			Agent:    agentModel,
 		})
+		
 		if err != nil {
 			responseError = merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 			return err

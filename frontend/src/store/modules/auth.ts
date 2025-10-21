@@ -1,5 +1,6 @@
 import type { Module } from "vuex";
 import api from "../../axios";
+import type { RegisterRequest } from "../../types/requests/auth";
 
 export interface AuthState {
   token: string | null;
@@ -18,6 +19,8 @@ const auth: Module<AuthState, any> = {
     },
     logout(state) {
       state.token = null;
+      localStorage.removeItem("token");
+      console.log("Logged out, token removed");
     },
   },
   actions: {
@@ -37,38 +40,18 @@ const auth: Module<AuthState, any> = {
         throw error;
       }
     },
-    async register(
-      { commit },
-      formData: {
-        name: string;
-        email: string;
-        password: string;
-        confirm_password: string;
-        user_type: string;
-        address: {
-          cep: string;
-          state_initials: string;
-          state: string;
-          city: string;
-          neighborhood: string;
-          street: string;
-          number: string;
-          complement: string;
-        };
-        agent: {
-          cnpj: string;
-          ccee_code: string;
-          submarket_name: string;
-          company_name: string;
-        };
-      },
-    ) {
+    async register({ commit }, formData: RegisterRequest) {
       try {
         const response = await api.post("/api/v1/auth/signup", formData);
+        const token = response.data.data.token;
+        commit("setToken", token);
       } catch (error) {
         console.error("Registration failed:", error);
         throw error;
       }
+    },
+    logout({ commit }) {
+      commit("logout");
     },
   },
   getters: {
