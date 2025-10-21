@@ -41,6 +41,9 @@ loadStates();
 const step = ref<number>(1);
 const loading = ref(false);
 const brazilStates = ref<StateConsult>([]);
+const cceeAgents = ref<
+  Array<{ label: string; value: string; submarket: string }>
+>([]);
 
 const form = reactive<RegisterRequest>({
   name: "",
@@ -115,7 +118,7 @@ function validateStep(n: number): boolean {
   if (n === 2) {
     const digits = form.agent.cnpj.replace(/\D/g, "");
     if (!/^\d{14}$/.test(digits)) {
-      errors["agent.cnpj"] = "CNPJ deve ter 14 dígitos";
+      errors["agent.cnpj"] = "CNPJ deve ter 14 dígitos.";
       return false;
     }
     return true;
@@ -123,16 +126,11 @@ function validateStep(n: number): boolean {
 
   if (n === 3) {
     if (!form.agent.company_name) {
-      errors["agent.cnpj"] = "CNPJ não confirmado";
+      errors["agent.cnpj"] = "CNPJ não confirmado.";
       return false;
     }
-    if (!form.agent.submarket_name) {
-      errors["agent.submarket_name"] = "Selecione o submercado energético";
-      return false;
-    }
-    const cceeDigits = form.agent.ccee_code.replace(/\D/g, "");
-    if (!cceeDigits || !/^\d{1,6}$/.test(cceeDigits)) {
-      errors["agent.ccee_code"] = "Digite de 1 a 6 dígitos";
+    if (!form.agent.ccee_code) {
+      errors["agent.ccee_code"] = "Selecione o código CCEE.";
       return false;
     }
     return true;
@@ -141,15 +139,15 @@ function validateStep(n: number): boolean {
   if (n === 4) {
     const cepDigits = form.address.cep.replace(/\D/g, "");
     if (!/^\d{8}$/.test(cepDigits)) {
-      errors["address.cep"] = "CEP inválido";
+      errors["address.cep"] = "CEP inválido.";
       return false;
     }
     if (!form.address.city) {
-      errors["address.city"] = "Cidade obrigatória";
+      errors["address.city"] = "Cidade obrigatória.";
       return false;
     }
     if (!form.address.state_initials) {
-      errors["address.state_initials"] = "UF obrigatória";
+      errors["address.state_initials"] = "UF obrigatória.";
       return false;
     }
     return true;
@@ -170,12 +168,12 @@ async function checkEmailAvailability(): Promise<boolean> {
     return true;
   } catch (err: any) {
     if (err.response?.status === 409) {
-      errors["email"] = "Este e-mail já está cadastrado";
+      errors["email"] = "Este e-mail já está cadastrado.";
       return false;
     }
 
     console.error("Erro ao verificar disponibilidade do email:", err);
-    errors["email"] = "Erro ao verificar disponibilidade do e-mail";
+    errors["email"] = "Erro ao verificar disponibilidade do e-mail.";
     return false;
   }
 }
@@ -192,36 +190,12 @@ async function checkCNPJAvailability(): Promise<boolean> {
     return true;
   } catch (err: any) {
     if (err.response?.status === 409) {
-      errors["agent.cnpj"] = "Este CNPJ já está cadastrado";
+      errors["agent.cnpj"] = "Este CNPJ já está cadastrado.";
       return false;
     }
 
     console.error("Erro ao verificar disponibilidade do CNPJ:", err);
-    errors["agent.cnpj"] = "Erro ao verificar disponibilidade do CNPJ";
-    return false;
-  }
-}
-
-async function checkCCEEAvailability(): Promise<boolean> {
-  try {
-    const cceeDigits = onlyDigits(form.agent.ccee_code);
-    await api.get<void>("/api/v1/auth/available", {
-      params: {
-        type: "ccee",
-        value: cceeDigits,
-      },
-    });
-
-    return true;
-  } catch (err: any) {
-    if (err.response?.status === 409) {
-      errors["agent.ccee_code"] = "Este código CCEE já está cadastrado";
-      return false;
-    }
-
-    console.error("Erro ao verificar disponibilidade do código CCEE:", err);
-    errors["agent.ccee_code"] =
-      "Erro ao verificar disponibilidade do código CCEE";
+    errors["agent.cnpj"] = "Erro ao verificar disponibilidade do CNPJ.";
     return false;
   }
 }
@@ -234,11 +208,6 @@ async function next() {
     if (!isEmailAvailable) return;
   }
 
-  if (step.value === 3) {
-    const isCCEEAvailable = await checkCCEEAvailability();
-    if (!isCCEEAvailable) return;
-  }
-
   step.value++;
 }
 function back() {
@@ -247,6 +216,18 @@ function back() {
 
 function onlyDigits(s: string) {
   return (s || "").replace(/\D/g, "");
+}
+
+function mapSubmarketToCode(submarket: string): string {
+  const submarketMap: Record<string, string> = {
+    SUDESTE: "SE_CO",
+    SUL: "S",
+    NORTE: "N",
+    NORDESTE: "NE",
+  };
+
+  const upperSubmarket = (submarket || "").toUpperCase().trim();
+  return submarketMap[upperSubmarket] || submarket;
 }
 
 async function confirmCnpj() {
@@ -259,24 +240,56 @@ async function confirmCnpj() {
   loading.value = true;
   try {
     const cnpjDigits = onlyDigits(form.agent.cnpj);
-    const resp = await fetch(
+
+    const respBrasil = await fetch(
       `https://brasilapi.com.br/api/cnpj/v1/${cnpjDigits}`,
     );
-    if (!resp.ok) {
-      const errorData = await resp.json().catch(() => ({}));
-      errors["agent.cnpj"] = errorData.message || "Erro ao consultar CNPJ";
+    if (!respBrasil.ok) {
+      const errorData = await respBrasil.json().catch(() => ({}));
+      errors["agent.cnpj"] = errorData.message || "Erro ao consultar CNPJ.";
       return;
     }
-    const data = await resp.json();
+    const dataBrasil = await respBrasil.json();
 
-    form.agent.company_name = data.razao_social || data.nome_fantasia || "";
-    const cnpjFormatted = (data.cnpj || cnpjDigits).replace(
-      /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
-      "$1.$2.$3/$4-$5",
+    const respCCEE = await fetch(
+      `https://dadosabertos.ccee.org.br/api/3/action/datastore_search?resource_id=71169d34-7171-47bb-8217-4ff140fed41d&q=${cnpjDigits}`,
     );
-    form.agent.cnpj = cnpjFormatted;
+    if (!respCCEE.ok) {
+      errors["agent.cnpj"] = "Erro ao consultar dados CCEE.";
+      return;
+    }
+    const dataCCEE = await respCCEE.json();
 
-    showSuccess("Dados do CNPJ carregados. Verifique e prossiga.");
+    if (!dataCCEE.success || !dataCCEE.result || dataCCEE.result.total === 0) {
+      errors["agent.cnpj"] = "CNPJ não está vinculado a nenhum agente CCEE.";
+      return;
+    }
+
+    const validRecords = dataCCEE.result.records.filter(
+      (record: any) => onlyDigits(record.CNPJ) === cnpjDigits,
+    );
+
+    if (validRecords.length === 0) {
+      errors["agent.cnpj"] =
+        "CNPJ não corresponde exatamente aos registros CCEE.";
+      return;
+    }
+
+    form.agent.company_name =
+      dataBrasil.razao_social || dataBrasil.nome_fantasia || "";
+
+    cceeAgents.value = validRecords.map((record: any) => ({
+      label: `${record.COD_PERF_AGENTE} - ${record.SIGLA_PERFIL_AGENTE}`,
+      value: String(record.COD_PERF_AGENTE),
+      submarket: mapSubmarketToCode(record.SUBMERCADO),
+    }));
+
+    form.agent.ccee_code = "";
+    form.agent.submarket_name = "";
+
+    showSuccess(
+      "Dados do CNPJ carregados. Verifique e selecione o agente CCEE.",
+    );
     step.value = 3;
   } catch (err: any) {
     console.error(err);
@@ -290,7 +303,7 @@ async function fetchCep() {
   clearErrors();
   const cepDigits = onlyDigits(form.address.cep);
   if (!/^\d{8}$/.test(cepDigits)) {
-    errors["address.cep"] = "CEP inválido";
+    errors["address.cep"] = "CEP inválido.";
     return;
   }
 
@@ -301,7 +314,7 @@ async function fetchCep() {
     );
     if (!resp.ok) {
       const errorData = await resp.json().catch(() => ({}));
-      errors["address.cep"] = errorData.message || "CEP não encontrado";
+      errors["address.cep"] = errorData.message || "CEP não encontrado.";
       return;
     }
     const data = await resp.json();
@@ -336,6 +349,17 @@ function onStateChange() {
   }
 }
 
+function onCCEEAgentChange() {
+  const agenteEscolhido = cceeAgents.value.find(
+    (a) => a.value === form.agent.ccee_code,
+  );
+  if (agenteEscolhido) {
+    form.agent.submarket_name = agenteEscolhido.submarket;
+  } else {
+    form.agent.submarket_name = "";
+  }
+}
+
 async function submitFinal() {
   if (!validateStep(4)) return;
 
@@ -354,6 +378,7 @@ async function submitFinal() {
       agent: {
         ...form.agent,
         cnpj: onlyDigits(form.agent.cnpj),
+        submarket_name: form.agent.submarket_name || null,
       },
     };
 
@@ -565,7 +590,7 @@ async function submitFinal() {
           :closable="false"
           icon="pi pi-exclamation-circle"
         >
-          Confirme os dados retornados pelo CNPJ.
+          Confirme os dados retornados pelo CNPJ e selecione o código CCEE.
         </Message>
 
         <div class="flex flex-col gap-2">
@@ -595,49 +620,41 @@ async function submitFinal() {
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="submarket" class="font-medium text-gray-700"
-            >Submercado Energético</label
-          >
-          <Dropdown
-            id="submarket"
-            v-model="form.agent.submarket_name"
-            :options="[
-              { label: 'N - Norte', value: 'N' },
-              { label: 'NE - Nordeste', value: 'NE' },
-              { label: 'S - Sul', value: 'S' },
-              { label: 'SE/CO - Sudeste/Centro-Oeste', value: 'SE_CO' },
-            ]"
-            optionLabel="label"
-            optionValue="value"
-            :disabled="loading"
-            :invalid="!!errors['agent.submarket_name']"
-            placeholder="Selecione o submercado"
-            class="w-full"
-            size="large"
-          />
-          <small v-if="errors['agent.submarket_name']" class="text-red-600">{{
-            errors["agent.submarket_name"]
-          }}</small>
-        </div>
-
-        <div class="flex flex-col gap-2">
           <label for="ccee_code" class="font-medium text-gray-700"
             >Código de Perfil do Agente CCEE</label
           >
-          <InputText
+          <Dropdown
             id="ccee_code"
             v-model="form.agent.ccee_code"
+            :options="cceeAgents"
+            optionLabel="label"
+            optionValue="value"
             :disabled="loading"
             :invalid="!!errors['agent.ccee_code']"
-            placeholder="Ex: 12345"
+            placeholder="Selecione o código CCEE"
             class="w-full"
             size="large"
+            @change="onCCEEAgentChange"
           />
           <small v-if="errors['agent.ccee_code']" class="text-red-600">{{
             errors["agent.ccee_code"]
           }}</small>
-          <small v-else class="text-gray-600"
-            >Digite apenas números inteiros, de 1 a 6 dígitos.</small
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="submarket" class="font-medium text-gray-700"
+            >Submercado Energético</label
+          >
+          <InputText
+            id="submarket"
+            v-model="form.agent.submarket_name"
+            :disabled="true"
+            placeholder="Agente não selecionado"
+            class="w-full"
+            size="large"
+          />
+          <small class="text-gray-600"
+            >Será preenchido automaticamente ao selecionar o código CCEE.</small
           >
         </div>
 
