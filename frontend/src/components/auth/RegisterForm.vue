@@ -12,39 +12,37 @@ import { ref, reactive } from "vue";
 import { z } from "zod";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import type { RegisterRequest } from "../../types/requests/auth";
+import axios from "axios";
+import api from "../../axios";
+import type { StateConsult } from "../../types/responses/brazilStates";
 
 const toast = useToast();
 const store = useStore();
 const router = useRouter();
 
-async function loadEstados() {
+async function loadStates() {
   try {
-    const resp = await fetch("https://brasilapi.com.br/api/ibge/uf/v1");
-    if (!resp.ok) return;
-    const data = await resp.json();
-    estados.value = data
-      .map((uf: any) => ({
-        sigla: uf.sigla,
-        nome: uf.nome,
-      }))
-      .sort((a: { sigla: string }, b: { sigla: string }) =>
+    const resp = await axios.get<StateConsult>(
+      "https://brasilapi.com.br/api/ibge/uf/v1",
+    );
+
+    brazilStates.value = resp.data.sort(
+      (a: { sigla: string }, b: { sigla: string }) =>
         a.sigla.localeCompare(b.sigla),
-      );
+    );
   } catch (err) {
     console.error("Erro ao carregar estados:", err);
   }
 }
 
-// Carrega os estados quando o componente é montado
-loadEstados();
+loadStates();
 
-/* --- UI / flow --- */
-const step = ref<number>(1); // 1..4
+const step = ref<number>(1);
 const loading = ref(false);
-const estados = ref<Array<{ sigla: string; nome: string }>>([]);
+const brazilStates = ref<StateConsult>([]);
 
-/* --- Form model --- */
-const form = reactive({
+const form = reactive<RegisterRequest>({
   name: "",
   email: "",
   password: "",
@@ -68,49 +66,27 @@ const form = reactive({
   },
 });
 
-/* --- Errors por campo --- */
 const errors = reactive<Record<string, string>>({});
 
-/* --- Schemas zod por step --- */
 const step1Schema = z
   .object({
     name: z.string().min(1, "Nome completo é obrigatório"),
     email: z.string().email("E-mail inválido"),
-    password: z.string().min(6, "A senha precisa ter ao menos 6 caracteres"),
-    confirm_password: z.string(),
+    password: z
+      .string()
+      .regex(/[^a-zA-Z0-9]/, "A senha deve conter ao menos um símbolo")
+      .regex(/[0-9]/, "A senha deve conter ao menos um número")
+      .regex(/[A-Z]/, "A senha deve conter ao menos uma letra maiúscula")
+      .regex(/[a-z]/, "A senha deve conter ao menos uma letra minúscula")
+      .max(50, "A senha pode ter no máximo 50 caracteres")
+      .min(8, "A senha precisa ter ao menos 8 caracteres"),
+    confirm_password: z.string().min(1, "Confirmação de senha é obrigatória"),
   })
   .refine((data) => data.password === data.confirm_password, {
     message: "Senhas não conferem",
     path: ["confirm_password"],
   });
 
-const step2Schema = z.object({
-  user_type: z.enum(["buyer", "supplier"]),
-  // cnpj opcional quando buyer, obrigatório quando supplier
-  cnpj: z.string().optional(),
-});
-
-const step3Schema = z.object({
-  // no step 3 validar se existe agent.company_name (preenchido pela API)
-  agent_company_name: z.string().min(1, "CNPJ não confirmado"),
-});
-
-const step4Schema = z.object({
-  "address.cep": z.string().min(8, "CEP inválido"),
-  "address.city": z.string().min(1, "Cidade é obrigatória"),
-  "address.state_initials": z.string().min(2, "UF é obrigatória"),
-});
-
-/* --- Helpers UI --- */
-const steps = [
-  { id: 1, label: "Dados pessoais" },
-  { id: 2, label: "Tipo / CNPJ" },
-  { id: 3, label: "Confirma CNPJ" },
-  { id: 4, label: "Endereço" },
-];
-
-const showError = (detail: string) =>
-  toast.add({ severity: "error", summary: "Erro", detail, life: 3500 });
 const showSuccess = (detail: string) =>
   toast.add({ severity: "success", summary: "Sucesso", detail, life: 3000 });
 
@@ -118,7 +94,6 @@ function clearErrors() {
   Object.keys(errors).forEach((k) => delete errors[k]);
 }
 
-/* --- valida step atual --- */
 function validateStep(n: number): boolean {
   clearErrors();
   if (n === 1) {
@@ -138,7 +113,6 @@ function validateStep(n: number): boolean {
   }
 
   if (n === 2) {
-    // Exige CNPJ numérico com 14 dígitos para ambos (comprador e fornecedor)
     const digits = form.agent.cnpj.replace(/\D/g, "");
     if (!/^\d{14}$/.test(digits)) {
       errors["agent.cnpj"] = "CNPJ deve ter 14 dígitos";
@@ -152,12 +126,10 @@ function validateStep(n: number): boolean {
       errors["agent.cnpj"] = "CNPJ não confirmado";
       return false;
     }
-    // Valida o submercado energético
     if (!form.agent.submarket_name) {
       errors["agent.submarket_name"] = "Selecione o submercado energético";
       return false;
     }
-    // Valida o código CCEE (1 a 6 dígitos numéricos)
     const cceeDigits = form.agent.ccee_code.replace(/\D/g, "");
     if (!cceeDigits || !/^\d{1,6}$/.test(cceeDigits)) {
       errors["agent.ccee_code"] = "Digite de 1 a 6 dígitos";
@@ -186,30 +158,107 @@ function validateStep(n: number): boolean {
   return true;
 }
 
-/* --- navegação --- */
-function next() {
+async function checkEmailAvailability(): Promise<boolean> {
+  try {
+    await api.get<void>("/api/v1/auth/available", {
+      params: {
+        type: "email",
+        value: form.email,
+      },
+    });
+
+    return true;
+  } catch (err: any) {
+    if (err.response?.status === 409) {
+      errors["email"] = "Este e-mail já está cadastrado";
+      return false;
+    }
+
+    console.error("Erro ao verificar disponibilidade do email:", err);
+    errors["email"] = "Erro ao verificar disponibilidade do e-mail";
+    return false;
+  }
+}
+
+async function checkCNPJAvailability(): Promise<boolean> {
+  try {
+    await api.get<void>("/api/v1/auth/available", {
+      params: {
+        type: "cnpj",
+        value: onlyDigits(form.agent.cnpj),
+      },
+    });
+
+    return true;
+  } catch (err: any) {
+    if (err.response?.status === 409) {
+      errors["agent.cnpj"] = "Este CNPJ já está cadastrado";
+      return false;
+    }
+
+    console.error("Erro ao verificar disponibilidade do CNPJ:", err);
+    errors["agent.cnpj"] = "Erro ao verificar disponibilidade do CNPJ";
+    return false;
+  }
+}
+
+async function checkCCEEAvailability(): Promise<boolean> {
+  try {
+    const cceeDigits = onlyDigits(form.agent.ccee_code);
+    await api.get<void>("/api/v1/auth/available", {
+      params: {
+        type: "ccee",
+        value: cceeDigits,
+      },
+    });
+
+    return true;
+  } catch (err: any) {
+    if (err.response?.status === 409) {
+      errors["agent.ccee_code"] = "Este código CCEE já está cadastrado";
+      return false;
+    }
+
+    console.error("Erro ao verificar disponibilidade do código CCEE:", err);
+    errors["agent.ccee_code"] =
+      "Erro ao verificar disponibilidade do código CCEE";
+    return false;
+  }
+}
+
+async function next() {
   if (!validateStep(step.value)) return;
+
+  if (step.value === 1) {
+    const isEmailAvailable = await checkEmailAvailability();
+    if (!isEmailAvailable) return;
+  }
+
+  if (step.value === 3) {
+    const isCCEEAvailable = await checkCCEEAvailability();
+    if (!isCCEEAvailable) return;
+  }
+
   step.value++;
 }
 function back() {
   if (step.value > 1) step.value--;
 }
 
-/* --- Utilidades para API calls --- */
 function onlyDigits(s: string) {
   return (s || "").replace(/\D/g, "");
 }
 
-/* --- Consulta CNPJ (Confirmar) --- */
-/* Usando BrasilAPI para consultar CNPJ */
 async function confirmCnpj() {
   clearErrors();
   if (!validateStep(2)) return;
 
+  const isCNPJAvailable = await checkCNPJAvailability();
+  if (!isCNPJAvailable) return;
+
   loading.value = true;
   try {
     const cnpjDigits = onlyDigits(form.agent.cnpj);
-    // BrasilAPI endpoint: https://brasilapi.com.br/api/cnpj/v1/{cnpj}
     const resp = await fetch(
       `https://brasilapi.com.br/api/cnpj/v1/${cnpjDigits}`,
     );
@@ -220,15 +269,12 @@ async function confirmCnpj() {
     }
     const data = await resp.json();
 
-    // BrasilAPI retorna campos como 'razao_social', 'nome_fantasia', 'cnae_fiscal', etc.
     form.agent.company_name = data.razao_social || data.nome_fantasia || "";
-    // Formata o CNPJ com máscara para exibir no input
     const cnpjFormatted = (data.cnpj || cnpjDigits).replace(
       /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
       "$1.$2.$3/$4-$5",
     );
     form.agent.cnpj = cnpjFormatted;
-    // Não preenche mais ccee_code e submarket_name automaticamente
 
     showSuccess("Dados do CNPJ carregados. Verifique e prossiga.");
     step.value = 3;
@@ -240,7 +286,6 @@ async function confirmCnpj() {
   }
 }
 
-/* --- Consulta CEP (BrasilAPI) --- */
 async function fetchCep() {
   clearErrors();
   const cepDigits = onlyDigits(form.address.cep);
@@ -261,13 +306,13 @@ async function fetchCep() {
     }
     const data = await resp.json();
 
-    // popula o address (padrões BrasilAPI -> street, neighborhood, city, state)
     form.address.street = data.street || "";
     form.address.neighborhood = data.neighborhood || "";
     form.address.city = data.city || "";
     form.address.state_initials = data.state || "";
-    // Também preenche o nome do estado quando busca pelo CEP
-    const estadoEncontrado = estados.value.find((e) => e.sigla === data.state);
+    const estadoEncontrado = brazilStates.value.find(
+      (e) => e.sigla === data.state,
+    );
     if (estadoEncontrado) {
       form.address.state = estadoEncontrado.nome;
     }
@@ -280,9 +325,8 @@ async function fetchCep() {
   }
 }
 
-/* --- Atualiza o nome do estado quando seleciona a UF --- */
 function onStateChange() {
-  const estadoSelecionado = estados.value.find(
+  const estadoSelecionado = brazilStates.value.find(
     (e) => e.sigla === form.address.state_initials,
   );
   if (estadoSelecionado) {
@@ -292,31 +336,29 @@ function onStateChange() {
   }
 }
 
-/* --- submit final --- */
 async function submitFinal() {
   if (!validateStep(4)) return;
 
   loading.value = true;
   try {
-    // prepare payload conforme seu backend
     const payload = {
       name: form.name,
       email: form.email,
       password: form.password,
       confirm_password: form.confirm_password,
-      user_type: form.user_type === "supplier" ? "supplier" : "buyer",
+      user_type: form.user_type,
       address: {
         ...form.address,
         cep: onlyDigits(form.address.cep),
       },
       agent: {
         ...form.agent,
-        // Remove a máscara do CNPJ (envia só números para o backend)
         cnpj: onlyDigits(form.agent.cnpj),
       },
     };
 
-    // ajuste a action conforme sua store
+    console.log("Payload sendo enviado:", JSON.stringify(payload, null, 2));
+
     await store.dispatch("auth/register", payload);
 
     showSuccess("Cadastro realizado com sucesso!");
@@ -404,6 +446,10 @@ async function submitFinal() {
           <small v-if="errors.password" class="text-red-600">{{
             errors.password
           }}</small>
+          <small v-else class="text-gray-600">
+            A senha deve ter 8-50 caracteres, incluindo letras maiúsculas e
+            minúsculas, números e símbolos.
+          </small>
         </div>
 
         <div class="flex flex-col gap-2">
@@ -447,7 +493,7 @@ async function submitFinal() {
           :closable="false"
           icon="pi pi-exclamation-circle"
         >
-          O CNPJ é obrigatório para todos os usuários.
+          O CNPJ do agente é obrigatório para todos os usuários.
         </Message>
 
         <div class="flex flex-col gap-2">
@@ -471,7 +517,9 @@ async function submitFinal() {
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="cnpj" class="font-medium text-gray-700">CNPJ</label>
+          <label for="cnpj" class="font-medium text-gray-700"
+            >CNPJ do Agente CCEE</label
+          >
           <InputMask
             id="cnpj"
             v-model="form.agent.cnpj"
@@ -585,10 +633,10 @@ async function submitFinal() {
             class="w-full"
             size="large"
           />
-          <small
-            :class="
-              errors['agent.ccee_code'] ? 'text-red-600' : 'text-gray-600'
-            "
+          <small v-if="errors['agent.ccee_code']" class="text-red-600">{{
+            errors["agent.ccee_code"]
+          }}</small>
+          <small v-else class="text-gray-600"
             >Digite apenas números inteiros, de 1 a 6 dígitos.</small
           >
         </div>
@@ -700,7 +748,7 @@ async function submitFinal() {
             <Dropdown
               id="state"
               v-model="form.address.state_initials"
-              :options="estados"
+              :options="brazilStates"
               optionLabel="sigla"
               optionValue="sigla"
               :disabled="loading"

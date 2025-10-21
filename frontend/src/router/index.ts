@@ -24,6 +24,7 @@ const routes = [
     path: "/dashboard",
     name: "Dashboard",
     component: () => import("../views/dashboard/Dashboard.vue"),
+    meta: { requiresAuth: true },
   },
 ];
 
@@ -50,6 +51,19 @@ const router = createRouter({
 
     return { top: 0 };
   },
+});
+
+router.beforeEach((to, _from, next) => {
+  const token = localStorage.getItem("token");
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+
+  if (requiresAuth && !token) {
+    next({ name: "Login" });
+  } else if (to.name === "Login" && token) {
+    next({ name: "Dashboard" });
+  } else {
+    next();
+  }
 });
 
 export default router;
