@@ -17,7 +17,7 @@ export interface RegisterRequest {
   agent: {
     cnpj: string;
     ccee_code: string;
-    submarket_name: string;
+    submarket_name: string | null;
     company_name: string;
   };
 }
