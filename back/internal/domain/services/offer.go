@@ -133,7 +133,14 @@ func parseDate(date string) (time.Time, error) {
 }
 
 func validatePeriodFromRequest(startPeriod string, endPeriod string) error {
-	now := time.Now()
+	nowInLoc := time.Now().In(time.Local)
+	now := time.Date(
+        nowInLoc.Year(),
+        nowInLoc.Month(),
+        nowInLoc.Day(),
+        0, 0, 0, 0,
+        time.Local,
+    )
 
 	parsedStartPeriod, err := parseDate(startPeriod)
 	if err != nil {
