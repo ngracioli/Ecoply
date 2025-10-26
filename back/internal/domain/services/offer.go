@@ -231,6 +231,7 @@ func (s *offerService) List(request *requests.ListOffers, user *models.User) (*u
 	response.PageSize = list.PageSize
 	response.HasNext = list.HasNext
 	response.HasPrev = list.HasPrev
+	response.Data = make([]*resources.Offer, 0, len(list.Data))
 
 	for _, offer := range list.Data {
 		response.Data = append(response.Data, makeOfferResourceFromModel(offer))
