@@ -7,10 +7,10 @@ import (
 )
 
 const (
-	OfferStatusFresh      uint8 = 1
-	OfferStatusOpen       uint8 = 2
-	OfferStatusFullFilled uint8 = 3
-	OfferStatusExpired    uint8 = 4
+	OfferStatusFresh      string = "fresh"
+	OfferStatusOpen       string = "open"
+	OfferStatusFullFilled string = "fullfilled"
+	OfferStatusExpired    string = "expired"
 )
 
 type Offer struct {
@@ -27,7 +27,7 @@ type Offer struct {
 	PeriodStart time.Time `gorm:"type:date;not null"`
 	PeriodEnd   time.Time `gorm:"type:date;not null"`
 
-	Status uint8 `gorm:"type:int;not null"`
+	Status string `gorm:"type:int;not null"`
 
 	EnergyTypeId uint       `gorm:"references:ID;not null"`
 	EnergyType   EnergyType `gorm:"foreignKey:EnergyTypeId"`

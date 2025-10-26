@@ -42,15 +42,58 @@ func NewAuthService(db *gorm.DB) AuthService {
 	}
 }
 
-func (s *authService) makeMeResource(user *models.User) resources.Me {
-	return resources.Me{
-		Name:     user.Name,
-		UserType: user.UserType.Type,
+func (s *authService) makeMeResource(user *models.User) (*resources.Me, *merr.ResponseError) {
+	var err error
+	if err = s.db.Preload("Agent").
+		Preload("Agent.Address").
+		Preload("Agent.Address.Street").
+		Preload("Agent.Address.Street.Neighborhood").
+		Preload("Agent.Address.Street.Neighborhood.City").
+		Preload("Agent.Address.Street.Neighborhood.City.State").
+		Preload("Agent.Submarket").
+		Preload("UserType").
+		First(user).Error; err != nil {
+		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
+
+	var address models.Address = user.Agent.Address
+	var agent models.Agent = user.Agent
+
+	var me resources.Me = resources.Me{
+		Name:     user.Name,
+		Email:    user.Email,
+		UserType: user.UserType.Type,
+		Address: resources.Address{
+			Cep:          address.Cep,
+			Street:       address.Street.Street,
+			Number:       address.Number,
+			Complement:   address.Complement,
+			Neighborhood: address.Street.Neighborhood.Neighborhood,
+			StateInitial: address.Street.Neighborhood.City.State.Initials,
+			City:         address.Street.Neighborhood.City.City,
+			State:        address.Street.Neighborhood.City.State.State,
+		},
+		Agent: resources.Agent{
+			Cnpj:          agent.Cnpj,
+			CceeCode:      agent.CceeCode,
+			SubmarketName: agent.Submarket.Name,
+			CompanyName:   agent.CompanyName,
+		},
+	}
+
+	return &me, nil
 }
 
 func (s *authService) Login(request *requests.Login) (*resources.Login, *merr.ResponseError) {
-	user, err := s.userRepo.FindByEmail(request.Email)
+	var err error
+	var errResponse *merr.ResponseError
+
+	var user *models.User
+	var token string
+	var meResource *resources.Me
+	var response *resources.Login
+
+	user, err = s.userRepo.FindByEmail(request.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrInvalidCredentials)
@@ -62,48 +105,61 @@ func (s *authService) Login(request *requests.Login) (*resources.Login, *merr.Re
 		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrIncorrectPassword)
 	}
 
-	if err := s.userRepo.PreloadUserType(user); err != nil {
-		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+	token, errResponse = s.generateJwtToken(user)
+	if errResponse != nil {
+		return nil, errResponse
 	}
 
-	token, resErr := s.generateJwtToken(user)
-	if resErr != nil {
-		return nil, resErr
+	meResource, errResponse = s.makeMeResource(user)
+	if errResponse != nil {
+		return nil, errResponse
 	}
 
-	response := &resources.Login{
+	response = &resources.Login{
 		Token: token,
-		User:  s.makeMeResource(user),
+		User:  *meResource,
 	}
 
 	return response, nil
 }
 
 func (s *authService) SignUp(request *requests.SignUp) (*resources.Login, *merr.ResponseError) {
-	user, err := s.createUser(request)
-	if err != nil {
-		return nil, err
+	var errResponse *merr.ResponseError
+	var user *models.User
+	var token string
+	var meResource *resources.Me
+	var response *resources.Login
+
+	user, errResponse = s.createUser(request)
+	if errResponse != nil {
+		return nil, errResponse
 	}
 
-	if err := s.userRepo.PreloadUserType(user); err != nil {
-		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+	token, errResponse = s.generateJwtToken(user)
+	if errResponse != nil {
+		return nil, errResponse
 	}
 
-	token, err := s.generateJwtToken(user)
-	if err != nil {
-		return nil, err
+	meResource, errResponse = s.makeMeResource(user)
+	if errResponse != nil {
+		return nil, errResponse
 	}
 
-	response := &resources.Login{
+	response = &resources.Login{
 		Token: token,
-		User:  s.makeMeResource(user),
+		User:  *meResource,
 	}
 
 	return response, nil
 }
 
 func (s *authService) Me(userUuid string) (*resources.Me, *merr.ResponseError) {
-	user, err := s.userRepo.FindByUuid(userUuid)
+	var response *resources.Me
+	var err error
+	var errResponse *merr.ResponseError
+	var user *models.User
+
+	user, err = s.userRepo.FindByUuid(userUuid)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrUserNotFound)
@@ -111,13 +167,12 @@ func (s *authService) Me(userUuid string) (*resources.Me, *merr.ResponseError) {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
 
-	if err := s.userRepo.PreloadUserType(user); err != nil {
-		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+	response, errResponse = s.makeMeResource(user)
+	if errResponse != nil {
+		return nil, errResponse
 	}
 
-	response := s.makeMeResource(user)
-
-	return &response, nil
+	return response, nil
 }
 
 func (s *authService) Availability(request *requests.Availability) (bool, *merr.ResponseError) {
@@ -156,7 +211,10 @@ func (s *authService) generateJwtToken(user *models.User) (string, *merr.Respons
 }
 
 func (s *authService) isAvailable(value string, findFunc func(string) (any, error)) (bool, *merr.ResponseError) {
-	exists, err := findFunc(value)
+	var exists any
+	var err error
+
+	exists, err = findFunc(value)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return true, nil
@@ -240,7 +298,7 @@ func (s *authService) createUser(request *requests.SignUp) (*models.User, *merr.
 			UserType: userTypeModel,
 			Agent:    agentModel,
 		})
-		
+
 		if err != nil {
 			if errors.Is(err, gorm.ErrDuplicatedKey) {
 				responseError = merr.NewResponseError(http.StatusUnprocessableEntity, ErrUserAlreadyExists)
