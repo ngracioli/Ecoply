@@ -56,7 +56,7 @@ type OfferCreateParams struct {
 	Description          string
 	PeriodStart          time.Time
 	PeriodEnd            time.Time
-	Status               uint8
+	Status               string
 	EnergyTypeId         uint
 	SellerId             uint
 	SubmarketId          uint
