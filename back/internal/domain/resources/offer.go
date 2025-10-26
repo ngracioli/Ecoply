@@ -12,7 +12,7 @@ type Offer struct {
 	Description          string    `json:"description"`
 	PeriodStart          string    `json:"period_start"`
 	PeriodEnd            string    `json:"period_end"`
-	Status               uint8     `json:"status"`
+	Status               string    `json:"status"`
 	EnergyType           string    `json:"energy_type"`
 	Submarket            string    `json:"submarket"`
 	SellerUuid           string    `json:"seller_agent_uuid"`
