@@ -3,12 +3,18 @@ import { createRouter, createWebHistory } from "vue-router";
 import LandingPage from "../views/LandingPage.vue";
 import Login from "../views/auth/Login.vue";
 import Register from "../views/auth/Register.vue";
+import EcoplyInfo from "../views/EcoplyInfo/EcoplyInfo.vue";
 
 const routes = [
   {
     path: "/",
     name: "Home",
     component: LandingPage,
+  },
+  {
+      path: "/info",
+    name: "Info",
+    component: EcoplyInfo,
   },
   {
     path: "/login",
