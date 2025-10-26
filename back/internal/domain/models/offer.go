@@ -27,7 +27,7 @@ type Offer struct {
 	PeriodStart time.Time `gorm:"type:date;not null"`
 	PeriodEnd   time.Time `gorm:"type:date;not null"`
 
-	Status string `gorm:"type:int;not null"`
+	Status string `gorm:"type:varchar(20);not null"`
 
 	EnergyTypeId uint       `gorm:"references:ID;not null"`
 	EnergyType   EnergyType `gorm:"foreignKey:EnergyTypeId"`

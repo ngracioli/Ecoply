@@ -24,7 +24,23 @@ func OfferByUuidHanlder(c *gin.Context) {
 }
 
 func OfferListHandler(c *gin.Context) {
+	var params requests.ListOffers
+	var user *models.User
 
+	if err := c.ShouldBindQuery(&params); err != nil {
+		var response *merr.ResponseError = merr.BindValidationErrorsToResponse(err)
+		c.JSON(response.StatusCode, response)
+		return
+	}
+
+	user = utils.GetUserFromContext(c)
+	response, err := services.Offer.List(&params, user)
+	if err != nil {
+		c.JSON(err.StatusCode, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 func UserOffersHandler(c *gin.Context) {
