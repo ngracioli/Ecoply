@@ -13,8 +13,10 @@ func NewPaginationWrapper[T any](page int, pageSize int, data []T) *PaginationWr
 	var hasPrev bool = page > 1
 	var paginatedData []T = make([]T, 0)
 
-	if len(data) != 0 {
+	if len(data) > pageSize {
 		paginatedData = data[:pageSize]
+	} else {
+		paginatedData = data
 	}
 
 	return &PaginationWrapper[T]{
