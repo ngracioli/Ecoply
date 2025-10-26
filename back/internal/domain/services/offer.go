@@ -6,6 +6,7 @@ import (
 	"ecoply/internal/domain/repository"
 	"ecoply/internal/domain/requests"
 	"ecoply/internal/domain/resources"
+	"ecoply/internal/domain/utils"
 	"ecoply/internal/mlog"
 	"net/http"
 	"strings"
@@ -20,17 +21,22 @@ type OfferService interface {
 	Create(user *models.User, request *requests.CreateOffer) (*resources.Offer, *merr.ResponseError)
 	Update(offer *models.Offer) *merr.ResponseError
 	Delete(id string) *merr.ResponseError
+	List(params *requests.ListOffers, user *models.User) (*utils.PaginationWrapper[*resources.Offer], *merr.ResponseError)
 }
 
 type offerService struct {
-	offerRepo repository.OfferRepository
-	db        *gorm.DB
+	offerRepo     repository.OfferRepository
+	submarketRepo repository.SubmarketRepository
+	userTypeRepo  repository.UserTypeRepository
+	db            *gorm.DB
 }
 
 func NewOfferService(db *gorm.DB) OfferService {
 	return &offerService{
-		offerRepo: repository.NewOfferRepository(db),
-		db:        db,
+		offerRepo:     repository.NewOfferRepository(db),
+		submarketRepo: repository.NewSubmarketRepository(db),
+		userTypeRepo:  repository.NewUserTypeRepository(db),
+		db:            db,
 	}
 }
 
@@ -135,12 +141,12 @@ func parseDate(date string) (time.Time, error) {
 func validatePeriodFromRequest(startPeriod string, endPeriod string) error {
 	nowInLoc := time.Now().In(time.Local)
 	now := time.Date(
-        nowInLoc.Year(),
-        nowInLoc.Month(),
-        nowInLoc.Day(),
-        0, 0, 0, 0,
-        time.Local,
-    )
+		nowInLoc.Year(),
+		nowInLoc.Month(),
+		nowInLoc.Day(),
+		0, 0, 0, 0,
+		time.Local,
+	)
 
 	parsedStartPeriod, err := parseDate(startPeriod)
 	if err != nil {
@@ -208,4 +214,27 @@ func makeOfferResourceFromModel(offer *models.Offer) *resources.Offer {
 	}
 
 	return &response
+}
+
+func (s *offerService) List(request *requests.ListOffers, user *models.User) (*utils.PaginationWrapper[*resources.Offer], *merr.ResponseError) {
+	var list *utils.PaginationWrapper[*models.Offer]
+	var err error
+
+	list, err = s.offerRepo.List(request, user)
+	if err != nil {
+		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+	}
+
+	var response utils.PaginationWrapper[*resources.Offer]
+
+	response.Page = list.Page
+	response.PageSize = list.PageSize
+	response.HasNext = list.HasNext
+	response.HasPrev = list.HasPrev
+
+	for _, offer := range list.Data {
+		response.Data = append(response.Data, makeOfferResourceFromModel(offer))
+	}
+
+	return &response, nil
 }
