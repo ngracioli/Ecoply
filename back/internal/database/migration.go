@@ -6,11 +6,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type Migration struct {
-	ID   uint   `gorm:"primarykey"`
-	Name string `gorm:"type:varchar(255);not null;uniqueIndex"`
-}
-
 func Migrate(con *gorm.DB) {
 	con.Migrator().AutoMigrate(
 		&models.UserType{},
@@ -27,11 +22,15 @@ func Migrate(con *gorm.DB) {
 		&models.EnergyType{},
 		&models.Offer{},
 		&models.Purchase{},
+
+		&models.MockedData{},
 	)
 
 	insertUserTypes(con)
 	insertSubmarkets(con)
 	insertEnergyTypes(con)
+
+	insertMockedData(con)
 }
 
 func insertUserTypes(con *gorm.DB) {
