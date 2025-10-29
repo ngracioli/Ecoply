@@ -8,6 +8,7 @@ import (
 	"ecoply/internal/domain/resources"
 	"ecoply/internal/domain/utils"
 	"ecoply/internal/mlog"
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -20,7 +21,7 @@ type OfferService interface {
 	BelongingToUser(userId uint) ([]*resources.Offer, *merr.ResponseError)
 	Create(user *models.User, request *requests.CreateOffer) (*resources.Offer, *merr.ResponseError)
 	Update(offer *models.Offer) *merr.ResponseError
-	Delete(id string) *merr.ResponseError
+	Delete(user *models.User, uuid string) *merr.ResponseError
 	List(params *requests.ListOffers, user *models.User) (*utils.PaginationWrapper[*resources.Offer], *merr.ResponseError)
 }
 
@@ -99,8 +100,24 @@ func (s *offerService) Update(offer *models.Offer) *merr.ResponseError {
 	return nil
 }
 
-func (s *offerService) Delete(id string) *merr.ResponseError {
-	err := s.offerRepo.Delete(id)
+func (s *offerService) Delete(user *models.User, uuid string) *merr.ResponseError {
+	var offer *models.Offer
+	var err error
+
+	offer, err = s.offerRepo.GetByUuid(uuid)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.NewResponseError(http.StatusNotFound, ErrOfferNotFound)
+	}
+
+	if offer.Status != models.OfferStatusFresh {
+		return merr.NewResponseError(http.StatusUnprocessableEntity, ErrCannotDeleteOffer)
+	}
+
+	if offer.SellerId != user.ID {
+		return merr.NewResponseError(http.StatusForbidden, ErrUserIsNotTheOfferOwner)
+	}
+
+	err = s.offerRepo.Delete(uuid)
 	if err != nil {
 		return merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}

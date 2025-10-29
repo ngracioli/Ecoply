@@ -7,10 +7,10 @@ import (
 )
 
 const (
-	OfferStatusFresh      string = "fresh"
-	OfferStatusOpen       string = "open"
-	OfferStatusFullFilled string = "fullfilled"
-	OfferStatusExpired    string = "expired"
+	OfferStatusFresh     string = "fresh"
+	OfferStatusOpen      string = "open"
+	OfferStatusFulFilled string = "fulfilled"
+	OfferStatusExpired   string = "expired"
 )
 
 type Offer struct {
