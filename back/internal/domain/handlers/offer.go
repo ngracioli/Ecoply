@@ -78,5 +78,14 @@ func UpdateOfferHandler(c *gin.Context) {
 }
 
 func DeleteOfferHandler(c *gin.Context) {
+	var uuid string = c.Param("uuid")
+	var user *models.User = utils.GetUserFromContext(c)
 
+	err := services.Offer.Delete(user, uuid)
+	if err != nil {
+		c.JSON(err.StatusCode, err)
+		return
+	}
+
+	c.AbortWithStatus(http.StatusNoContent)
 }
