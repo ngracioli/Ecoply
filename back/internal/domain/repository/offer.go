@@ -93,7 +93,14 @@ func (r *offerRepository) Update(offer *models.Offer) error {
 }
 
 func (r *offerRepository) Delete(uuid string) error {
-	return r.db.Where("uuid = ?", uuid).Delete(&models.Offer{}).Error
+	var err error
+
+	err = r.db.Where("uuid = ?", uuid).Delete(&models.Offer{}).Error
+	if err != nil {
+		mlog.Log("Failed to delete offfer: " + err.Error())
+	}
+
+	return nil
 }
 
 func (r *offerRepository) List(request *requests.ListOffers, user *models.User) (*utils.PaginationWrapper[*models.Offer], error) {
@@ -103,7 +110,7 @@ func (r *offerRepository) List(request *requests.ListOffers, user *models.User) 
 		Joins("EnergyType").
 		Joins("Seller").
 		Where("seller_id != ?", user.ID).
-		Where("status NOT IN (?)", []string{models.OfferStatusExpired, models.OfferStatusFullFilled})
+		Where("status NOT IN (?)", []string{models.OfferStatusExpired, models.OfferStatusFulFilled})
 
 	if request.Submarket != "" {
 		result = result.Where("\"Submarket\".name = ?", request.Submarket)

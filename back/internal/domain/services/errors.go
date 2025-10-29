@@ -35,10 +35,12 @@ var (
 	ErrInvalidEnergyType = errors.New("invalid energy type")
 
 	// Offer
-	ErrInvalidPeriodStart = errors.New("invalid period start")
-	ErrInvalidPeriodEnd   = errors.New("invalid period end")
-	ErrInvalidPeriod      = errors.New("invalid period")
-	ErrOfferNotFound      = errors.New("offer not found")
-	ErrInvalidPrice       = errors.New("invalid price")
-	ErrInvalidQuantity    = errors.New("invalid quantity")
+	ErrInvalidPeriodStart     = errors.New("invalid period start")
+	ErrInvalidPeriodEnd       = errors.New("invalid period end")
+	ErrInvalidPeriod          = errors.New("invalid period")
+	ErrOfferNotFound          = errors.New("offer not found")
+	ErrInvalidPrice           = errors.New("invalid price")
+	ErrInvalidQuantity        = errors.New("invalid quantity")
+	ErrUserIsNotTheOfferOwner = errors.New("user is not the offer owner")
+	ErrCannotDeleteOffer      = errors.New("Offer can't be deleted")
 )
