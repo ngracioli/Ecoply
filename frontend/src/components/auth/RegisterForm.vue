@@ -71,6 +71,13 @@ const form = reactive<RegisterRequest>({
 
 const errors = reactive<Record<string, string>>({});
 
+// Limpa o erro de um campo específico quando o usuário digita
+const clearFieldError = (field: string) => {
+  if (errors[field]) {
+    delete errors[field];
+  }
+};
+
 const step1Schema = z
   .object({
     name: z.string().min(1, "Nome completo é obrigatório"),
@@ -142,12 +149,24 @@ function validateStep(n: number): boolean {
       errors["address.cep"] = "CEP inválido.";
       return false;
     }
-    if (!form.address.city) {
-      errors["address.city"] = "Cidade obrigatória.";
+    if (!form.address.street || form.address.street.trim() === "") {
+      errors["address.street"] = "Rua é obrigatória.";
+      return false;
+    }
+    if (!form.address.neighborhood || form.address.neighborhood.trim() === "") {
+      errors["address.neighborhood"] = "Bairro é obrigatório.";
+      return false;
+    }
+    if (!form.address.number || form.address.number.trim() === "") {
+      errors["address.number"] = "Número é obrigatório.";
+      return false;
+    }
+    if (!form.address.city || form.address.city.trim() === "") {
+      errors["address.city"] = "Cidade é obrigatória.";
       return false;
     }
     if (!form.address.state_initials) {
-      errors["address.state_initials"] = "UF obrigatória.";
+      errors["address.state_initials"] = "UF é obrigatória.";
       return false;
     }
     return true;
@@ -399,17 +418,27 @@ async function submitFinal() {
 </script>
 
 <template>
-  <div class="rounded-2xl bg-white p-8 shadow-xl">
-    <div class="mb-8 text-center">
+  <div class="flex flex-col gap-6">
+    <div class="mb-4 text-center">
       <div
-        class="bg-primary-color/10 mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full"
+        class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-lg"
       >
-        <i class="pi pi-user-plus text-primary-color !text-3xl"></i>
+        <i class="pi pi-user-plus !text-3xl text-white"></i>
       </div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">
-        Criar conta no Ecoply
-      </h1>
-      <p class="text-gray-600">Preencha os passos para criar sua conta</p>
+      <h1 class="mb-2 text-3xl font-bold text-gray-900">Crie sua conta</h1>
+      <p class="text-gray-600">Preencha os passos para começar</p>
+    </div>
+
+    <!-- Progress indicator -->
+    <div class="mb-4 flex items-center justify-center gap-2">
+      <div
+        v-for="i in 4"
+        :key="i"
+        :class="[
+          'h-2 rounded-full transition-all duration-300',
+          i === step ? 'w-12 bg-emerald-600 shadow-md' : 'w-2 bg-gray-400',
+        ]"
+      ></div>
     </div>
 
     <form
@@ -421,81 +450,93 @@ async function submitFinal() {
       <!-- STEP 1: Dados Pessoais -->
       <div v-show="step === 1" class="flex flex-col gap-5">
         <div class="flex flex-col gap-2">
-          <label for="name" class="font-medium text-gray-700"
+          <label for="name" class="text-sm font-semibold text-gray-800"
             >Nome completo</label
           >
           <InputText
             id="name"
             v-model="form.name"
+            @input="clearFieldError('name')"
             :disabled="loading"
             :invalid="!!errors.name"
             placeholder="Digite seu nome completo"
-            class="w-full"
+            class="w-full !rounded-xl !border-2 !border-gray-300 !bg-white !py-3 transition-colors hover:!border-gray-400 focus:!border-emerald-500"
             size="large"
           />
-          <small v-if="errors.name" class="text-red-600">{{
+          <small v-if="errors.name" class="font-medium text-red-500">{{
             errors.name
           }}</small>
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="email" class="font-medium text-gray-700">E-mail</label>
+          <label for="email" class="text-sm font-semibold text-gray-800"
+            >E-mail</label
+          >
           <InputText
             id="email"
             v-model="form.email"
+            @input="clearFieldError('email')"
             :disabled="loading"
             :invalid="!!errors.email"
-            placeholder="exemplo@dominio.com"
-            class="w-full"
+            placeholder="seu@email.com"
+            class="w-full !rounded-xl !border-2 !border-gray-300 !bg-white !py-3 transition-colors hover:!border-gray-400 focus:!border-emerald-500"
             size="large"
           />
-          <small v-if="errors.email" class="text-red-600">{{
+          <small v-if="errors.email" class="font-medium text-red-500">{{
             errors.email
           }}</small>
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="password" class="font-medium text-gray-700">Senha</label>
+          <label for="password" class="text-sm font-semibold text-gray-800"
+            >Senha</label
+          >
           <Password
             id="password"
             v-model="form.password"
+            @input="clearFieldError('password')"
             :disabled="loading"
             :invalid="!!errors.password"
             :feedback="false"
             toggleMask
-            placeholder="Digite sua senha"
+            placeholder="••••••••"
             class="w-full"
-            inputClass="w-full"
+            inputClass="w-full !rounded-xl !border-2 !border-gray-300 focus:!border-emerald-500 !py-3 !bg-white hover:!border-gray-400 transition-colors"
             size="large"
           />
-          <small v-if="errors.password" class="text-red-600">{{
+          <small v-if="errors.password" class="font-medium text-red-500">{{
             errors.password
           }}</small>
-          <small v-else class="text-gray-600">
-            A senha deve ter 8-50 caracteres, incluindo letras maiúsculas e
-            minúsculas, números e símbolos.
+          <small v-else class="text-xs text-gray-600">
+            Mín. 8 caracteres, com letras maiúsculas, minúsculas, números e
+            símbolos.
           </small>
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="confirm_password" class="font-medium text-gray-700"
+          <label
+            for="confirm_password"
+            class="text-sm font-semibold text-gray-800"
             >Confirmar senha</label
           >
           <Password
             id="confirm_password"
             v-model="form.confirm_password"
+            @input="clearFieldError('confirm_password')"
             :disabled="loading"
             :invalid="!!errors.confirm_password"
             :feedback="false"
             toggleMask
-            placeholder="Confirme sua senha"
+            placeholder="••••••••"
             class="w-full"
-            inputClass="w-full"
+            inputClass="w-full !rounded-xl !border-2 !border-gray-300 focus:!border-emerald-500 !py-3 !bg-white hover:!border-gray-400 transition-colors"
             size="large"
           />
-          <small v-if="errors.confirm_password" class="text-red-600">{{
-            errors.confirm_password
-          }}</small>
+          <small
+            v-if="errors.confirm_password"
+            class="font-medium text-red-500"
+            >{{ errors.confirm_password }}</small
+          >
         </div>
 
         <Button
@@ -505,9 +546,8 @@ async function submitFinal() {
           iconPos="right"
           :loading="loading"
           :disabled="loading"
-          severity="primary"
+          class="mt-4 w-full !rounded-xl !border-none !bg-gradient-to-r !from-emerald-600 !to-emerald-700 !py-3 !text-base !font-semibold shadow-lg transition-all duration-300 hover:!from-emerald-700 hover:!to-emerald-800 hover:shadow-xl"
           size="large"
-          class="mt-2 w-full"
         />
       </div>
 
@@ -517,12 +557,13 @@ async function submitFinal() {
           severity="info"
           :closable="false"
           icon="pi pi-exclamation-circle"
+          class="!rounded-xl"
         >
           O CNPJ do agente é obrigatório para todos os usuários.
         </Message>
 
         <div class="flex flex-col gap-2">
-          <label for="user_type" class="font-medium text-gray-700"
+          <label for="user_type" class="text-sm font-semibold text-gray-700"
             >Tipo de usuário</label
           >
           <Dropdown
@@ -536,26 +577,27 @@ async function submitFinal() {
             v-model="form.user_type"
             :disabled="loading"
             placeholder="Selecione o tipo"
-            class="w-full"
+            class="w-full !rounded-xl"
             size="large"
           />
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="cnpj" class="font-medium text-gray-700"
+          <label for="cnpj" class="text-sm font-semibold text-gray-700"
             >CNPJ do Agente CCEE</label
           >
           <InputMask
             id="cnpj"
             v-model="form.agent.cnpj"
+            @input="clearFieldError('agent.cnpj')"
             mask="99.999.999/9999-99"
             :disabled="loading"
             :invalid="!!errors['agent.cnpj']"
             placeholder="00.000.000/0000-00"
-            class="w-full"
+            class="w-full !rounded-xl !border-2 !border-gray-200 !py-3 focus:!border-emerald-500"
             size="large"
           />
-          <small v-if="errors['agent.cnpj']" class="text-red-600">{{
+          <small v-if="errors['agent.cnpj']" class="font-medium text-red-500">{{
             errors["agent.cnpj"]
           }}</small>
         </div>
@@ -566,7 +608,7 @@ async function submitFinal() {
             icon="pi pi-arrow-left"
             severity="secondary"
             size="large"
-            class="flex-1"
+            class="flex-1 !rounded-xl !py-3"
             @click.prevent="back"
           />
           <Button
@@ -575,9 +617,8 @@ async function submitFinal() {
             iconPos="right"
             :loading="loading"
             :disabled="loading"
-            severity="primary"
+            class="flex-1 !rounded-xl !border-none !bg-emerald-600 !py-3 !font-semibold transition-all duration-300 hover:!bg-emerald-700"
             size="large"
-            class="flex-1"
             @click.prevent="confirmCnpj"
           />
         </div>
@@ -589,38 +630,39 @@ async function submitFinal() {
           severity="info"
           :closable="false"
           icon="pi pi-exclamation-circle"
+          class="!rounded-xl"
         >
           Confirme os dados retornados pelo CNPJ e selecione o código CCEE.
         </Message>
 
         <div class="flex flex-col gap-2">
-          <label for="company_name" class="font-medium text-gray-700"
+          <label for="company_name" class="text-sm font-semibold text-gray-700"
             >Razão Social / Nome</label
           >
           <InputText
             id="company_name"
             v-model="form.agent.company_name"
             :disabled="true"
-            class="w-full"
+            class="w-full !rounded-xl !bg-gray-50"
             size="large"
           />
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="cnpj_confirm" class="font-medium text-gray-700"
+          <label for="cnpj_confirm" class="text-sm font-semibold text-gray-700"
             >CNPJ</label
           >
           <InputText
             id="cnpj_confirm"
             v-model="form.agent.cnpj"
             :disabled="true"
-            class="w-full"
+            class="w-full !rounded-xl !bg-gray-50"
             size="large"
           />
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="ccee_code" class="font-medium text-gray-700"
+          <label for="ccee_code" class="text-sm font-semibold text-gray-700"
             >Código de Perfil do Agente CCEE</label
           >
           <Dropdown
@@ -632,17 +674,24 @@ async function submitFinal() {
             :disabled="loading"
             :invalid="!!errors['agent.ccee_code']"
             placeholder="Selecione o código CCEE"
-            class="w-full"
+            class="w-full !rounded-xl"
             size="large"
-            @change="onCCEEAgentChange"
+            @change="
+              () => {
+                onCCEEAgentChange();
+                clearFieldError('agent.ccee_code');
+              }
+            "
           />
-          <small v-if="errors['agent.ccee_code']" class="text-red-600">{{
-            errors["agent.ccee_code"]
-          }}</small>
+          <small
+            v-if="errors['agent.ccee_code']"
+            class="font-medium text-red-500"
+            >{{ errors["agent.ccee_code"] }}</small
+          >
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="submarket" class="font-medium text-gray-700"
+          <label for="submarket" class="text-sm font-semibold text-gray-700"
             >Submercado Energético</label
           >
           <InputText
@@ -650,10 +699,10 @@ async function submitFinal() {
             v-model="form.agent.submarket_name"
             :disabled="true"
             placeholder="Agente não selecionado"
-            class="w-full"
+            class="w-full !rounded-xl !bg-gray-50"
             size="large"
           />
-          <small class="text-gray-600"
+          <small class="text-xs text-gray-500"
             >Será preenchido automaticamente ao selecionar o código CCEE.</small
           >
         </div>
@@ -664,16 +713,15 @@ async function submitFinal() {
             icon="pi pi-arrow-left"
             severity="secondary"
             size="large"
-            class="flex-1"
+            class="flex-1 !rounded-xl !py-3"
             @click.prevent="back"
           />
           <Button
             label="Confirmar"
             icon="pi pi-check"
             iconPos="right"
-            severity="primary"
+            class="flex-1 !rounded-xl !border-none !bg-emerald-600 !py-3 !font-semibold transition-all duration-300 hover:!bg-emerald-700"
             size="large"
-            class="flex-1"
             @click.prevent="next"
           />
         </div>
@@ -682,16 +730,19 @@ async function submitFinal() {
       <!-- STEP 4: Endereço via CEP -->
       <div v-show="step === 4" class="flex flex-col gap-5">
         <div class="flex flex-col gap-2">
-          <label for="cep" class="font-medium text-gray-700">CEP</label>
+          <label for="cep" class="text-sm font-semibold text-gray-700"
+            >CEP</label
+          >
           <div class="flex gap-2">
             <InputMask
               id="cep"
               v-model="form.address.cep"
+              @input="clearFieldError('address.cep')"
               mask="99999-999"
               :disabled="loading"
               :invalid="!!errors['address.cep']"
               placeholder="00000-000"
-              class="flex-1"
+              class="flex-1 !rounded-xl !border-2 !border-gray-200 !py-3 focus:!border-emerald-500"
               size="large"
             />
             <Button
@@ -700,91 +751,137 @@ async function submitFinal() {
               :loading="loading"
               :disabled="loading"
               size="large"
+              class="!rounded-xl !border-none !bg-emerald-600 !px-6 hover:!bg-emerald-700"
               @click.prevent="fetchCep"
             />
           </div>
-          <small v-if="errors['address.cep']" class="text-red-600">{{
-            errors["address.cep"]
-          }}</small>
+          <small
+            v-if="errors['address.cep']"
+            class="font-medium text-red-500"
+            >{{ errors["address.cep"] }}</small
+          >
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="street" class="font-medium text-gray-700">Rua</label>
+          <label for="street" class="text-sm font-semibold text-gray-700"
+            >Rua</label
+          >
           <InputText
             id="street"
             v-model="form.address.street"
+            @input="clearFieldError('address.street')"
             :disabled="loading"
+            :invalid="!!errors['address.street']"
             placeholder="Nome da rua"
-            class="w-full"
+            class="w-full !rounded-xl !border-2 !border-gray-200 !py-3 focus:!border-emerald-500"
             size="large"
           />
+          <small
+            v-if="errors['address.street']"
+            class="font-medium text-red-500"
+            >{{ errors["address.street"] }}</small
+          >
         </div>
 
         <div class="flex gap-3">
           <div class="flex flex-1 flex-col gap-2">
-            <label for="neighborhood" class="font-medium text-gray-700"
+            <label
+              for="neighborhood"
+              class="text-sm font-semibold text-gray-700"
               >Bairro</label
             >
             <InputText
               id="neighborhood"
               v-model="form.address.neighborhood"
+              @input="clearFieldError('address.neighborhood')"
               :disabled="loading"
+              :invalid="!!errors['address.neighborhood']"
               placeholder="Bairro"
+              class="!rounded-xl !border-2 !border-gray-200 !py-3 focus:!border-emerald-500"
               size="large"
             />
+            <small
+              v-if="errors['address.neighborhood']"
+              class="font-medium text-red-500"
+              >{{ errors["address.neighborhood"] }}</small
+            >
           </div>
           <div class="flex w-32 flex-col gap-2">
-            <label for="number" class="font-medium text-gray-700">Número</label>
+            <label for="number" class="text-sm font-semibold text-gray-700"
+              >Número</label
+            >
             <InputText
               id="number"
               v-model="form.address.number"
+              @input="clearFieldError('address.number')"
               :disabled="loading"
+              :invalid="!!errors['address.number']"
               placeholder="Nº"
+              class="!rounded-xl !border-2 !border-gray-200 !py-3 focus:!border-emerald-500"
               size="large"
             />
+            <small
+              v-if="errors['address.number']"
+              class="font-medium text-red-500"
+              >{{ errors["address.number"] }}</small
+            >
           </div>
         </div>
 
         <div class="flex gap-3">
           <div class="flex flex-1 flex-col gap-2">
-            <label for="city" class="font-medium text-gray-700">Cidade</label>
+            <label for="city" class="text-sm font-semibold text-gray-700"
+              >Cidade</label
+            >
             <InputText
               id="city"
               v-model="form.address.city"
+              @input="clearFieldError('address.city')"
               :disabled="loading"
               :invalid="!!errors['address.city']"
               placeholder="Cidade"
+              class="!rounded-xl !border-2 !border-gray-200 !py-3 focus:!border-emerald-500"
               size="large"
             />
-            <small v-if="errors['address.city']" class="text-red-600">{{
-              errors["address.city"]
-            }}</small>
+            <small
+              v-if="errors['address.city']"
+              class="font-medium text-red-500"
+              >{{ errors["address.city"] }}</small
+            >
           </div>
           <div class="flex w-32 flex-col gap-2">
-            <label for="state" class="font-medium text-gray-700">Estado</label>
+            <label for="state" class="text-sm font-semibold text-gray-700"
+              >Estado</label
+            >
             <Dropdown
               id="state"
               v-model="form.address.state_initials"
+              @change="
+                () => {
+                  onStateChange();
+                  clearFieldError('address.state_initials');
+                }
+              "
               :options="brazilStates"
               optionLabel="sigla"
               optionValue="sigla"
               :disabled="loading"
               :invalid="!!errors['address.state_initials']"
               placeholder="UF"
+              class="!rounded-xl"
               size="large"
               :showClear="true"
-              @change="onStateChange"
             />
             <small
               v-if="errors['address.state_initials']"
-              class="text-red-600"
+              class="font-medium text-red-500"
               >{{ errors["address.state_initials"] }}</small
             >
           </div>
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="complement" class="font-medium text-gray-700"
+          <label for="complement" class="text-sm font-semibold text-gray-700"
             >Complemento (opcional)</label
           >
           <InputText
@@ -792,7 +889,7 @@ async function submitFinal() {
             v-model="form.address.complement"
             :disabled="loading"
             placeholder="Apto, bloco, etc"
-            class="w-full"
+            class="w-full !rounded-xl !border-2 !border-gray-200 !py-3 focus:!border-emerald-500"
             size="large"
           />
         </div>
@@ -803,7 +900,7 @@ async function submitFinal() {
             icon="pi pi-arrow-left"
             severity="secondary"
             size="large"
-            class="flex-1"
+            class="flex-1 !rounded-xl !py-3"
             @click.prevent="back"
           />
           <Button
@@ -813,20 +910,19 @@ async function submitFinal() {
             iconPos="right"
             :loading="loading"
             :disabled="loading"
-            severity="primary"
+            class="flex-1 !rounded-xl !border-none !bg-emerald-600 !py-3 !font-semibold shadow-lg transition-all duration-300 hover:!bg-emerald-700 hover:shadow-xl"
             size="large"
-            class="flex-1"
           />
         </div>
       </div>
     </form>
 
-    <div class="mt-6 text-center">
+    <div class="mt-4 text-center">
       <p class="text-gray-600">
         Já tem uma conta?
         <router-link
           to="/login"
-          class="text-primary-color hover:text-primary-dark-color ml-1 font-medium transition-colors duration-200"
+          class="ml-1 font-semibold text-emerald-600 transition-colors duration-200 hover:text-emerald-700"
         >
           Entrar
         </router-link>
