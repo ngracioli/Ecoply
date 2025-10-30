@@ -21,6 +21,16 @@ const errors = ref<{ email?: string; password?: string }>({});
 const hasLoginError = ref<boolean>(false);
 const toast = useToast();
 
+// Limpa o erro de um campo específico quando o usuário digita
+const clearFieldError = (field: "email" | "password") => {
+  if (errors.value[field]) {
+    errors.value[field] = undefined;
+  }
+  if (hasLoginError.value) {
+    hasLoginError.value = false;
+  }
+};
+
 const showLoginErrorToast = () => {
   toast.add({
     severity: "error",
@@ -73,50 +83,56 @@ const login = async () => {
 </script>
 
 <template>
-  <div class="rounded-2xl bg-white p-8 shadow-xl">
-    <div class="mb-8 text-center">
+  <div class="flex flex-col gap-6">
+    <div class="mb-4 text-center">
       <div
-        class="bg-primary-color/10 mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full"
+        class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-lg"
       >
-        <i class="pi pi-users text-primary-color !text-3xl"></i>
+        <i class="pi pi-lock !text-3xl text-white"></i>
       </div>
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Entrar no Ecoply</h1>
-      <p class="text-gray-600">Acesse sua conta para continuar</p>
+      <h1 class="mb-2 text-3xl font-bold text-gray-900">Bem-vindo de volta</h1>
+      <p class="text-gray-600">Entre com suas credenciais para continuar</p>
     </div>
 
     <form @submit.prevent="login" class="flex flex-col gap-5">
       <Toast />
       <div class="flex flex-col gap-2">
-        <label for="email" class="font-medium text-gray-700">E-mail</label>
+        <label for="email" class="text-sm font-semibold text-gray-800"
+          >E-mail</label
+        >
         <InputText
           id="email"
           v-model="email"
-          placeholder="Digite seu e-mail"
+          @input="clearFieldError('email')"
+          placeholder="seu@email.com"
           :invalid="!!errors.email || hasLoginError"
           :disabled="loading"
-          class="w-full"
+          class="w-full !rounded-xl !border-2 !border-gray-300 !bg-white !py-3 transition-colors hover:!border-gray-400 focus:!border-emerald-500"
           size="large"
         />
-        <small v-if="errors.email" class="text-red-600">
+        <small v-if="errors.email" class="font-medium text-red-500">
           {{ errors.email }}
         </small>
       </div>
 
       <div class="flex flex-col gap-2">
-        <label for="password" class="font-medium text-gray-700">Senha</label>
+        <label for="password" class="text-sm font-semibold text-gray-800"
+          >Senha</label
+        >
         <Password
           id="password"
           v-model="password"
-          placeholder="Digite sua senha"
+          @input="clearFieldError('password')"
+          placeholder="••••••••"
           :invalid="!!errors.password || hasLoginError"
           :disabled="loading"
           :feedback="false"
           toggleMask
           class="w-full"
-          inputClass="w-full"
+          inputClass="w-full !rounded-xl !border-2 !border-gray-300 focus:!border-emerald-500 !py-3 !bg-white hover:!border-gray-400 transition-colors"
           size="large"
         />
-        <small v-if="errors.password" class="text-red-600">
+        <small v-if="errors.password" class="font-medium text-red-500">
           {{ errors.password }}
         </small>
       </div>
@@ -127,20 +143,19 @@ const login = async () => {
         icon="pi pi-sign-in"
         :loading="loading"
         :disabled="loading"
-        severity="primary"
+        class="mt-4 w-full !rounded-xl !border-none !bg-gradient-to-r !from-emerald-600 !to-emerald-700 !py-3 !text-base !font-semibold shadow-lg transition-all duration-300 hover:!from-emerald-700 hover:!to-emerald-800 hover:shadow-xl"
         size="large"
-        class="mt-2 w-full"
       />
     </form>
 
-    <div class="mt-6 text-center">
-      <p class="text-gray-600">
+    <div class="mt-4 text-center">
+      <p class="text-gray-700">
         Não tem uma conta?
         <router-link
           to="/register"
-          class="text-primary-color hover:text-primary-dark-color ml-1 font-medium transition-colors duration-200"
+          class="ml-1 font-semibold text-emerald-600 transition-colors duration-200 hover:text-emerald-700"
         >
-          Cadastre-se
+          Cadastre-se gratuitamente
         </router-link>
       </p>
     </div>
