@@ -1,11 +1,12 @@
 import { createStore } from "vuex";
-
-// Importe seus módulos aqui
 import auth from "./modules/auth";
+import user from "./modules/user";
+
+export type { RootState } from "./types";
 
 export default createStore({
   modules: {
-    // Adicione seus módulos importados aqui
     auth,
+    user,
   },
 });

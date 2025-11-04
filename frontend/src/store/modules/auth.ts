@@ -1,62 +1,54 @@
-import type { Module } from "vuex";
+import type { ActionContext, Module } from "vuex";
 import api from "../../axios";
-import type { RegisterRequest } from "../../types/requests/auth";
+import { AUTH_ENDPOINTS } from "../../api/endpoints";
+import type { LoginRequest, RegisterRequest } from "../../types/requests/auth";
+import type { AuthResponse } from "../../types/responses/auth";
 
 export interface AuthState {
   token: string | null;
 }
 
-const auth: Module<AuthState, any> = {
+type AuthActionContext = ActionContext<AuthState, unknown>;
+
+const auth: Module<AuthState, unknown> = {
   namespaced: true,
-  state: {
-    token: localStorage.getItem("token") ?? null,
-  },
-  mutations: {
-    setToken(state, token: string) {
-      state.token = token;
-      localStorage.setItem("token", state.token);
-      console.log("Token set:", state.token);
-    },
-    logout(state) {
-      state.token = null;
-      localStorage.removeItem("token");
-      console.log("Logged out, token removed");
-    },
-  },
+
   actions: {
-    async login(
-      { commit },
-      { email, password }: { email: string; password: string },
-    ) {
+    async login({ commit }: AuthActionContext, credentials: LoginRequest) {
       try {
-        const response = await api.post("/api/v1/auth/login", {
-          email,
-          password,
-        });
-        const token = response.data.data.token;
-        commit("setToken", token);
+        const response = await api.post<AuthResponse>(
+          AUTH_ENDPOINTS.LOGIN,
+          credentials,
+        );
+        const { token, user } = response.data.data;
+
+        commit("user/setToken", token, { root: true });
+        commit("user/setUser", user, { root: true });
       } catch (error) {
         console.error("Login failed:", error);
         throw error;
       }
     },
-    async register({ commit }, formData: RegisterRequest) {
+
+    async register({ commit }: AuthActionContext, formData: RegisterRequest) {
       try {
-        const response = await api.post("/api/v1/auth/signup", formData);
-        const token = response.data.data.token;
-        commit("setToken", token);
+        const response = await api.post<AuthResponse>(
+          AUTH_ENDPOINTS.SIGNUP,
+          formData,
+        );
+        const { token, user } = response.data.data;
+
+        commit("user/setToken", token, { root: true });
+        commit("user/setUser", user, { root: true });
       } catch (error) {
         console.error("Registration failed:", error);
         throw error;
       }
     },
-    logout({ commit }) {
+
+    logout({ commit }: AuthActionContext) {
       commit("logout");
-    },
-  },
-  getters: {
-    isAuthenticated(state): boolean {
-      return !!state.token;
+      commit("user/clearUser", null, { root: true });
     },
   },
 };
