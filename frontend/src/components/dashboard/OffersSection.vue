@@ -10,6 +10,9 @@ import type {
 import CreateOfferDialog from "./CreateOfferDialog.vue";
 import EnergyOfferCard from "./EnergyOfferCard.vue";
 import OffersFilterDialog from "./OffersFilterDialog.vue";
+import { useStore } from "vuex";
+import type { RootState } from "../../store";
+import type { UserType as UserTypeEnum } from "../../types/user";
 
 interface FilterOptions {
   submarket?: string;
@@ -32,6 +35,11 @@ interface ApiError {
   };
   message?: string;
 }
+
+const store = useStore<RootState>();
+const userUserType = computed<UserTypeEnum | null>(
+  () => store.getters["user/userType"] || null,
+);
 
 const ENERGY_TYPE_LABELS: Record<string, string> = {
   solar: "Solar",
@@ -184,6 +192,7 @@ onMounted(() => {
         <button
           @click="openCreateDialog"
           class="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-all duration-200 hover:shadow-lg hover:brightness-110"
+          v-if="userUserType === 'supplier'"
         >
           Criar Nova Oferta
         </button>

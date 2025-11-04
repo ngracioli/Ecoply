@@ -9,6 +9,7 @@ import type {
 } from "../../types/responses/offers";
 import CreateOfferDialog from "./CreateOfferDialog.vue";
 import EnergyOfferCard from "./EnergyOfferCard.vue";
+import ConfirmDialog from "../shared/ConfirmDialog.vue";
 
 interface PaginationInfo {
   start: number;
@@ -28,8 +29,11 @@ interface ApiError {
 const PAGE_SIZE = 10;
 
 const showCreateDialog = ref(false);
+const showDeleteDialog = ref(false);
+const offerToDelete = ref<string | null>(null);
 const offers = ref<OfferListItem[]>([]);
 const loading = ref(false);
+const deleting = ref(false);
 const error = ref<string | null>(null);
 
 const currentPage = ref(1);
@@ -100,12 +104,19 @@ const goToPrevPage = () => {
 };
 
 const deleteOffer = async (offerUuid: string) => {
-  if (!confirm("Tem certeza que deseja excluir esta oferta?")) {
-    return;
-  }
+  offerToDelete.value = offerUuid;
+  showDeleteDialog.value = true;
+};
+
+const confirmDelete = async () => {
+  if (!offerToDelete.value) return;
+
+  deleting.value = true;
 
   try {
-    await api.delete(OFFER_ENDPOINTS.DELETE(offerUuid));
+    await api.delete(OFFER_ENDPOINTS.DELETE(offerToDelete.value));
+    showDeleteDialog.value = false;
+    offerToDelete.value = null;
     await loadMyOffers();
   } catch (err) {
     const apiError = err as ApiError;
@@ -113,7 +124,13 @@ const deleteOffer = async (offerUuid: string) => {
     const errorMessage = `Erro ao excluir oferta: ${serverMessage || "Tente novamente."}`;
 
     alert(errorMessage);
+  } finally {
+    deleting.value = false;
   }
+};
+
+const cancelDelete = () => {
+  offerToDelete.value = null;
 };
 
 onMounted(() => {
@@ -270,6 +287,18 @@ onMounted(() => {
     <CreateOfferDialog
       v-model:visible="showCreateDialog"
       @offer-created="handleOfferCreated"
+    />
+
+    <ConfirmDialog
+      v-model:visible="showDeleteDialog"
+      title="Excluir Oferta"
+      message="Tem certeza que deseja excluir esta oferta? Esta ação não pode ser desfeita."
+      confirm-text="Excluir"
+      cancel-text="Cancelar"
+      variant="danger"
+      :loading="deleting"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
     />
   </div>
 </template>

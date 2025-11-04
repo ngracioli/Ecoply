@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRouter } from "vue-router";
-import { Calendar, MapPin } from "lucide-vue-next";
+import { Calendar, Store } from "lucide-vue-next";
 import type { OfferListItem } from "../../types/responses/offers";
 import type { EnergyType } from "../../types/offer";
 
@@ -123,7 +123,7 @@ const viewDetails = () => {
 
       <div class="mt-6 flex flex-col gap-3 border-t border-neutral-100 pt-4">
         <div class="flex items-center gap-2 text-sm text-neutral-600">
-          <MapPin :size="16" class="text-neutral-400" />
+          <Store :size="16" class="text-neutral-400" />
           <span>{{ displayData.location }}</span>
         </div>
         <div class="flex items-center gap-2 text-sm text-neutral-600">
