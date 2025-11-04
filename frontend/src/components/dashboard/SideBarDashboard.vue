@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, type Component } from "vue";
+import { computed, ref, watch, type Component } from "vue";
 import { useStore } from "vuex";
 import {
   ChevronDown,
@@ -71,11 +71,23 @@ const isProfileActive = computed(
 
 const handleItemClick = (key: string) => {
   activeItem.value = key as MenuItemKey;
+  isProfileDropdownOpen.value = false;
   emit("navigate", key);
 };
 
 const toggleProfileDropdown = () => {
+  const wasOpen = isProfileDropdownOpen.value;
   isProfileDropdownOpen.value = !isProfileDropdownOpen.value;
+
+  // Se estiver abrindo o dropdown e não estiver em uma aba de perfil, seleciona "profile"
+  if (
+    !wasOpen &&
+    activeItem.value !== "profile" &&
+    activeItem.value !== "manage-offers"
+  ) {
+    activeItem.value = "profile";
+    emit("navigate", "profile");
+  }
 };
 
 const handleSubItemClick = (key: string) => {
