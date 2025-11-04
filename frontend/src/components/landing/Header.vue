@@ -1,4 +1,12 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+const goToDashboard = () => {
+  router.push({ name: "Dashboard" });
+};
+</script>
 
 <template>
   <header class="bg-primary-bg-color fixed z-100 w-full py-2">
@@ -46,6 +54,7 @@
         </li>
       </ul>
       <button
+        @click="goToDashboard"
         class="cta-button bg-secondary-color text-primary-color text-md hover:border-primary-color/20 hover:bg-tertiary-color relative cursor-pointer overflow-hidden rounded border-2 border-transparent px-4 py-2 font-bold transition-all duration-400 ease-out hover:-translate-y-1 hover:scale-105 hover:shadow-2xl active:-translate-y-0.5 active:scale-[1.02]"
       >
         Acessar Dashboard
