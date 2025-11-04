@@ -135,9 +135,9 @@ const addressFields = computed<AddressField[]>(() => {
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
       <!-- Profile Card -->
       <div
-        class="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md lg:col-span-1"
+        class="flex items-center justify-center rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md lg:col-span-1"
       >
-        <div class="flex flex-col items-center text-center">
+        <div class="flex w-full flex-col items-center text-center">
           <div
             class="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg"
           >
@@ -152,11 +152,11 @@ const addressFields = computed<AddressField[]>(() => {
               {{ currentUser.agent.company_name }}
             </p>
           </div>
-          <button
+          <!-- <button
             class="mt-6 w-full rounded-lg border-2 border-emerald-500 bg-transparent py-2.5 text-sm font-medium text-emerald-600 transition-all duration-200 hover:bg-emerald-500 hover:text-white"
           >
             Editar Perfil
-          </button>
+          </button> -->
         </div>
       </div>
 

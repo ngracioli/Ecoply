@@ -27,7 +27,7 @@ const goToHome = () => {
     >
       <!-- Painel Ilustrativo - Lado Esquerdo -->
       <section
-        class="relative flex items-center justify-center overflow-hidden rounded-3xl bg-white shadow-2xl"
+        class="relative flex items-center justify-center overflow-hidden rounded-3xl bg-transparent shadow-2xl"
       >
         <!-- Imagem de fundo -->
         <img
