@@ -18,7 +18,7 @@ var (
 	ErrInvalidUserType = errors.New("invalid user type")
 
 	// Agent
-	ErrAgentAlreadyExists = errors.New("Agent already exists")
+	ErrAgentAlreadyExists = errors.New("agent already exists")
 
 	// User
 	ErrInvalidCredentials = errors.New("invalid credentials")
@@ -42,5 +42,5 @@ var (
 	ErrInvalidPrice           = errors.New("invalid price")
 	ErrInvalidQuantity        = errors.New("invalid quantity")
 	ErrUserIsNotTheOfferOwner = errors.New("user is not the offer owner")
-	ErrCannotDeleteOffer      = errors.New("Offer can't be deleted")
+	ErrCannotDeleteOffer      = errors.New("offer can't be deleted")
 )

@@ -74,7 +74,23 @@ func CreateOfferHandler(c *gin.Context) {
 }
 
 func UpdateOfferHandler(c *gin.Context) {
+	var payload requests.UpdateOffer
+	var uuid string = c.Param("uuid")
+	var user *models.User = utils.GetUserFromContext(c)
 
+	if err := c.ShouldBindBodyWithJSON(&payload); err != nil {
+		var response *merr.ResponseError = merr.BindValidationErrorsToResponse(err)
+		c.JSON(response.StatusCode, response)
+		return
+	}
+
+	err := services.Offer.Update(user, uuid, &payload)
+	if err != nil {
+		c.JSON(err.StatusCode, err)
+		return
+	}
+
+	c.AbortWithStatus(http.StatusNoContent)
 }
 
 func DeleteOfferHandler(c *gin.Context) {
