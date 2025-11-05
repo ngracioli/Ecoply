@@ -19,6 +19,13 @@ import (
 func main() {
 	var cfg *config.Config = loadEnvironment()
 
+	loc, err := time.LoadLocation(cfg.DBTimezone)
+	if err != nil {
+		log.Fatalf("Failed to load location: %v", err)
+	}
+
+	time.Local = loc
+
 	validation.RegisterCustomValidators()
 
 	var db *gorm.DB = database.New()
@@ -26,13 +33,6 @@ func main() {
 
 	mlog.CreateServerLogger()
 	defer mlog.CloseLogFiles()
-
-	loc, err := time.LoadLocation(cfg.DBTimezone)
-	if err != nil {
-		log.Fatalf("Failed to load location: %v", err)
-	}
-
-	time.Local = loc
 
 	server.NewAndRun()
 }

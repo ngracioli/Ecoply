@@ -89,7 +89,14 @@ func (r *offerRepository) Create(params *OfferCreateParams) (*models.Offer, erro
 }
 
 func (r *offerRepository) Update(offer *models.Offer) error {
-	return r.db.Save(offer).Error
+	var err error
+
+	err = r.db.Save(offer).Error
+	if err != nil {
+		mlog.Log("Failed to update offer: " + err.Error())
+	}
+
+	return nil
 }
 
 func (r *offerRepository) Delete(uuid string) error {

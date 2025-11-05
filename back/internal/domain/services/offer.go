@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -20,38 +21,45 @@ type OfferService interface {
 	GetByUuid(uuid string) (*resources.Offer, *merr.ResponseError)
 	BelongingToUser(userId uint) ([]*resources.Offer, *merr.ResponseError)
 	Create(user *models.User, request *requests.CreateOffer) (*resources.Offer, *merr.ResponseError)
-	Update(offer *models.Offer) *merr.ResponseError
+	Update(user *models.User, uuid string, request *requests.UpdateOffer) *merr.ResponseError
 	Delete(user *models.User, uuid string) *merr.ResponseError
 	List(params *requests.ListOffers, user *models.User) (*utils.PaginationWrapper[*resources.Offer], *merr.ResponseError)
 }
 
 type offerService struct {
-	offerRepo     repository.OfferRepository
-	submarketRepo repository.SubmarketRepository
-	userTypeRepo  repository.UserTypeRepository
-	db            *gorm.DB
+	offerRepo      repository.OfferRepository
+	submarketRepo  repository.SubmarketRepository
+	userTypeRepo   repository.UserTypeRepository
+	energyTypeRepo repository.EnergyTypeRepository
+	db             *gorm.DB
 }
 
 func NewOfferService(db *gorm.DB) OfferService {
 	return &offerService{
-		offerRepo:     repository.NewOfferRepository(db),
-		submarketRepo: repository.NewSubmarketRepository(db),
-		userTypeRepo:  repository.NewUserTypeRepository(db),
-		db:            db,
+		offerRepo:      repository.NewOfferRepository(db),
+		submarketRepo:  repository.NewSubmarketRepository(db),
+		userTypeRepo:   repository.NewUserTypeRepository(db),
+		energyTypeRepo: repository.NewEnergyRepository(db),
+		db:             db,
 	}
 }
 
 func (s *offerService) Create(user *models.User, request *requests.CreateOffer) (*resources.Offer, *merr.ResponseError) {
 	var energyType *models.EnergyType
-	if err := s.db.Where("type = ?", request.EnergyType).First(&energyType).Error; err != nil {
+	var err error
+
+	energyType, err = s.energyTypeRepo.GetByType(request.EnergyType)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrInvalidEnergyType)
+	} else if err != nil {
+		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
 
-	if err := validateCreateRequest(request); err != nil {
+	if err = validateCreateRequest(request); err != nil {
 		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, err)
 	}
 
-	if err := s.db.Preload("Agent", func(db *gorm.DB) *gorm.DB { return db.Select("id, submarket_id") }).
+	if err = s.db.Preload("Agent", func(db *gorm.DB) *gorm.DB { return db.Select("id, submarket_id") }).
 		Find(user).Error; err != nil {
 		mlog.Log("Failed to preload agent: " + err.Error())
 		return nil, merr.NewResponseError(http.StatusUnprocessableEntity, ErrInternal)
@@ -91,8 +99,50 @@ func (s *offerService) Create(user *models.User, request *requests.CreateOffer) 
 	return makeOfferResourceFromModel(offer), nil
 }
 
-func (s *offerService) Update(offer *models.Offer) *merr.ResponseError {
-	err := s.offerRepo.Update(offer)
+func (s *offerService) Update(user *models.User, uuid string, request *requests.UpdateOffer) *merr.ResponseError {
+	var energyType *models.EnergyType
+	var offer *models.Offer
+	var err error
+	var periodStart time.Time
+	var periodEnd time.Time
+
+	offer, err = s.offerRepo.GetByUuid(uuid)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.NewResponseError(http.StatusNotFound, ErrOfferNotFound)
+	}
+
+	if offer.Status != models.OfferStatusFresh {
+		return merr.NewResponseError(http.StatusUnprocessableEntity, ErrCannotDeleteOffer)
+	}
+
+	if offer.SellerId != user.ID {
+		return merr.NewResponseError(http.StatusForbidden, ErrUserIsNotTheOfferOwner)
+	}
+
+	energyType, err = s.energyTypeRepo.GetByType(request.EnergyType)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.NewResponseError(http.StatusUnprocessableEntity, ErrInvalidEnergyType)
+	} else if err != nil {
+		return merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+	}
+
+	err = validateUpdateRequest(offer, request)
+	if err != nil {
+		return merr.NewResponseError(http.StatusUnprocessableEntity, err)
+	}
+
+	periodStart, _ = parseDate(request.PeriodStart)
+	periodEnd, _ = parseDate(request.PeriodEnd)
+
+	offer.Description = request.Description
+	offer.EnergyTypeId = energyType.ID
+	offer.InitialQuantityMwh = request.QuantityMwh
+	offer.RemainingQuantityMwh = request.QuantityMwh
+	offer.PricePerMwh = request.PricePerMwh
+	offer.PeriodStart = periodStart
+	offer.PeriodEnd = periodEnd
+
+	err = s.offerRepo.Update(offer)
 	if err != nil {
 		return merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
@@ -155,7 +205,7 @@ func parseDate(date string) (time.Time, error) {
 	return time.ParseInLocation(layout, date, time.Local)
 }
 
-func validatePeriodFromRequest(startPeriod string, endPeriod string) error {
+func validateCreatePeriodFromRequest(startPeriod string, endPeriod string) error {
 	nowInLoc := time.Now().In(time.Local)
 	now := time.Date(
 		nowInLoc.Year(),
@@ -177,6 +227,47 @@ func validatePeriodFromRequest(startPeriod string, endPeriod string) error {
 
 	if parsedStartPeriod.After(parsedEndPeriod) || parsedStartPeriod.Before(now) {
 		return ErrInvalidPeriod
+	}
+
+	return nil
+}
+
+func validateUpdatePeriodFromRequest(offer *models.Offer, request *requests.UpdateOffer) error {
+	var err error
+	var parsedStartPeriod time.Time
+	var parsedEndPeriod time.Time
+
+	parsedStartPeriod, err = parseDate(request.PeriodStart)
+	if err != nil {
+		return ErrInvalidPeriod
+	}
+
+	parsedEndPeriod, err = parseDate(request.PeriodEnd)
+	if err != nil {
+		return ErrInvalidPeriod
+	}
+
+	var nowInLoc time.Time = time.Now().In(time.Local)
+	var now time.Time = time.Date(
+		nowInLoc.Year(),
+		nowInLoc.Month(),
+		nowInLoc.Day(),
+		0, 0, 0, 0,
+		time.Local,
+	)
+
+	offerStartTruncated := time.Date(
+		offer.PeriodStart.Year(),
+		offer.PeriodStart.Month(),
+		offer.PeriodStart.Day(),
+		0, 0, 0, 0,
+		time.Local,
+	)
+
+	if !parsedStartPeriod.Equal(offerStartTruncated) {
+		if parsedStartPeriod.After(parsedEndPeriod) || parsedStartPeriod.Before(now) {
+			return ErrInvalidPeriod
+		}
 	}
 
 	return nil
@@ -207,7 +298,23 @@ func validateCreateRequest(request *requests.CreateOffer) error {
 		return err
 	}
 
-	if err := validatePeriodFromRequest(request.PeriodStart, request.PeriodEnd); err != nil {
+	if err := validateCreatePeriodFromRequest(request.PeriodStart, request.PeriodEnd); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func validateUpdateRequest(offer *models.Offer, request *requests.UpdateOffer) error {
+	if err := validatePrice(request.PricePerMwh); err != nil {
+		return err
+	}
+
+	if err := validateQuantity(request.QuantityMwh); err != nil {
+		return err
+	}
+
+	if err := validateUpdatePeriodFromRequest(offer, request); err != nil {
 		return err
 	}
 

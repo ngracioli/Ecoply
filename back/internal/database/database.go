@@ -4,6 +4,7 @@ import (
 	"ecoply/internal/config"
 	"fmt"
 	"log"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -47,6 +48,9 @@ func Open() *gorm.DB {
 	var dsn string = mountPostgresDsn(cfg)
 	con, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		TranslateError: true,
+		NowFunc: func() time.Time {
+			return time.Now().In(time.Local)
+		},
 	})
 	if err != nil {
 		log.Fatalf("%v: %v\n", ErrFailedToOpenConnectionPostgres, err)
