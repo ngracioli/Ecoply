@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -255,9 +256,16 @@ func validateUpdatePeriodFromRequest(offer *models.Offer, request *requests.Upda
 		time.Local,
 	)
 
-	if !offer.PeriodStart.Equal(parsedStartPeriod) {
-		if parsedStartPeriod.After(parsedEndPeriod) || parsedStartPeriod.Before(offer.PeriodStart) ||
-			parsedEndPeriod.Before(now) {
+	offerStartTruncated := time.Date(
+		offer.PeriodStart.Year(),
+		offer.PeriodStart.Month(),
+		offer.PeriodStart.Day(),
+		0, 0, 0, 0,
+		time.Local,
+	)
+
+	if !parsedStartPeriod.Equal(offerStartTruncated) {
+		if parsedStartPeriod.After(parsedEndPeriod) || parsedStartPeriod.Before(now) {
 			return ErrInvalidPeriod
 		}
 	}
