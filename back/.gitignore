@@ -3,6 +3,7 @@
 
 log/
 bin/
+tmp/
 .env
 
 # Golang dlv debug binary
