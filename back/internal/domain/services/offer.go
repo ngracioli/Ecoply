@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -206,14 +205,7 @@ func parseDate(date string) (time.Time, error) {
 }
 
 func validateCreatePeriodFromRequest(startPeriod string, endPeriod string) error {
-	nowInLoc := time.Now().In(time.Local)
-	now := time.Date(
-		nowInLoc.Year(),
-		nowInLoc.Month(),
-		nowInLoc.Day(),
-		0, 0, 0, 0,
-		time.Local,
-	)
+	var nowZeroHour = utils.NowInLocalZeroHour()
 
 	parsedStartPeriod, err := parseDate(startPeriod)
 	if err != nil {
@@ -225,7 +217,7 @@ func validateCreatePeriodFromRequest(startPeriod string, endPeriod string) error
 		return ErrInvalidPeriod
 	}
 
-	if parsedStartPeriod.After(parsedEndPeriod) || parsedStartPeriod.Before(now) {
+	if parsedStartPeriod.After(parsedEndPeriod) || parsedStartPeriod.Before(nowZeroHour) {
 		return ErrInvalidPeriod
 	}
 
@@ -247,25 +239,11 @@ func validateUpdatePeriodFromRequest(offer *models.Offer, request *requests.Upda
 		return ErrInvalidPeriod
 	}
 
-	var nowInLoc time.Time = time.Now().In(time.Local)
-	var now time.Time = time.Date(
-		nowInLoc.Year(),
-		nowInLoc.Month(),
-		nowInLoc.Day(),
-		0, 0, 0, 0,
-		time.Local,
-	)
-
-	offerStartTruncated := time.Date(
-		offer.PeriodStart.Year(),
-		offer.PeriodStart.Month(),
-		offer.PeriodStart.Day(),
-		0, 0, 0, 0,
-		time.Local,
-	)
+	var nowZeroHour time.Time = utils.NowInLocalZeroHour()
+	var offerStartTruncated time.Time = utils.TruncateDateToLocalZeroHour(offer.PeriodStart)
 
 	if !parsedStartPeriod.Equal(offerStartTruncated) {
-		if parsedStartPeriod.After(parsedEndPeriod) || parsedStartPeriod.Before(now) {
+		if parsedStartPeriod.After(parsedEndPeriod) || parsedStartPeriod.Before(nowZeroHour) {
 			return ErrInvalidPeriod
 		}
 	}
