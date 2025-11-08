@@ -30,22 +30,22 @@ services:
         reservations:
           memory: 256M
 
-  nginx:
-    image: nginx:alpine
-    hostname: nginx
-    container_name: nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    networks:
-      - app-network
-    deploy:
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 128M
-        reservations:
-          memory: 64M
+  # nginx:
+  #   image: nginx:alpine
+  #   hostname: nginx
+  #   container_name: nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   networks:
+  #     - app-network
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: "0.25"
+  #         memory: 128M
+  #       reservations:
+  #         memory: 64M
 
   go:
     build:
