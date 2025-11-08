@@ -5,7 +5,6 @@ import (
 	"ecoply/internal/domain/models"
 	"ecoply/internal/domain/requests"
 	"ecoply/internal/domain/services"
-	"ecoply/internal/domain/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -48,7 +47,7 @@ func SignUpHandler(c *gin.Context) {
 }
 
 func MeHandler(c *gin.Context) {
-	var user *models.User = utils.GetUserFromContext(c)
+	var user *models.User = GetUserFromContext(c)
 	response, err := services.Auth.Me(user.Uuid)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
