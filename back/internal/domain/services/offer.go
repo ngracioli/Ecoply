@@ -135,6 +135,7 @@ func (s *offerService) Update(user *models.User, uuid string, request *requests.
 
 	offer.Description = request.Description
 	offer.EnergyTypeId = energyType.ID
+	offer.EnergyType = *energyType
 	offer.InitialQuantityMwh = request.QuantityMwh
 	offer.RemainingQuantityMwh = request.QuantityMwh
 	offer.PricePerMwh = request.PricePerMwh
