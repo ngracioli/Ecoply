@@ -23,7 +23,7 @@ type offerHandler struct {
 	offerService services.OfferService
 }
 
-func NewOfferHandler(offerService services.OfferService) *offerHandler {
+func NewOfferHandler(offerService services.OfferService) OfferHandlers {
 	return &offerHandler{
 		offerService: offerService,
 	}
