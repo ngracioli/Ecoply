@@ -42,7 +42,7 @@ func (r *purchaseRepository) Delete(uuid string) error {
 
 func (r *purchaseRepository) FindByUuid(uuid string) (*models.Purchase, error) {
 	var purchase models.Purchase
-	if err := r.db.Preload("BuyerAgent").
+	if err := r.db.Preload("Buyer").
 		Preload("Offer").
 		Where("uuid = ?", uuid).First(&purchase).Error; err != nil {
 		mlog.Log("Failed to find purchase by uuid: " + err.Error())
