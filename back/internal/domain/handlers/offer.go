@@ -10,10 +10,29 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func OfferByUuidHanlder(c *gin.Context) {
+type OfferHandlers interface {
+	FindByUuid(c *gin.Context)
+	List(c *gin.Context)
+	FromUser(c *gin.Context)
+	Create(c *gin.Context)
+	Update(c *gin.Context)
+	Delete(c *gin.Context)
+}
+
+type offerHandler struct {
+	offerService services.OfferService
+}
+
+func NewOfferHandler(offerService services.OfferService) *offerHandler {
+	return &offerHandler{
+		offerService: offerService,
+	}
+}
+
+func (h *offerHandler) FindByUuid(c *gin.Context) {
 	var uuid string = c.Param("uuid")
 
-	response, err := services.Offer.GetByUuid(uuid)
+	response, err := h.offerService.GetByUuid(uuid)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -22,7 +41,7 @@ func OfferByUuidHanlder(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": response})
 }
 
-func OfferListHandler(c *gin.Context) {
+func (h *offerHandler) List(c *gin.Context) {
 	var params requests.ListOffers
 	var user *models.User
 
@@ -33,7 +52,7 @@ func OfferListHandler(c *gin.Context) {
 	}
 
 	user = GetUserFromContext(c)
-	response, err := services.Offer.List(&params, user)
+	response, err := h.offerService.List(&params, user)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -42,10 +61,10 @@ func OfferListHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func UserOffersHandler(c *gin.Context) {
+func (h *offerHandler) FromUser(c *gin.Context) {
 	var user *models.User = GetUserFromContext(c)
 
-	response, err := services.Offer.BelongingToUser(user.ID)
+	response, err := h.offerService.BelongingToUser(user.ID)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -54,7 +73,7 @@ func UserOffersHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": response})
 }
 
-func CreateOfferHandler(c *gin.Context) {
+func (h *offerHandler) Create(c *gin.Context) {
 	var payload requests.CreateOffer
 	if err := c.ShouldBindBodyWithJSON(&payload); err != nil {
 		var response *merr.ResponseError = merr.BindValidationErrorsToResponse(err)
@@ -63,7 +82,7 @@ func CreateOfferHandler(c *gin.Context) {
 	}
 
 	var user *models.User = GetUserFromContext(c)
-	response, err := services.Offer.Create(user, &payload)
+	response, err := h.offerService.Create(user, &payload)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -72,7 +91,7 @@ func CreateOfferHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"data": response})
 }
 
-func UpdateOfferHandler(c *gin.Context) {
+func (h *offerHandler) Update(c *gin.Context) {
 	var payload requests.UpdateOffer
 	var uuid string = c.Param("uuid")
 	var user *models.User = GetUserFromContext(c)
@@ -83,7 +102,7 @@ func UpdateOfferHandler(c *gin.Context) {
 		return
 	}
 
-	err := services.Offer.Update(user, uuid, &payload)
+	err := h.offerService.Update(user, uuid, &payload)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -92,11 +111,11 @@ func UpdateOfferHandler(c *gin.Context) {
 	c.AbortWithStatus(http.StatusNoContent)
 }
 
-func DeleteOfferHandler(c *gin.Context) {
+func (h *offerHandler) Delete(c *gin.Context) {
 	var uuid string = c.Param("uuid")
 	var user *models.User = GetUserFromContext(c)
 
-	err := services.Offer.Delete(user, uuid)
+	err := h.offerService.Delete(user, uuid)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return

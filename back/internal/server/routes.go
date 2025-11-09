@@ -1,9 +1,9 @@
 package server
 
 import (
-	"ecoply/internal/config"
 	"ecoply/internal/domain/handlers"
 	"ecoply/internal/domain/middlewares"
+	"ecoply/internal/domain/services"
 	"time"
 
 	"net/http"
@@ -14,12 +14,17 @@ import (
 
 const htmlPath = "web/static"
 
-func registerRoutes(router *gin.Engine, cfg *config.Config) {
+func registerRoutes(router *gin.Engine, s *ServerContext) {
+	var authHandlers handlers.AuthHandlers = s.Handlers.AuthHandlers
+	var offerHandlers handlers.OfferHandlers = s.Handlers.OfferHandlers
+	var cnpjHandlers handlers.CnpjHandlers = s.Handlers.CnpjHandlers
+	var purchaseHandlers handlers.PurchaseHandlers = s.Handlers.PurchaseHandlers
+
 	router.LoadHTMLGlob(htmlPath + "/index.html")
 
 	router.Use(
 		middlewares.Cors("*"),
-		middlewares.Delay(time.Duration(cfg.ServerDelay)),
+		middlewares.Delay(time.Duration(s.Cfg.ServerDelay)),
 	)
 
 	router.GET("/", rootHandler)
@@ -32,39 +37,48 @@ func registerRoutes(router *gin.Engine, cfg *config.Config) {
 	{
 		auth := v1.Group("auth")
 		{
-			auth.POST("login", handlers.LoginHandler)
-			auth.POST("signup", handlers.SignUpHandler)
-			auth.POST("refresh-token", middlewares.JwtAuthMiddleware(), handlers.RefreshTokenHandler)
+			auth.POST("login", authHandlers.Login)
+			auth.POST("signup", authHandlers.SignUp)
+			auth.POST("refresh-token", middlewares.JwtAuthMiddleware(
+				s.Services.UserService,
+				services.NewJwtService(s.Cfg),
+			), authHandlers.RefreshToken)
 
 			available := auth.Group("available")
 			{
-				available.GET("", handlers.AvailabilityHandler)
+				available.GET("", authHandlers.Availability)
 			}
 		}
 
 		address := v1.Group("cnpj")
 		{
-			address.GET(":cnpj", handlers.CompanyByCnpj)
+			address.GET(":cnpj", cnpjHandlers.CompanyByCnpj)
 		}
 
-		offer := v1.Group("offers", middlewares.JwtAuthMiddleware())
+		offer := v1.Group("offers", middlewares.JwtAuthMiddleware(
+			s.Services.UserService,
+			services.NewJwtService(s.Cfg),
+		))
 		{
-			offer.GET(":uuid", handlers.OfferByUuidHanlder)
-			offer.GET("", handlers.OfferListHandler)
-			offer.POST("", middlewares.SupplierMiddleware(), handlers.CreateOfferHandler)
-			offer.PUT(":uuid", middlewares.SupplierMiddleware(), handlers.UpdateOfferHandler)
-			offer.DELETE(":uuid", middlewares.SupplierMiddleware(), handlers.DeleteOfferHandler)
+			offer.GET(":uuid", offerHandlers.FindByUuid)
+			offer.GET("", offerHandlers.List)
+			offer.POST("", middlewares.SupplierMiddleware(s.Services.UserTypeService), offerHandlers.Create)
+			offer.PUT(":uuid", middlewares.SupplierMiddleware(s.Services.UserTypeService), offerHandlers.Update)
+			offer.DELETE(":uuid", middlewares.SupplierMiddleware(s.Services.UserTypeService), offerHandlers.Delete)
 
 			purchase := offer.Group(":uuid/purchase")
 			{
-				purchase.POST("", handlers.CreatePurchaseHandler)
+				purchase.POST("", purchaseHandlers.Create)
 			}
 		}
 
-		me := v1.Group("me").Use(middlewares.JwtAuthMiddleware())
+		me := v1.Group("me").Use(middlewares.JwtAuthMiddleware(
+			s.Services.UserService,
+			services.NewJwtService(s.Cfg),
+		))
 		{
-			me.GET("", handlers.MeHandler)
-			me.GET("offers", middlewares.SupplierMiddleware(), handlers.UserOffersHandler)
+			me.GET("", authHandlers.Me)
+			me.GET("offers", middlewares.SupplierMiddleware(s.Services.UserTypeService), offerHandlers.FromUser)
 		}
 	}
 }

@@ -10,7 +10,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreatePurchaseHandler(c *gin.Context) {
+type PurchaseHandlers interface {
+	Create(c *gin.Context)
+}
+
+type purchaseHandlers struct {
+	purchaseService services.PurchaseService
+}
+
+func NewPurchaseHandlers(purchaseService services.PurchaseService) PurchaseHandlers {
+	return &purchaseHandlers{
+		purchaseService: purchaseService,
+	}
+}
+
+func (h *purchaseHandlers) Create(c *gin.Context) {
 	var payload requests.CreatePurchase
 	var offerUuid string = c.Param("uuid")
 	var user *models.User = GetUserFromContext(c)
@@ -21,7 +35,7 @@ func CreatePurchaseHandler(c *gin.Context) {
 		return
 	}
 
-	err := services.Purchase.Create(&payload, offerUuid, user)
+	err := h.purchaseService.Create(&payload, offerUuid, user)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return

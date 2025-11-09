@@ -1,6 +1,7 @@
 package services
 
 import (
+	"ecoply/internal/config"
 	"ecoply/internal/domain/merr"
 	"ecoply/internal/domain/models"
 	"ecoply/internal/domain/repository"
@@ -26,18 +27,18 @@ type authService struct {
 	addressRepo   repository.AddressRepository
 	userTypeRepo  repository.UserTypeRepository
 	submarketRepo repository.SubmarketRepository
-	jwtService    *JwtService
+	jwtService    JwtService
 	db            *gorm.DB
 }
 
-func NewAuthService(db *gorm.DB) AuthService {
+func NewAuthService(cfg *config.Config, db *gorm.DB) AuthService {
 	return &authService{
 		userRepo:      repository.NewUserRepository(db),
 		agentRepo:     repository.NewAgentRepository(db),
 		addressRepo:   repository.NewAddressRepository(db),
 		userTypeRepo:  repository.NewUserTypeRepository(db),
 		submarketRepo: repository.NewSubmarketRepository(db),
-		jwtService:    NewJwtService(),
+		jwtService:    NewJwtService(cfg),
 		db:            db,
 	}
 }

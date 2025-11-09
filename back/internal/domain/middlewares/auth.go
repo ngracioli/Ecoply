@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func JwtAuthMiddleware() gin.HandlerFunc {
+func JwtAuthMiddleware(userService services.UserService, jwtService services.JwtService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var responseError *merr.ResponseError
 		defer func() {
@@ -32,7 +32,6 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		jwtService := services.NewJwtService()
 		claims, err := jwtService.ValidateToken(tokenString)
 		if err != nil {
 			responseError = merr.NewResponseError(http.StatusUnauthorized, ErrJwtInvalidToken)
@@ -40,7 +39,7 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		}
 
 		var user *models.User
-		user, responseError = services.User.FindByUuid(claims.UserUuid)
+		user, responseError = userService.FindByUuid(claims.UserUuid)
 		if responseError != nil {
 			responseError.StatusCode = http.StatusUnauthorized
 			return
