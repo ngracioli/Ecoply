@@ -15,6 +15,7 @@ import (
 const htmlPath = "web/static"
 
 func registerRoutes(router *gin.Engine, s *ServerContext) {
+	var jwtService = services.NewJwtService(s.Cfg)
 	var authHandlers handlers.AuthHandlers = s.Handlers.AuthHandlers
 	var offerHandlers handlers.OfferHandlers = s.Handlers.OfferHandlers
 	var cnpjHandlers handlers.CnpjHandlers = s.Handlers.CnpjHandlers
@@ -41,7 +42,7 @@ func registerRoutes(router *gin.Engine, s *ServerContext) {
 			auth.POST("signup", authHandlers.SignUp)
 			auth.POST("refresh-token", middlewares.JwtAuthMiddleware(
 				s.Services.UserService,
-				services.NewJwtService(s.Cfg),
+				jwtService,
 			), authHandlers.RefreshToken)
 
 			available := auth.Group("available")
@@ -57,7 +58,7 @@ func registerRoutes(router *gin.Engine, s *ServerContext) {
 
 		offer := v1.Group("offers", middlewares.JwtAuthMiddleware(
 			s.Services.UserService,
-			services.NewJwtService(s.Cfg),
+			jwtService,
 		))
 		{
 			offer.GET(":uuid", offerHandlers.FindByUuid)
@@ -74,7 +75,7 @@ func registerRoutes(router *gin.Engine, s *ServerContext) {
 
 		me := v1.Group("me").Use(middlewares.JwtAuthMiddleware(
 			s.Services.UserService,
-			services.NewJwtService(s.Cfg),
+			jwtService,
 		))
 		{
 			me.GET("", authHandlers.Me)

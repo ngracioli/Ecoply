@@ -33,39 +33,44 @@ func (s *purchaseService) Create(
 	offerUuid string,
 	user *models.User,
 ) *merr.ResponseError {
+	var errResponse *merr.ResponseError
 	var offer *models.Offer
 	var err error
-
-	offer, err = s.offerRepo.GetByUuid(offerUuid)
-	if err != nil {
-		return merr.NewResponseError(http.StatusNotFound, ErrOfferNotFound)
-	}
-
-	if offer.RemainingQuantityMwh < request.QuantityMwh {
-		return merr.NewResponseError(http.StatusUnprocessableEntity, ErrInsufficientOfferQuantity)
-	}
-
-	if offer.SellerId == user.ID {
-		return merr.NewResponseError(http.StatusForbidden, ErrCannotPurchaseOwnOffer)
-	}
-
-	if offer.IsFulfilled() || offer.IsExpired() {
-		return merr.NewResponseError(http.StatusUnprocessableEntity, ErrOfferHasEnded)
-	}
-
-	offer.RemainingQuantityMwh -= request.QuantityMwh
-
-	if offer.IsFresh() {
-		offer.Status = models.OfferStatusOpen
-	} else if offer.RemainingQuantityMwh == 0 {
-		offer.Status = models.OfferStatusFulfilled
-	}
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		var offerRepository repository.OfferRepository = repository.NewOfferRepository(tx)
 		var purchaseRepository repository.PurchaseRepository = repository.NewPurchaseRepository(tx)
 		var purchase *models.Purchase
 		var err error
+
+		offer, err = offerRepository.GetByUuid(offerUuid)
+		if err != nil {
+			errResponse = merr.NewResponseError(http.StatusNotFound, ErrOfferNotFound)
+			return err
+		}
+
+		if offer.RemainingQuantityMwh < request.QuantityMwh {
+			errResponse = merr.NewResponseError(http.StatusUnprocessableEntity, ErrInsufficientOfferQuantity)
+			return err
+		}
+
+		if offer.SellerId == user.ID {
+			errResponse = merr.NewResponseError(http.StatusForbidden, ErrCannotPurchaseOwnOffer)
+			return err
+		}
+
+		if offer.IsFulfilled() || offer.IsExpired() {
+			errResponse = merr.NewResponseError(http.StatusUnprocessableEntity, ErrOfferHasEnded)
+			return err
+		}
+
+		offer.RemainingQuantityMwh -= request.QuantityMwh
+
+		if offer.IsFresh() {
+			offer.Status = models.OfferStatusOpen
+		} else if offer.RemainingQuantityMwh == 0 {
+			offer.Status = models.OfferStatusFulfilled
+		}
 
 		if err = offerRepository.Update(offer); err != nil {
 			return err
@@ -86,6 +91,10 @@ func (s *purchaseService) Create(
 
 		return nil
 	})
+
+	if errResponse != nil {
+		return errResponse
+	}
 
 	if err != nil {
 		return merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
