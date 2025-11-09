@@ -68,7 +68,7 @@ func (s *offerService) Create(user *models.User, request *requests.CreateOffer) 
 	parsedStartPeriod, _ := parseDate(request.PeriodStart)
 	parsedEndPeriod, _ := parseDate(request.PeriodEnd)
 
-	params := &repository.OfferCreateParams{
+	offer := &models.Offer{
 		Uuid:                 NewUuidV7String(),
 		PricePerMwh:          request.PricePerMwh,
 		InitialQuantityMwh:   request.QuantityMwh,
@@ -82,7 +82,7 @@ func (s *offerService) Create(user *models.User, request *requests.CreateOffer) 
 		SubmarketId:          user.Agent.SubmarketId,
 	}
 
-	offer, err := s.offerRepo.Create(params)
+	offer, err = s.offerRepo.Create(offer)
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}

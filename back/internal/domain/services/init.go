@@ -9,6 +9,7 @@ var (
 	Offer    OfferService
 	User     UserService
 	UserType UserTypeService
+	Purchase PurchaseService
 )
 
 func InitServices(db *gorm.DB) {
@@ -16,4 +17,5 @@ func InitServices(db *gorm.DB) {
 	Offer = NewOfferService(db)
 	User = NewUserService(db)
 	UserType = NewUserTypeService(db)
+	Purchase = NewPurchaseService(db)
 }

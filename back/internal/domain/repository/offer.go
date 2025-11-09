@@ -6,7 +6,6 @@ import (
 	"ecoply/internal/domain/scopes"
 	"ecoply/internal/domain/utils"
 	"ecoply/internal/mlog"
-	"time"
 
 	"gorm.io/gorm"
 )
@@ -14,7 +13,7 @@ import (
 type OfferRepository interface {
 	GetByUuid(uuid string) (*models.Offer, error)
 	GetBySellerId(userId uint) ([]*models.Offer, error)
-	Create(params *OfferCreateParams) (*models.Offer, error)
+	Create(*models.Offer) (*models.Offer, error)
 	List(request *requests.ListOffers, user *models.User) (*utils.PaginationWrapper[*models.Offer], error)
 	Update(offer *models.Offer) error
 	Delete(uuid string) error
@@ -53,35 +52,7 @@ func (r *offerRepository) GetBySellerId(userId uint) ([]*models.Offer, error) {
 	return offers, nil
 }
 
-type OfferCreateParams struct {
-	Uuid                 string
-	PricePerMwh          float64
-	InitialQuantityMwh   float64
-	RemainingQuantityMwh float64
-	Description          string
-	PeriodStart          time.Time
-	PeriodEnd            time.Time
-	Status               string
-	EnergyTypeId         uint
-	SellerId             uint
-	SubmarketId          uint
-}
-
-func (r *offerRepository) Create(params *OfferCreateParams) (*models.Offer, error) {
-	offer := &models.Offer{
-		Uuid:                 params.Uuid,
-		PricePerMwh:          params.PricePerMwh,
-		InitialQuantityMwh:   params.InitialQuantityMwh,
-		RemainingQuantityMwh: params.RemainingQuantityMwh,
-		Description:          params.Description,
-		PeriodStart:          params.PeriodStart,
-		PeriodEnd:            params.PeriodEnd,
-		Status:               params.Status,
-		EnergyTypeId:         params.EnergyTypeId,
-		SellerId:             params.SellerId,
-		SubmarketId:          params.SubmarketId,
-	}
-
+func (r *offerRepository) Create(offer *models.Offer) (*models.Offer, error) {
 	if err := r.db.Create(offer).Error; err != nil {
 		mlog.Log("Failed to create offer: " + err.Error())
 		return nil, err
@@ -118,7 +89,7 @@ func (r *offerRepository) List(request *requests.ListOffers, user *models.User) 
 		Joins("EnergyType").
 		Joins("Seller").
 		Where("seller_id != ?", user.ID).
-		Where("status NOT IN (?)", []string{models.OfferStatusExpired, models.OfferStatusFulFilled})
+		Where("status NOT IN (?)", []string{models.OfferStatusExpired, models.OfferStatusFulfilled})
 
 	if request.Submarket != "" {
 		result = result.Where("\"Submarket\".name = ?", request.Submarket)

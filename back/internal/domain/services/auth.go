@@ -262,12 +262,12 @@ func (s *authService) createUser(request *requests.SignUp) (*models.User, *merr.
 		}
 
 		var agentRepo = repository.NewAgentRepository(tx)
-		agentModel, err := agentRepo.Create(repository.AgentCreateParams{
+		agentModel, err := agentRepo.Create(&models.Agent{
 			Cnpj:        request.Agent.Cnpj,
 			CompanyName: request.Agent.CompanyName,
 			CceeCode:    request.Agent.CceeCode,
-			Submarket:   submarketModel,
-			Address:     addressModel,
+			SubmarketId: submarketModel.ID,
+			AddressId:   addressModel.ID,
 		})
 		if err != nil {
 			if errors.Is(err, gorm.ErrDuplicatedKey) {

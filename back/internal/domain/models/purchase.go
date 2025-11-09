@@ -11,7 +11,7 @@ type Purchase struct {
 
 	Uuid string `gorm:"type:uuid;uniqueIndex;not null"`
 
-	QuantityMwh int     `gorm:"type:decimal(10,3) not null"`
+	QuantityMwh float64 `gorm:"type:decimal(10,3) not null"`
 	PricePerMwh float64 `gorm:"type:decimal(10,2) not null"`
 
 	Status string `gorm:"type:varchar(50);not null"`
