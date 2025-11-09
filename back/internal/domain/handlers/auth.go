@@ -5,13 +5,30 @@ import (
 	"ecoply/internal/domain/models"
 	"ecoply/internal/domain/requests"
 	"ecoply/internal/domain/services"
-	"ecoply/internal/domain/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func LoginHandler(c *gin.Context) {
+type AuthHandlers interface {
+	Login(c *gin.Context)
+	SignUp(c *gin.Context)
+	Me(c *gin.Context)
+	Availability(c *gin.Context)
+	RefreshToken(c *gin.Context)
+}
+
+type authHandlers struct {
+	authService services.AuthService
+}
+
+func NewAuthHandler(authService services.AuthService) AuthHandlers {
+	return &authHandlers{
+		authService: authService,
+	}
+}
+
+func (h *authHandlers) Login(c *gin.Context) {
 	var payload requests.Login
 
 	if err := c.ShouldBindBodyWithJSON(&payload); err != nil {
@@ -20,7 +37,7 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
-	response, err := services.Auth.Login(&payload)
+	response, err := h.authService.Login(&payload)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -29,7 +46,7 @@ func LoginHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": response})
 }
 
-func SignUpHandler(c *gin.Context) {
+func (h *authHandlers) SignUp(c *gin.Context) {
 	var payload requests.SignUp
 
 	if err := c.ShouldBindBodyWithJSON(&payload); err != nil {
@@ -38,7 +55,7 @@ func SignUpHandler(c *gin.Context) {
 		return
 	}
 
-	response, err := services.Auth.SignUp(&payload)
+	response, err := h.authService.SignUp(&payload)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -47,9 +64,9 @@ func SignUpHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"data": response})
 }
 
-func MeHandler(c *gin.Context) {
-	var user *models.User = utils.GetUserFromContext(c)
-	response, err := services.Auth.Me(user.Uuid)
+func (h *authHandlers) Me(c *gin.Context) {
+	var user *models.User = GetUserFromContext(c)
+	response, err := h.authService.Me(user.Uuid)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -58,7 +75,7 @@ func MeHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": response})
 }
 
-func AvailabilityHandler(c *gin.Context) {
+func (h *authHandlers) Availability(c *gin.Context) {
 	var payload requests.Availability
 
 	if err := c.ShouldBindQuery(&payload); err != nil {
@@ -67,7 +84,7 @@ func AvailabilityHandler(c *gin.Context) {
 		return
 	}
 
-	response, err := services.Auth.Availability(&payload)
+	response, err := h.authService.Availability(&payload)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
@@ -81,9 +98,9 @@ func AvailabilityHandler(c *gin.Context) {
 	c.AbortWithStatus(http.StatusNoContent)
 }
 
-func RefreshTokenHandler(c *gin.Context) {
+func (h *authHandlers) RefreshToken(c *gin.Context) {
 	token := c.GetString("token")
-	response, err := services.Auth.RefreshToken(token)
+	response, err := h.authService.RefreshToken(token)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return

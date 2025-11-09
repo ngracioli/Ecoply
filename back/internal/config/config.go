@@ -34,9 +34,9 @@ var (
 	loaded bool
 )
 
-func Load(filenames ...string) error {
+func Load(filenames ...string) (*Config, error) {
 	if loaded {
-		return nil
+		return &config, nil
 	}
 
 	if len(filenames) > 0 {
@@ -46,23 +46,11 @@ func Load(filenames ...string) error {
 	}
 
 	if err := env.Parse(&config); err != nil {
-		return ErrFailedToLoadConfig
+		return nil, ErrFailedToLoadConfig
 	}
 
 	loaded = true
-	return nil
-}
-
-func GetConfig() *Config {
-	if !loaded {
-		return nil
-	}
-
-	return &config
-}
-
-func IsLoaded() bool {
-	return loaded
+	return &config, nil
 }
 
 func IsDevelopment() bool {

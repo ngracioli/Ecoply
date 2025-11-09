@@ -8,7 +8,7 @@ import (
 )
 
 type AgentRepository interface {
-	Create(params AgentCreateParams) (*models.Agent, error)
+	Create(agent *models.Agent) (*models.Agent, error)
 	FindById(id uint) (*models.Agent, error)
 	FindByCnpj(cnpj string) (*models.Agent, error)
 	FindByCceeCode(cceeCode string) (*models.Agent, error)
@@ -22,23 +22,7 @@ func NewAgentRepository(db *gorm.DB) AgentRepository {
 	return &agentRepository{db: db}
 }
 
-type AgentCreateParams struct {
-	Cnpj        string
-	CompanyName string
-	CceeCode    string
-	Submarket   *models.Submarket
-	Address     *models.Address
-}
-
-func (a *agentRepository) Create(params AgentCreateParams) (*models.Agent, error) {
-	agent := &models.Agent{
-		Cnpj:        params.Cnpj,
-		CompanyName: params.CompanyName,
-		CceeCode:    params.CceeCode,
-		SubmarketId: params.Submarket.ID,
-		AddressId:   params.Address.ID,
-	}
-
+func (a *agentRepository) Create(agent *models.Agent) (*models.Agent, error) {
 	if err := a.db.Create(agent).Error; err != nil {
 		mlog.Log("Failed to create agent: " + err.Error())
 		return nil, err

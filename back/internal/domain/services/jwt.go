@@ -20,20 +20,25 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-type JwtService struct {
+type JwtService interface {
+	GenerateToken(userUuid string, email string, userType string) (string, error)
+	RefreshToken(oldToken string) (string, error)
+	ValidateToken(tokenString string) (*Claims, error)
+}
+
+type jwtService struct {
 	signingKey []byte
 	issuer     string
 }
 
-func NewJwtService() *JwtService {
-	cfg := config.GetConfig()
-	return &JwtService{
+func NewJwtService(cfg *config.Config) JwtService {
+	return &jwtService{
 		signingKey: []byte(cfg.JWTSigningKey),
 		issuer:     cfg.AppName,
 	}
 }
 
-func (j *JwtService) GenerateToken(userUuid string, email string, userType string) (string, error) {
+func (j *jwtService) GenerateToken(userUuid string, email string, userType string) (string, error) {
 	now := time.Now()
 	expirationTime := now.Add(24 * time.Hour)
 
@@ -60,7 +65,7 @@ func (j *JwtService) GenerateToken(userUuid string, email string, userType strin
 	return tokenString, nil
 }
 
-func (j *JwtService) ValidateToken(tokenString string) (*Claims, error) {
+func (j *jwtService) ValidateToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, ErrInvalidSigningMethod
@@ -79,7 +84,7 @@ func (j *JwtService) ValidateToken(tokenString string) (*Claims, error) {
 	return nil, ErrInvalidToken
 }
 
-func (j *JwtService) RefreshToken(oldToken string) (string, error) {
+func (j *jwtService) RefreshToken(oldToken string) (string, error) {
 	claims, err := j.ValidateToken(oldToken)
 	if err != nil {
 		return "", err
