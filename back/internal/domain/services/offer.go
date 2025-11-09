@@ -23,6 +23,7 @@ type OfferService interface {
 	Update(user *models.User, uuid string, request *requests.UpdateOffer) *merr.ResponseError
 	Delete(user *models.User, uuid string) *merr.ResponseError
 	List(params *requests.ListOffers, user *models.User) (*utils.PaginationWrapper[*resources.Offer], *merr.ResponseError)
+	UpdateExpiredOffers() error
 }
 
 type offerService struct {
@@ -242,9 +243,16 @@ func validateUpdatePeriodFromRequest(offer *models.Offer, request *requests.Upda
 
 	var nowZeroHour time.Time = utils.NowInLocalZeroHour()
 	var offerStartTruncated time.Time = utils.TruncateDateToLocalZeroHour(offer.PeriodStart)
+	var offerEndTruncated time.Time = utils.TruncateDateToLocalZeroHour(offer.PeriodEnd)
 
 	if !parsedStartPeriod.Equal(offerStartTruncated) {
 		if parsedStartPeriod.After(parsedEndPeriod) || parsedStartPeriod.Before(nowZeroHour) {
+			return ErrInvalidPeriod
+		}
+	}
+
+	if !parsedEndPeriod.Equal(offerEndTruncated) {
+		if parsedEndPeriod.Before(parsedStartPeriod) || parsedEndPeriod.Before(nowZeroHour) {
 			return ErrInvalidPeriod
 		}
 	}
@@ -341,4 +349,8 @@ func (s *offerService) List(request *requests.ListOffers, user *models.User) (*u
 	}
 
 	return &response, nil
+}
+
+func (s *offerService) UpdateExpiredOffers() error {
+	return s.offerRepo.UpdateExpiredOffers()
 }

@@ -18,6 +18,7 @@ type OfferRepository interface {
 	List(request *requests.ListOffers, user *models.User) (*utils.PaginationWrapper[*models.Offer], error)
 	Update(offer *models.Offer) error
 	Delete(uuid string) error
+	UpdateExpiredOffers() error
 }
 
 type offerRepository struct {
@@ -146,4 +147,13 @@ func (r *offerRepository) List(request *requests.ListOffers, user *models.User) 
 	var paginationWrapper = utils.NewPaginationWrapper[*models.Offer](request.Page, request.PageSize, offers)
 
 	return paginationWrapper, nil
+}
+
+func (r *offerRepository) UpdateExpiredOffers() error {
+	return r.db.Model(&models.Offer{}).
+		Where("period_end < ? AND status IN (?)", utils.NowInLocal(), []string{
+			models.OfferStatusFresh,
+			models.OfferStatusOpen,
+		}).
+		Update("status", models.OfferStatusExpired).Error
 }

@@ -29,6 +29,9 @@ func main() {
 	validation.RegisterCustomValidators()
 
 	var db *gorm.DB = database.New()
+
+	launchExpiredOffersUpdaterJob(db)
+
 	services.InitServices(db)
 
 	mlog.CreateServerLogger()
@@ -56,4 +59,29 @@ func loadEnvironment() *config.Config {
 	}
 
 	return config.GetConfig()
+}
+
+func launchExpiredOffersUpdaterJob(db *gorm.DB) chan bool {
+	offerService := services.Offer
+
+	ticker := time.NewTicker(1 * time.Hour)
+	closeChannel := make(chan bool)
+	defer ticker.Stop()
+
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				err := offerService.UpdateExpiredOffers()
+				if err != nil {
+					mlog.Log("Error updating expired offers: " + err.Error())
+				}
+			case <-closeChannel:
+				ticker.Stop()
+				return
+			}
+		}
+	}()
+
+	return closeChannel
 }
