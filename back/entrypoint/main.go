@@ -6,7 +6,7 @@ import (
 	"ecoply/internal/domain/services"
 	"ecoply/internal/domain/validation"
 	"ecoply/internal/mlog"
-	"ecoply/internal/server"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -30,14 +30,15 @@ func main() {
 
 	var db *gorm.DB = database.New()
 
-	launchExpiredOffersUpdaterJob(db)
-
 	services.InitServices(db)
+
+	offerUpdateCh := launchExpiredOffersUpdaterJob()
 
 	mlog.CreateServerLogger()
 	defer mlog.CloseLogFiles()
 
-	server.NewAndRun()
+	offerUpdateCh <- true
+	close(offerUpdateCh)
 }
 
 func loadEnvironment() *config.Config {
@@ -61,12 +62,12 @@ func loadEnvironment() *config.Config {
 	return config.GetConfig()
 }
 
-func launchExpiredOffersUpdaterJob(db *gorm.DB) chan bool {
+// Must be called after services initialization
+func launchExpiredOffersUpdaterJob() chan bool {
 	offerService := services.Offer
 
-	ticker := time.NewTicker(1 * time.Hour)
+	ticker := time.NewTicker(5 * time.Minute)
 	closeChannel := make(chan bool)
-	defer ticker.Stop()
 
 	go func() {
 		for {
@@ -78,6 +79,7 @@ func launchExpiredOffersUpdaterJob(db *gorm.DB) chan bool {
 				}
 			case <-closeChannel:
 				ticker.Stop()
+				fmt.Printf("Killed\n")
 				return
 			}
 		}
