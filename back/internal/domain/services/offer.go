@@ -23,6 +23,7 @@ type OfferService interface {
 	Update(user *models.User, uuid string, request *requests.UpdateOffer) *merr.ResponseError
 	Delete(user *models.User, uuid string) *merr.ResponseError
 	List(params *requests.ListOffers, user *models.User) (*utils.PaginationWrapper[*resources.Offer], *merr.ResponseError)
+	UpdateExpiredOffers() error
 }
 
 type offerService struct {
@@ -67,7 +68,7 @@ func (s *offerService) Create(user *models.User, request *requests.CreateOffer) 
 	parsedStartPeriod, _ := parseDate(request.PeriodStart)
 	parsedEndPeriod, _ := parseDate(request.PeriodEnd)
 
-	params := &repository.OfferCreateParams{
+	offer := &models.Offer{
 		Uuid:                 NewUuidV7String(),
 		PricePerMwh:          request.PricePerMwh,
 		InitialQuantityMwh:   request.QuantityMwh,
@@ -81,7 +82,7 @@ func (s *offerService) Create(user *models.User, request *requests.CreateOffer) 
 		SubmarketId:          user.Agent.SubmarketId,
 	}
 
-	offer, err := s.offerRepo.Create(params)
+	offer, err = s.offerRepo.Create(offer)
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
@@ -242,9 +243,16 @@ func validateUpdatePeriodFromRequest(offer *models.Offer, request *requests.Upda
 
 	var nowZeroHour time.Time = utils.NowInLocalZeroHour()
 	var offerStartTruncated time.Time = utils.TruncateDateToLocalZeroHour(offer.PeriodStart)
+	var offerEndTruncated time.Time = utils.TruncateDateToLocalZeroHour(offer.PeriodEnd)
 
 	if !parsedStartPeriod.Equal(offerStartTruncated) {
 		if parsedStartPeriod.After(parsedEndPeriod) || parsedStartPeriod.Before(nowZeroHour) {
+			return ErrInvalidPeriod
+		}
+	}
+
+	if !parsedEndPeriod.Equal(offerEndTruncated) {
+		if parsedEndPeriod.Before(parsedStartPeriod) || parsedEndPeriod.Before(nowZeroHour) {
 			return ErrInvalidPeriod
 		}
 	}
@@ -341,4 +349,8 @@ func (s *offerService) List(request *requests.ListOffers, user *models.User) (*u
 	}
 
 	return &response, nil
+}
+
+func (s *offerService) UpdateExpiredOffers() error {
+	return s.offerRepo.UpdateExpiredOffers()
 }

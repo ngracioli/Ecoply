@@ -2,6 +2,8 @@ package server
 
 import (
 	"ecoply/internal/config"
+	"ecoply/internal/domain/handlers"
+	"ecoply/internal/domain/services"
 	"ecoply/internal/mlog"
 	"net"
 	"strconv"
@@ -15,24 +17,43 @@ type Server struct {
 	Port   uint16
 }
 
-func New() *Server {
-	var cfg *config.Config = config.GetConfig()
+type ServerServices struct {
+	services.AuthService
+	services.UserService
+	services.OfferService
+	services.PurchaseService
+	services.UserTypeService
+}
 
+type ServerHandlers struct {
+	handlers.AuthHandlers
+	handlers.CnpjHandlers
+	handlers.OfferHandlers
+	handlers.PurchaseHandlers
+}
+
+type ServerContext struct {
+	Cfg      *config.Config
+	Services ServerServices
+	Handlers ServerHandlers
+}
+
+func New(s *ServerContext) *Server {
 	var engine *gin.Engine = gin.Default()
 
-	registerRoutes(engine, cfg)
+	registerRoutes(engine, s)
 
 	mlog.LogGinRoutes(engine)
 
 	return &Server{
 		Engine: engine,
-		Host:   cfg.ServerHost,
-		Port:   cfg.ServerPort,
+		Host:   s.Cfg.ServerHost,
+		Port:   s.Cfg.ServerPort,
 	}
 }
 
-func NewAndRun() *Server {
-	var server *Server = New()
+func NewAndRun(s *ServerContext) *Server {
+	var server *Server = New(s)
 	server.Run()
 	return server
 }

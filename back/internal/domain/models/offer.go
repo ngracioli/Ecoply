@@ -1,6 +1,7 @@
 package models
 
 import (
+	"ecoply/internal/domain/utils"
 	"time"
 
 	"gorm.io/gorm"
@@ -9,7 +10,7 @@ import (
 const (
 	OfferStatusFresh     string = "fresh"
 	OfferStatusOpen      string = "open"
-	OfferStatusFulFilled string = "fulfilled"
+	OfferStatusFulfilled string = "fulfilled"
 	OfferStatusExpired   string = "expired"
 )
 
@@ -39,4 +40,20 @@ type Offer struct {
 	Seller   User `gorm:"foreignKey:SellerId"`
 
 	Purchase []Purchase `gorm:"foreignKey:OfferId"`
+}
+
+func (o *Offer) IsExpired() bool {
+	return utils.NowInLocal().After(o.PeriodEnd)
+}
+
+func (o *Offer) IsFresh() bool {
+	return o.Status == OfferStatusFresh
+}
+
+func (o *Offer) IsOpen() bool {
+	return o.Status == OfferStatusOpen
+}
+
+func (o *Offer) IsFulfilled() bool {
+	return o.RemainingQuantityMwh == 0
 }

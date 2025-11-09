@@ -1,4 +1,4 @@
-package utils
+package handlers
 
 import (
 	"ecoply/internal/domain/models"
