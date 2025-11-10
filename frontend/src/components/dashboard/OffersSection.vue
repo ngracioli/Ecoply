@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { Filter } from "lucide-vue-next";
+import { useRouter } from "vue-router";
 import api from "../../axios";
 import { OFFER_ENDPOINTS } from "../../api/endpoints";
 import type {
@@ -13,6 +14,7 @@ import OffersFilterDialog from "./OffersFilterDialog.vue";
 import { useStore } from "vuex";
 import type { RootState } from "../../store";
 import type { UserType as UserTypeEnum } from "../../types/user";
+import { RouteNames } from "../../router/types";
 
 interface FilterOptions {
   submarket?: string;
@@ -36,6 +38,7 @@ interface ApiError {
   message?: string;
 }
 
+const router = useRouter();
 const store = useStore<RootState>();
 const userUserType = computed<UserTypeEnum | null>(
   () => store.getters["user/userType"] || null,
@@ -161,6 +164,13 @@ const goToPrevPage = () => {
   }
 };
 
+const viewOfferDetails = (offerUuid: string) => {
+  router.push({
+    name: RouteNames.OFFER_DETAIL,
+    params: { id: offerUuid },
+  });
+};
+
 onMounted(() => {
   loadOffers();
 });
@@ -265,6 +275,7 @@ onMounted(() => {
         v-for="offer in offers"
         :key="offer.uuid"
         :offer="offer"
+        @click="viewOfferDetails(offer.uuid)"
       />
     </div>
 

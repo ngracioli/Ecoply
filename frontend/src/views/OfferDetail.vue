@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import axios from "../axios";
-import type { OfferListItem } from "../types/responses/offers";
+import api from "../axios";
+import { OFFER_ENDPOINTS } from "../api/endpoints";
+import type {
+  OfferListItem,
+  OfferDetailResponse,
+} from "../types/responses/offers";
 import {
   Calendar,
   MapPin,
@@ -25,7 +29,9 @@ const fetchOffer = async () => {
   try {
     loading.value = true;
     error.value = null;
-    const response = await axios.get(`/api/v1/offers/${offerId.value}`);
+    const response = await api.get<OfferDetailResponse>(
+      OFFER_ENDPOINTS.DETAIL(offerId.value),
+    );
     offer.value = response.data.data;
   } catch (err: any) {
     error.value =
@@ -127,6 +133,13 @@ const calculatePercentageRemaining = () => {
     (offer.value.remaining_quantity_mwh / offer.value.initial_quantity_mwh) *
     100
   ).toFixed(0);
+};
+
+const goToCheckout = () => {
+  router.push({
+    name: "Checkout",
+    params: { id: offerId.value },
+  });
 };
 </script>
 
@@ -375,7 +388,8 @@ const calculatePercentageRemaining = () => {
             <!-- Action Buttons -->
             <div class="mt-8 flex flex-wrap gap-4">
               <button
-                class="flex-1 rounded-lg bg-gradient-to-r from-emerald-500 to-green-500 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:shadow-xl"
+                @click="goToCheckout"
+                class="flex-1 rounded-lg bg-gradient-to-r from-emerald-500 to-green-500 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:shadow-xl hover:brightness-110"
               >
                 Comprar Energia
               </button>

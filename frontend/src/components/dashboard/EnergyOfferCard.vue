@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useRouter } from "vue-router";
 import { Calendar, Store } from "lucide-vue-next";
 import type { OfferListItem } from "../../types/responses/offers";
 import type { EnergyType } from "../../types/offer";
@@ -10,6 +9,10 @@ interface Props {
   actionButtonText?: string;
 }
 
+interface Emits {
+  (e: "click"): void;
+}
+
 interface EnergyTypeConfig {
   gradient: string;
   badge: string;
@@ -17,7 +20,7 @@ interface EnergyTypeConfig {
 }
 
 const props = defineProps<Props>();
-const router = useRouter();
+const emit = defineEmits<Emits>();
 
 const ENERGY_TYPE_CONFIG: Record<EnergyType, EnergyTypeConfig> = {
   solar: {
@@ -83,8 +86,8 @@ const displayData = computed(() => ({
 
 const typeConfig = computed(() => getEnergyTypeConfig(displayData.value.type));
 
-const viewDetails = () => {
-  router.push(`/offer/${props.offer.uuid}`);
+const handleActionClick = () => {
+  emit("click");
 };
 </script>
 
@@ -134,7 +137,7 @@ const viewDetails = () => {
 
       <div class="mt-6 flex flex-col gap-2">
         <button
-          @click="viewDetails"
+          @click="handleActionClick"
           class="w-full rounded-lg border-2 border-emerald-500 bg-transparent py-2.5 text-sm font-medium text-emerald-600 transition-all duration-200 hover:bg-emerald-500 hover:text-white"
         >
           {{ actionButtonText || "Ver Detalhes" }}

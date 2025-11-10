@@ -10,6 +10,7 @@ export const OFFER_ENDPOINTS = {
   LIST: "/api/v1/offers",
   DETAIL: (uuid: string) => `/api/v1/offers/${uuid}`,
   DELETE: (uuid: string) => `/api/v1/offers/${uuid}`,
+  UPDATE: (uuid: string) => `/api/v1/offers/${uuid}`,
   CREATE: "/api/v1/offers",
   MY_OFFERS: "/api/v1/me/offers",
 } as const;
