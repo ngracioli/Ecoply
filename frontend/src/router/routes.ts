@@ -32,4 +32,10 @@ export const routes: AppRoute[] = [
     component: () => import("../views/OfferDetail.vue"),
     meta: { requiresAuth: true },
   },
+  {
+    path: RoutePaths.CHECKOUT,
+    name: RouteNames.CHECKOUT,
+    component: () => import("../views/Checkout.vue"),
+    meta: { requiresAuth: true },
+  },
 ];

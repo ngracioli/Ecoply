@@ -15,6 +15,10 @@ export interface OfferListItem {
   created_at: string;
 }
 
+export interface OfferDetailResponse {
+  data: OfferListItem;
+}
+
 export interface PaginatedResponse<T> {
   page: number;
   page_size: number;
