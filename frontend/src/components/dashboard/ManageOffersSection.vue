@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { Trash2 } from "lucide-vue-next";
+import { Trash2, Edit } from "lucide-vue-next";
+import { useRouter } from "vue-router";
 import api from "../../axios";
 import { OFFER_ENDPOINTS } from "../../api/endpoints";
 import type {
@@ -10,6 +11,7 @@ import type {
 import CreateOfferDialog from "./CreateOfferDialog.vue";
 import EnergyOfferCard from "./EnergyOfferCard.vue";
 import ConfirmDialog from "../shared/ConfirmDialog.vue";
+import { RouteNames } from "../../router/types";
 
 interface PaginationInfo {
   start: number;
@@ -28,9 +30,11 @@ interface ApiError {
 
 const PAGE_SIZE = 10;
 
+const router = useRouter();
 const showCreateDialog = ref(false);
 const showDeleteDialog = ref(false);
 const offerToDelete = ref<string | null>(null);
+const offerToEdit = ref<OfferListItem | null>(null);
 const offers = ref<OfferListItem[]>([]);
 const loading = ref(false);
 const deleting = ref(false);
@@ -80,11 +84,22 @@ const loadMyOffers = async () => {
 };
 
 const openCreateDialog = () => {
+  offerToEdit.value = null;
+  showCreateDialog.value = true;
+};
+
+const openEditDialog = (offer: OfferListItem) => {
+  offerToEdit.value = offer;
   showCreateDialog.value = true;
 };
 
 const handleOfferCreated = () => {
   loadMyOffers();
+};
+
+const handleOfferUpdated = () => {
+  loadMyOffers();
+  offerToEdit.value = null;
 };
 
 const goToNextPage = () => {
@@ -131,6 +146,13 @@ const confirmDelete = async () => {
 
 const cancelDelete = () => {
   offerToDelete.value = null;
+};
+
+const viewOfferDetails = (offerUuid: string) => {
+  router.push({
+    name: RouteNames.OFFER_DETAIL,
+    params: { id: offerUuid },
+  });
 };
 
 onMounted(() => {
@@ -185,16 +207,26 @@ onMounted(() => {
         v-for="offer in offers"
         :key="offer.uuid"
         :offer="offer"
-        actionButtonText="Gerenciar Oferta"
+        actionButtonText="Visualizar Oferta"
+        @click="viewOfferDetails(offer.uuid)"
       >
         <template #actions>
-          <button
-            @click="deleteOffer(offer.uuid)"
-            class="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-red-500 bg-transparent py-2.5 text-sm font-medium text-red-600 transition-all duration-200 hover:bg-red-500 hover:text-white"
-          >
-            <Trash2 :size="16" />
-            Excluir Oferta
-          </button>
+          <div class="flex gap-2">
+            <button
+              @click="openEditDialog(offer)"
+              class="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-blue-500 bg-transparent py-2.5 text-sm font-medium text-blue-600 transition-all duration-200 hover:bg-blue-500 hover:text-white"
+            >
+              <Edit :size="16" />
+              Editar
+            </button>
+            <button
+              @click="deleteOffer(offer.uuid)"
+              class="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-red-500 bg-transparent py-2.5 text-sm font-medium text-red-600 transition-all duration-200 hover:bg-red-500 hover:text-white"
+            >
+              <Trash2 :size="16" />
+              Excluir
+            </button>
+          </div>
         </template>
       </EnergyOfferCard>
     </div>
@@ -286,7 +318,9 @@ onMounted(() => {
 
     <CreateOfferDialog
       v-model:visible="showCreateDialog"
+      :offer="offerToEdit"
       @offer-created="handleOfferCreated"
+      @offer-updated="handleOfferUpdated"
     />
 
     <ConfirmDialog

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue";
+import { reactive, ref, watch, computed } from "vue";
 import Dialog from "primevue/dialog";
 import { useToast } from "primevue/usetoast";
 import { Calendar, DollarSign, Package, Zap } from "lucide-vue-next";
@@ -8,6 +8,7 @@ import { OFFER_ENDPOINTS } from "../../api/endpoints";
 import type { EnergyType } from "../../types/offer";
 import type { CreateOfferRequest } from "../../types/requests/offer";
 import type { CreateOfferResponse } from "../../types/responses/offer";
+import type { OfferListItem } from "../../types/responses/offers";
 import { offerSchema } from "./CreateOfferDialog/validation";
 
 interface OfferForm {
@@ -30,11 +31,13 @@ interface OfferFormErrors {
 
 interface CreateOfferDialogProps {
   visible: boolean;
+  offer?: OfferListItem | null;
 }
 
 interface CreateOfferDialogEmits {
   (e: "update:visible", value: boolean): void;
   (e: "offer-created"): void;
+  (e: "offer-updated"): void;
 }
 
 interface EnergyTypeConfig {
@@ -100,8 +103,28 @@ const emit = defineEmits<CreateOfferDialogEmits>();
 const toast = useToast();
 
 const newOffer = reactive<OfferForm>({ ...INITIAL_FORM_STATE });
+const originalOffer = ref<OfferForm | null>(null);
 const isSubmitting = ref(false);
 const errors = ref<OfferFormErrors>({});
+
+const isEditMode = computed(() => !!props.offer);
+
+const dialogTitle = computed(() =>
+  isEditMode.value ? "Editar Oferta" : "Criar Nova Oferta",
+);
+
+const dialogSubtitle = computed(() =>
+  isEditMode.value
+    ? "Atualize os dados da sua oferta de energia"
+    : "Preencha os dados da sua oferta de energia",
+);
+
+const submitButtonText = computed(() => {
+  if (isSubmitting.value) {
+    return isEditMode.value ? "Atualizando..." : "Criando...";
+  }
+  return isEditMode.value ? "Atualizar Oferta" : "Criar Oferta";
+});
 
 const getInputClass = (error?: string): string => {
   const baseClasses =
@@ -115,6 +138,29 @@ const getInputClass = (error?: string): string => {
 const resetForm = () => {
   Object.assign(newOffer, INITIAL_FORM_STATE);
   errors.value = {};
+};
+
+const loadOfferData = () => {
+  if (props.offer) {
+    newOffer.price_per_mwh = props.offer.price_per_mwh.toString();
+    newOffer.quantity_mwh = props.offer.remaining_quantity_mwh.toString();
+    newOffer.period_start = props.offer.period_start;
+    newOffer.period_end = props.offer.period_end;
+    newOffer.description = props.offer.description;
+    newOffer.energy_type = props.offer.energy_type;
+
+    originalOffer.value = {
+      price_per_mwh: props.offer.price_per_mwh.toString(),
+      quantity_mwh: props.offer.remaining_quantity_mwh.toString(),
+      period_start: props.offer.period_start,
+      period_end: props.offer.period_end,
+      description: props.offer.description,
+      energy_type: props.offer.energy_type,
+    };
+  } else {
+    resetForm();
+    originalOffer.value = null;
+  }
 };
 
 const closeDialog = () => {
@@ -134,39 +180,103 @@ const showToast = (severity: "success" | "error", message: string) => {
 const handleSubmit = async () => {
   errors.value = {};
 
-  const result = offerSchema.safeParse(newOffer);
+  if (isEditMode.value && originalOffer.value) {
+    const fieldsToValidate: Partial<OfferForm> = {};
 
-  if (!result.success) {
-    result.error.issues.forEach((err) => {
-      const field = err.path[0] as keyof OfferFormErrors;
-      if (field) {
-        errors.value[field] = err.message;
-      }
-    });
-    showToast("error", "Por favor, corrija os erros no formulário.");
-    return;
+    if (newOffer.price_per_mwh !== originalOffer.value.price_per_mwh) {
+      fieldsToValidate.price_per_mwh = newOffer.price_per_mwh;
+    }
+    if (newOffer.quantity_mwh !== originalOffer.value.quantity_mwh) {
+      fieldsToValidate.quantity_mwh = newOffer.quantity_mwh;
+    }
+    if (newOffer.period_start !== originalOffer.value.period_start) {
+      fieldsToValidate.period_start = newOffer.period_start;
+    }
+    if (newOffer.period_end !== originalOffer.value.period_end) {
+      fieldsToValidate.period_end = newOffer.period_end;
+    }
+    if (newOffer.description !== originalOffer.value.description) {
+      fieldsToValidate.description = newOffer.description;
+    }
+    if (newOffer.energy_type !== originalOffer.value.energy_type) {
+      fieldsToValidate.energy_type = newOffer.energy_type;
+    }
+
+    if (Object.keys(fieldsToValidate).length === 0) {
+      showToast("error", "Nenhuma alteração foi feita.");
+      return;
+    }
+
+    const result = offerSchema.partial().safeParse(fieldsToValidate);
+
+    if (!result.success) {
+      result.error.issues.forEach((err) => {
+        const field = err.path[0] as keyof OfferFormErrors;
+        if (field) {
+          errors.value[field] = err.message;
+        }
+      });
+      showToast("error", "Por favor, corrija os erros no formulário.");
+      return;
+    }
+  } else {
+    const result = offerSchema.safeParse(newOffer);
+
+    if (!result.success) {
+      result.error.issues.forEach((err) => {
+        const field = err.path[0] as keyof OfferFormErrors;
+        if (field) {
+          errors.value[field] = err.message;
+        }
+      });
+      showToast("error", "Por favor, corrija os erros no formulário.");
+      return;
+    }
   }
 
   try {
     isSubmitting.value = true;
 
-    const payload: CreateOfferRequest = {
-      price_per_mwh: parseFloat(newOffer.price_per_mwh),
-      quantity_mwh: parseFloat(newOffer.quantity_mwh),
-      period_start: newOffer.period_start,
-      period_end: newOffer.period_end,
-      description: newOffer.description,
-      energy_type: newOffer.energy_type,
-    };
+    if (isEditMode.value && props.offer) {
+      const payload: CreateOfferRequest = {
+        price_per_mwh: parseFloat(newOffer.price_per_mwh),
+        quantity_mwh: parseFloat(newOffer.quantity_mwh),
+        period_start: newOffer.period_start,
+        period_end: newOffer.period_end,
+        description: newOffer.description,
+        energy_type: newOffer.energy_type,
+      };
 
-    await api.post<CreateOfferResponse>(OFFER_ENDPOINTS.CREATE, payload);
+      console.log("Payload de edição:", payload);
 
-    showToast("success", "Oferta criada com sucesso!");
-    emit("offer-created");
+      await api.put<CreateOfferResponse>(
+        OFFER_ENDPOINTS.UPDATE(props.offer.uuid),
+        payload,
+      );
+      showToast("success", "Oferta atualizada com sucesso!");
+      emit("offer-updated");
+    } else {
+      const payload: CreateOfferRequest = {
+        price_per_mwh: parseFloat(newOffer.price_per_mwh),
+        quantity_mwh: parseFloat(newOffer.quantity_mwh),
+        period_start: newOffer.period_start,
+        period_end: newOffer.period_end,
+        description: newOffer.description,
+        energy_type: newOffer.energy_type,
+      };
+
+      await api.post<CreateOfferResponse>(OFFER_ENDPOINTS.CREATE, payload);
+      showToast("success", "Oferta criada com sucesso!");
+      emit("offer-created");
+    }
+
     closeDialog();
   } catch (error) {
-    console.error("Erro ao criar oferta:", error);
-    showToast("error", "Erro ao criar oferta. Por favor, tente novamente.");
+    console.error("Erro ao salvar oferta:", error);
+    const errorMessage = isEditMode.value
+      ? "Erro ao atualizar oferta. Por favor, tente novamente."
+      : "Erro ao criar oferta. Por favor, tente novamente.";
+    showToast("error", errorMessage);
   } finally {
     isSubmitting.value = false;
   }
@@ -175,8 +285,19 @@ const handleSubmit = async () => {
 watch(
   () => props.visible,
   (isVisible) => {
-    if (!isVisible) {
+    if (isVisible) {
+      loadOfferData();
+    } else {
       resetForm();
+    }
+  },
+);
+
+watch(
+  () => props.offer,
+  () => {
+    if (props.visible) {
+      loadOfferData();
     }
   },
 );
@@ -202,9 +323,9 @@ watch(
           <Zap :size="24" class="text-white" />
         </div>
         <div>
-          <h3 class="text-xl font-bold text-neutral-900">Criar Nova Oferta</h3>
+          <h3 class="text-xl font-bold text-neutral-900">{{ dialogTitle }}</h3>
           <p class="text-sm text-neutral-500">
-            Preencha os dados da sua oferta de energia
+            {{ dialogSubtitle }}
           </p>
         </div>
       </div>
@@ -411,7 +532,7 @@ watch(
             :disabled="isSubmitting"
             class="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-5 py-2.5 text-sm font-medium text-white shadow-md transition-all duration-200 hover:shadow-lg hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {{ isSubmitting ? "Criando..." : "Criar Oferta" }}
+            {{ submitButtonText }}
           </button>
         </div>
       </div>
