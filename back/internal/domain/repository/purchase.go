@@ -8,6 +8,8 @@ import (
 )
 
 type PurchaseRepository interface {
+	WithTransaction(tx *gorm.DB) PurchaseRepository
+
 	Create(purchase *models.Purchase) error
 	Delete(uuid string) error
 	FindByUuid(uuid string) (*models.Purchase, error)
@@ -22,6 +24,10 @@ func NewPurchaseRepository(db *gorm.DB) PurchaseRepository {
 	return &purchaseRepository{
 		db: db,
 	}
+}
+
+func (r *purchaseRepository) WithTransaction(tx *gorm.DB) PurchaseRepository {
+	return NewPurchaseRepository(tx)
 }
 
 func (r *purchaseRepository) Create(purchase *models.Purchase) error {

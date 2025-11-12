@@ -35,15 +35,12 @@ func (s *purchaseService) Create(
 ) *merr.ResponseError {
 	var errResponse *merr.ResponseError
 	var offer *models.Offer
-	var err error
 
-	err = s.db.Transaction(func(tx *gorm.DB) error {
-		var offerRepository repository.OfferRepository = repository.NewOfferRepository(tx)
-		var purchaseRepository repository.PurchaseRepository = repository.NewPurchaseRepository(tx)
+	var err error = s.db.Transaction(func(tx *gorm.DB) error {
 		var purchase *models.Purchase
 		var err error
 
-		offer, err = offerRepository.GetByUuid(offerUuid)
+		offer, err = s.offerRepo.WithTransaction(tx).GetByUuid(offerUuid)
 		if err != nil {
 			errResponse = merr.NewResponseError(http.StatusNotFound, ErrOfferNotFound)
 			return err
@@ -72,7 +69,7 @@ func (s *purchaseService) Create(
 			offer.Status = models.OfferStatusFulfilled
 		}
 
-		if err = offerRepository.Update(offer); err != nil {
+		if err = s.offerRepo.WithTransaction(tx).Update(offer); err != nil {
 			return err
 		}
 
@@ -85,7 +82,7 @@ func (s *purchaseService) Create(
 			QuantityMwh: request.QuantityMwh,
 		}
 
-		if err = purchaseRepository.Create(purchase); err != nil {
+		if err = s.purchaseRepo.WithTransaction(tx).Create(purchase); err != nil {
 			return err
 		}
 
