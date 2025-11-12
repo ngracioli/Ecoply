@@ -9,6 +9,8 @@ import (
 )
 
 type UserRepository interface {
+	WithTransaction(tx *gorm.DB) UserRepository
+
 	Create(params UserCreateParams) (*models.User, error)
 	FindByEmail(email string) (*models.User, error)
 	FindById(id uint) (*models.User, error)
@@ -23,6 +25,10 @@ type userRepository struct {
 
 func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userRepository{db: db}
+}
+
+func (u *userRepository) WithTransaction(tx *gorm.DB) UserRepository {
+	return NewUserRepository(tx)
 }
 
 type UserCreateParams struct {

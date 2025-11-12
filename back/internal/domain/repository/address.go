@@ -9,6 +9,8 @@ import (
 )
 
 type AddressRepository interface {
+	WithTransaction(tx *gorm.DB) AddressRepository
+
 	Create(params AddressCreateParams) (*models.Address, error)
 	FindById(id uint) (*models.Address, error)
 }
@@ -19,6 +21,10 @@ type addressRepository struct {
 
 func NewAddressRepository(db *gorm.DB) AddressRepository {
 	return &addressRepository{db: db}
+}
+
+func (a *addressRepository) WithTransaction(tx *gorm.DB) AddressRepository {
+	return NewAddressRepository(tx)
 }
 
 type AddressCreateParams struct {
