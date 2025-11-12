@@ -43,7 +43,10 @@ type Offer struct {
 }
 
 func (o *Offer) IsExpired() bool {
-	return utils.NowInLocal().After(o.PeriodEnd)
+	var now time.Time = utils.NowInLocalZeroHour()
+	var periodEnd time.Time = utils.TruncateDateToLocalZeroHour(o.PeriodEnd)
+
+	return now.After(periodEnd)
 }
 
 func (o *Offer) IsFresh() bool {
