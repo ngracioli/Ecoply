@@ -11,6 +11,8 @@ import (
 )
 
 type OfferRepository interface {
+	WithTransaction(tx *gorm.DB) OfferRepository
+
 	GetByUuid(uuid string) (*models.Offer, error)
 	GetBySellerId(userId uint) ([]*models.Offer, error)
 	Create(*models.Offer) (*models.Offer, error)
@@ -26,6 +28,10 @@ type offerRepository struct {
 
 func NewOfferRepository(db *gorm.DB) OfferRepository {
 	return &offerRepository{db: db}
+}
+
+func (r *offerRepository) WithTransaction(tx *gorm.DB) OfferRepository {
+	return NewOfferRepository(tx)
 }
 
 func (r *offerRepository) GetByUuid(uuid string) (*models.Offer, error) {
