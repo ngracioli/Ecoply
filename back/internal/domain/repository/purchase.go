@@ -13,7 +13,7 @@ type PurchaseRepository interface {
 	Create(purchase *models.Purchase) error
 	Delete(uuid string) error
 	FindByUuid(uuid string) (*models.Purchase, error)
-	List() ([]*models.Purchase, error)
+	List(userId uint64) ([]*models.Purchase, error)
 }
 
 type purchaseRepository struct {
@@ -57,6 +57,6 @@ func (r *purchaseRepository) FindByUuid(uuid string) (*models.Purchase, error) {
 	return &purchase, nil
 }
 
-func (r *purchaseRepository) List() ([]*models.Purchase, error) {
+func (r *purchaseRepository) List(userId uint64) ([]*models.Purchase, error) {
 	return nil, nil
 }

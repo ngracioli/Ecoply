@@ -71,6 +71,11 @@ func registerRoutes(router *gin.Engine, s *ServerContext) {
 			{
 				purchase.POST("", purchaseHandlers.Create)
 			}
+
+			checkout := offer.Group(":uuid/checkout")
+			{
+				checkout.GET("")
+			}
 		}
 
 		me := v1.Group("me").Use(middlewares.JwtAuthMiddleware(
