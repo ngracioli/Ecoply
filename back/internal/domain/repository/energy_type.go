@@ -27,9 +27,8 @@ func (r *energyTypeRepository) WithTransaction(tx *gorm.DB) EnergyTypeRepository
 
 func (r *energyTypeRepository) GetByType(energy string) (*models.EnergyType, error) {
 	var energyType models.EnergyType
-	var err error
 
-	err = r.db.Where("type = ?", energy).Find(&energyType).Error
+	var err = r.db.Where("type = ?", energy).Find(&energyType).Error
 	if err != nil {
 		mlog.Log("Failed to find energy type: " + err.Error())
 		return nil, err
