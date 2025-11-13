@@ -2,6 +2,9 @@ package repository
 
 import (
 	"ecoply/internal/domain/models"
+	"ecoply/internal/domain/requests"
+	"ecoply/internal/domain/scopes"
+	"ecoply/internal/domain/utils"
 	"ecoply/internal/mlog"
 
 	"gorm.io/gorm"
@@ -11,9 +14,9 @@ type PurchaseRepository interface {
 	WithTransaction(tx *gorm.DB) PurchaseRepository
 
 	Create(purchase *models.Purchase) error
-	Delete(uuid string) error
+	Update(purchase *models.Purchase) error
 	FindByUuid(uuid string) (*models.Purchase, error)
-	List() ([]*models.Purchase, error)
+	List(userId uint64, request *requests.ListPurchase) (*utils.PaginationWrapper[*models.Purchase], error)
 }
 
 type purchaseRepository struct {
@@ -57,6 +60,43 @@ func (r *purchaseRepository) FindByUuid(uuid string) (*models.Purchase, error) {
 	return &purchase, nil
 }
 
-func (r *purchaseRepository) List() ([]*models.Purchase, error) {
-	return nil, nil
+func (r *purchaseRepository) Update(purchase *models.Purchase) error {
+	if err := r.db.Save(purchase).Error; err != nil {
+		mlog.Log("Failed to update purchase: " + err.Error())
+		return err
+	}
+	return nil
+}
+
+func (r *purchaseRepository) List(userId uint64, request *requests.ListPurchase) (*utils.PaginationWrapper[*models.Purchase], error) {
+	var purchases []*models.Purchase
+
+	result := r.db.
+		Preload("Buyer").
+		Preload("Offer", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, uuid, seller_id")
+		}).
+		Preload("Offer.Seller", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, uuid")
+		}).
+		Where("purchases.buyer_id = ?", userId)
+
+	if request.Status != "" {
+		result = result.Where("purchases.status = ?", request.Status)
+	}
+
+	if request.PaymentMethod != "" {
+		result = result.Where("purchases.payment_method = ?", request.PaymentMethod)
+	}
+
+	result = result.Scopes(scopes.Paginate(r.db, request.Page, request.PageSize))
+
+	if err := result.Find(&purchases).Error; err != nil {
+		mlog.Log("Failed to list purchases: " + err.Error())
+		return nil, err
+	}
+
+	var paginationWrapper = utils.NewPaginationWrapper(request.Page, request.PageSize, purchases)
+
+	return paginationWrapper, nil
 }

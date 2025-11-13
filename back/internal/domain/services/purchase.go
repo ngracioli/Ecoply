@@ -5,13 +5,17 @@ import (
 	"ecoply/internal/domain/models"
 	"ecoply/internal/domain/repository"
 	"ecoply/internal/domain/requests"
+	"ecoply/internal/domain/resources"
+	"ecoply/internal/domain/utils"
 	"net/http"
+	"time"
 
 	"gorm.io/gorm"
 )
 
 type PurchaseService interface {
 	Create(request *requests.CreatePurchase, offerUuid string, user *models.User) *merr.ResponseError
+	List(request *requests.ListPurchase, user *models.User) (*utils.PaginationWrapper[*resources.Purchase], *merr.ResponseError)
 }
 
 type purchaseService struct {
@@ -74,12 +78,13 @@ func (s *purchaseService) Create(
 		}
 
 		purchase = &models.Purchase{
-			Uuid:        NewUuidV7String(),
-			OfferId:     offer.ID,
-			PricePerMwh: offer.PricePerMwh,
-			Status:      models.PurchaseStatusCompleted,
-			BuyerId:     user.ID,
-			QuantityMwh: request.QuantityMwh,
+			Uuid:          NewUuidV7String(),
+			OfferId:       offer.ID,
+			PricePerMwh:   offer.PricePerMwh,
+			PaymentMethod: request.PaymentMethod,
+			Status:        models.PurchaseStatusCompleted,
+			BuyerId:       user.ID,
+			QuantityMwh:   request.QuantityMwh,
 		}
 
 		if err = s.purchaseRepo.WithTransaction(tx).Create(purchase); err != nil {
@@ -98,4 +103,46 @@ func (s *purchaseService) Create(
 	}
 
 	return nil
+}
+
+func (s *purchaseService) List(
+	request *requests.ListPurchase,
+	user *models.User,
+) (*utils.PaginationWrapper[*resources.Purchase], *merr.ResponseError) {
+	var list *utils.PaginationWrapper[*models.Purchase]
+	var err error
+
+	list, err = s.purchaseRepo.List(uint64(user.ID), request)
+	if err != nil {
+		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+	}
+
+	var response utils.PaginationWrapper[*resources.Purchase]
+
+	response.Page = list.Page
+	response.PageSize = list.PageSize
+	response.HasNext = list.HasNext
+	response.HasPrev = list.HasPrev
+	response.Data = make([]*resources.Purchase, 0, len(list.Data))
+
+	for _, purchase := range list.Data {
+		response.Data = append(response.Data, makePurchaseResourceFromModel(purchase))
+	}
+
+	return &response, nil
+}
+
+func makePurchaseResourceFromModel(purchase *models.Purchase) *resources.Purchase {
+	var createdAt time.Time = utils.TruncateDateToLocal(purchase.CreatedAt)
+
+	return &resources.Purchase{
+		Uuid:          purchase.Uuid,
+		QuantityMwh:   purchase.QuantityMwh,
+		PricePerMwh:   purchase.PricePerMwh,
+		Status:        purchase.Status,
+		PaymentMethod: purchase.PaymentMethod,
+		OfferUuid:     purchase.Offer.Uuid,
+		SellerUuid:    purchase.Offer.Seller.Uuid,
+		CreatedAt:     createdAt.Format(time.RFC3339),
+	}
 }

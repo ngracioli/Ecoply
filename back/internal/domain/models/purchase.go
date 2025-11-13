@@ -4,6 +4,12 @@ import "gorm.io/gorm"
 
 const (
 	PurchaseStatusCompleted = "completed"
+	PurchaseStatusWaiting   = "waiting"
+	PurchaseStatusCanceled  = "canceled"
+
+	PurchasePaymentPix    = "pix"
+	PurchasePaymentCard   = "card"
+	PurchasePaymentBillet = "billet"
 )
 
 type Purchase struct {
@@ -15,6 +21,8 @@ type Purchase struct {
 	PricePerMwh float64 `gorm:"type:decimal(10,2) not null"`
 
 	Status string `gorm:"type:varchar(50);not null"`
+
+	PaymentMethod string `gorm:"type:varchar(20);not null"`
 
 	BuyerId uint `gorm:"references:ID;not null"`
 	Buyer   User `gorm:"foreignKey:BuyerId"`
