@@ -12,6 +12,8 @@ import (
 
 type PurchaseHandlers interface {
 	Create(c *gin.Context)
+	List(c *gin.Context)
+	Cancel(c *gin.Context)
 }
 
 type purchaseHandlers struct {
@@ -43,3 +45,7 @@ func (h *purchaseHandlers) Create(c *gin.Context) {
 
 	c.AbortWithStatus(http.StatusCreated)
 }
+
+func (h *purchaseHandlers) List(c *gin.Context) {}
+
+func (h *purchaseHandlers) Cancel(c *gin.Context) {}

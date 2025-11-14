@@ -121,7 +121,7 @@ func (r *offerRepository) List(request *requests.ListOffers, user *models.User) 
 		return nil, err
 	}
 
-	var paginationWrapper = utils.NewPaginationWrapper[*models.Offer](request.Page, request.PageSize, offers)
+	var paginationWrapper = utils.NewPaginationWrapper(request.Page, request.PageSize, offers)
 
 	return paginationWrapper, nil
 }

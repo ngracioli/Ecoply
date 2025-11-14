@@ -2,6 +2,9 @@ package repository
 
 import (
 	"ecoply/internal/domain/models"
+	"ecoply/internal/domain/requests"
+	"ecoply/internal/domain/scopes"
+	"ecoply/internal/domain/utils"
 	"ecoply/internal/mlog"
 
 	"gorm.io/gorm"
@@ -13,7 +16,7 @@ type PurchaseRepository interface {
 	Create(purchase *models.Purchase) error
 	Delete(uuid string) error
 	FindByUuid(uuid string) (*models.Purchase, error)
-	List(userId uint64) ([]*models.Purchase, error)
+	List(userId uint64, request *requests.ListPurchase) (*utils.PaginationWrapper[*models.Purchase], error)
 }
 
 type purchaseRepository struct {
@@ -57,6 +60,30 @@ func (r *purchaseRepository) FindByUuid(uuid string) (*models.Purchase, error) {
 	return &purchase, nil
 }
 
-func (r *purchaseRepository) List(userId uint64) ([]*models.Purchase, error) {
-	return nil, nil
+func (r *purchaseRepository) List(userId uint64, request *requests.ListPurchase) (*utils.PaginationWrapper[*models.Purchase], error) {
+	var purchases []*models.Purchase
+
+	result := r.db.
+		Joins("Seller").
+		Joins("Buyer").
+		Joins("Offer,Seller")
+
+	if request.Status != "" {
+		result = result.Where("status = ?", request.Status)
+	}
+
+	if request.PaymentMethod != "" {
+		result = result.Where("payment_method = ?", request.PaymentMethod)
+	}
+
+	result = result.Scopes(scopes.Paginate(r.db, request.Page, request.PageSize))
+
+	if err := result.Find(&purchases).Error; err != nil {
+		mlog.Log("Failed to list purchases: " + err.Error())
+		return nil, err
+	}
+
+	var paginationWrapper = utils.NewPaginationWrapper(request.Page, request.PageSize, purchases)
+
+	return paginationWrapper, nil
 }

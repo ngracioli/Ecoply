@@ -74,12 +74,13 @@ func (s *purchaseService) Create(
 		}
 
 		purchase = &models.Purchase{
-			Uuid:        NewUuidV7String(),
-			OfferId:     offer.ID,
-			PricePerMwh: offer.PricePerMwh,
-			Status:      models.PurchaseStatusCompleted,
-			BuyerId:     user.ID,
-			QuantityMwh: request.QuantityMwh,
+			Uuid:          NewUuidV7String(),
+			OfferId:       offer.ID,
+			PricePerMwh:   offer.PricePerMwh,
+			PaymentMethod: request.PaymentMethod,
+			Status:        models.PurchaseStatusCompleted,
+			BuyerId:       user.ID,
+			QuantityMwh:   request.QuantityMwh,
 		}
 
 		if err = s.purchaseRepo.WithTransaction(tx).Create(purchase); err != nil {
