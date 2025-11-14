@@ -14,7 +14,7 @@ type PurchaseRepository interface {
 	WithTransaction(tx *gorm.DB) PurchaseRepository
 
 	Create(purchase *models.Purchase) error
-	Delete(uuid string) error
+	Update(purchase *models.Purchase) error
 	FindByUuid(uuid string) (*models.Purchase, error)
 	List(userId uint64, request *requests.ListPurchase) (*utils.PaginationWrapper[*models.Purchase], error)
 }
@@ -60,13 +60,22 @@ func (r *purchaseRepository) FindByUuid(uuid string) (*models.Purchase, error) {
 	return &purchase, nil
 }
 
+func (r *purchaseRepository) Update(purchase *models.Purchase) error {
+	if err := r.db.Save(purchase).Error; err != nil {
+		mlog.Log("Failed to update purchase: " + err.Error())
+		return err
+	}
+	return nil
+}
+
 func (r *purchaseRepository) List(userId uint64, request *requests.ListPurchase) (*utils.PaginationWrapper[*models.Purchase], error) {
 	var purchases []*models.Purchase
 
 	result := r.db.
 		Joins("Seller").
 		Joins("Buyer").
-		Joins("Offer,Seller")
+		Joins("Offer,Seller").
+		Where("offers.buyer_id = ?", userId)
 
 	if request.Status != "" {
 		result = result.Where("status = ?", request.Status)

@@ -67,22 +67,20 @@ func (r *offerRepository) Create(offer *models.Offer) (*models.Offer, error) {
 }
 
 func (r *offerRepository) Update(offer *models.Offer) error {
-	var err error
-
-	err = r.db.Save(offer).Error
+	var err = r.db.Save(offer).Error
 	if err != nil {
 		mlog.Log("Failed to update offer: " + err.Error())
+		return err
 	}
 
 	return nil
 }
 
 func (r *offerRepository) Delete(uuid string) error {
-	var err error
-
-	err = r.db.Where("uuid = ?", uuid).Delete(&models.Offer{}).Error
+	var err = r.db.Where("uuid = ?", uuid).Delete(&models.Offer{}).Error
 	if err != nil {
 		mlog.Log("Failed to delete offfer: " + err.Error())
+		return err
 	}
 
 	return nil

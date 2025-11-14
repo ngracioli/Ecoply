@@ -5,13 +5,17 @@ import (
 	"ecoply/internal/domain/models"
 	"ecoply/internal/domain/repository"
 	"ecoply/internal/domain/requests"
+	"ecoply/internal/domain/resources"
+	"ecoply/internal/domain/utils"
 	"net/http"
+	"time"
 
 	"gorm.io/gorm"
 )
 
 type PurchaseService interface {
 	Create(request *requests.CreatePurchase, offerUuid string, user *models.User) *merr.ResponseError
+	List(request *requests.ListPurchase, user *models.User) (*utils.PaginationWrapper[*resources.Purchase], *merr.ResponseError)
 }
 
 type purchaseService struct {
@@ -99,4 +103,26 @@ func (s *purchaseService) Create(
 	}
 
 	return nil
+}
+
+func (s *purchaseService) List(
+	request *requests.ListPurchase,
+	user *models.User,
+) (*utils.PaginationWrapper[*resources.Purchase], *merr.ResponseError) {
+
+}
+
+func makePurchaseResourceFromModel(purchase *models.Purchase) *resources.Purchase {
+	var createdAt time.Time = utils.TruncateDateToLocal(purchase.CreatedAt)
+
+	return &resources.Purchase{
+		Uuid:          purchase.Uuid,
+		QuantityMwh:   purchase.QuantityMwh,
+		PricePerMwh:   purchase.PricePerMwh,
+		Status:        purchase.Status,
+		PaymentMethod: purchase.PaymentMethod,
+		OfferUuid:     purchase.Offer.Uuid,
+		SellerUuid:    purchase.Offer.Seller.Uuid,
+		CreatedAt:     createdAt.Format(time.RFC3339),
+	}
 }
