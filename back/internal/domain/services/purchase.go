@@ -7,6 +7,7 @@ import (
 	"ecoply/internal/domain/requests"
 	"ecoply/internal/domain/resources"
 	"ecoply/internal/domain/utils"
+	"errors"
 	"net/http"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 type PurchaseService interface {
 	Create(request *requests.CreatePurchase, offerUuid string, user *models.User) *merr.ResponseError
 	List(request *requests.ListPurchase, user *models.User) (*utils.PaginationWrapper[*resources.Purchase], *merr.ResponseError)
+	Cancel(pruchaseUuid string, user *models.User) *merr.ResponseError
 }
 
 type purchaseService struct {
@@ -145,4 +147,74 @@ func makePurchaseResourceFromModel(purchase *models.Purchase) *resources.Purchas
 		SellerUuid:    purchase.Offer.Seller.Uuid,
 		CreatedAt:     createdAt.Format(time.RFC3339),
 	}
+}
+
+func (s *purchaseService) Cancel(purchaseUuid string, user *models.User) *merr.ResponseError {
+	var purchase *models.Purchase
+	var err error
+	var responseErr *merr.ResponseError
+
+	s.db.Transaction(func(tx *gorm.DB) error {
+		purchase, err = s.purchaseRepo.WithTransaction(tx).FindByUuid(purchaseUuid)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				responseErr = merr.NewResponseError(http.StatusNotFound, ErrPurchaseNotFound)
+				return ErrPurchaseNotFound
+			}
+			responseErr = merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+			return ErrInternal
+		}
+
+		if user.ID != purchase.BuyerId {
+			responseErr = merr.NewResponseError(http.StatusForbidden, ErrUserIsNotThePurchaseOwner)
+			return ErrUserIsNotThePurchaseOwner
+		}
+
+		if !isPurchaseCancelable(purchase) {
+			responseErr = merr.NewResponseError(http.StatusUnprocessableEntity, ErrPurchaseCannotBeCancelled)
+			return ErrPurchaseCannotBeCancelled
+		}
+
+		purchase.Status = models.PurchaseStatusCanceled
+		if err := s.purchaseRepo.Update(purchase); err != nil {
+			responseErr = merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+			return ErrInternal
+		}
+
+		offer, err := s.offerRepo.GetById(purchase.OfferId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				responseErr = merr.NewResponseError(http.StatusNotFound, ErrOfferNotFound)
+				return ErrPurchaseNotFound
+			}
+			responseErr = merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+			return ErrInternal
+		}
+
+		offer.RemainingQuantityMwh += purchase.QuantityMwh
+		if offer.IsFulfilled() {
+			offer.Status = models.OfferStatusOpen
+		}
+
+		if err := s.offerRepo.Update(offer); err != nil {
+			responseErr = merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+			return ErrInternal
+		}
+
+		return nil
+	})
+
+	if responseErr != nil {
+		return responseErr
+	}
+
+	return nil
+}
+
+func isPurchaseCancelable(purchase *models.Purchase) bool {
+	var createdAt time.Time = utils.TruncateDateToLocal(purchase.CreatedAt)
+	var maxCancelDate = createdAt.Add(time.Hour * 2)
+	var now = utils.NowInLocal()
+
+	return !now.After(maxCancelDate) && !purchase.IsCancelled()
 }

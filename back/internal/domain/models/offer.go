@@ -58,5 +58,5 @@ func (o *Offer) IsOpen() bool {
 }
 
 func (o *Offer) IsFulfilled() bool {
-	return o.RemainingQuantityMwh == 0
+	return o.Status == OfferStatusFulfilled
 }
