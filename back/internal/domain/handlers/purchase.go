@@ -69,6 +69,17 @@ func (h *purchaseHandlers) List(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func (h *purchaseHandlers) Cancel(c *gin.Context) {}
+func (h *purchaseHandlers) Cancel(c *gin.Context) {
+	var purchaseUuid string = c.Param("uuid")
+	var user *models.User = GetUserFromContext(c)
+
+	err := h.purchaseService.Cancel(purchaseUuid, user)
+	if err != nil {
+		c.JSON(err.StatusCode, err)
+		return
+	}
+
+	c.AbortWithStatus(http.StatusNoContent)
+}
 
 func (h *purchaseHandlers) FindByUuid(c *gin.Context) {}

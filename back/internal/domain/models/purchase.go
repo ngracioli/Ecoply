@@ -34,3 +34,11 @@ type Purchase struct {
 func (p *Purchase) IsCompleted() bool {
 	return p.Status == PurchaseStatusCompleted
 }
+
+func (p *Purchase) IsWaiting() bool {
+	return p.Status == PurchaseStatusWaiting
+}
+
+func (p *Purchase) IsCancelled() bool {
+	return p.Status == PurchaseStatusCanceled
+}

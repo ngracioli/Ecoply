@@ -14,6 +14,7 @@ type OfferRepository interface {
 	WithTransaction(tx *gorm.DB) OfferRepository
 
 	GetByUuid(uuid string) (*models.Offer, error)
+	GetById(id uint) (*models.Offer, error)
 	GetBySellerId(userId uint) ([]*models.Offer, error)
 	Create(*models.Offer) (*models.Offer, error)
 	List(request *requests.ListOffers, user *models.User) (*utils.PaginationWrapper[*models.Offer], error)
@@ -67,7 +68,7 @@ func (r *offerRepository) Create(offer *models.Offer) (*models.Offer, error) {
 }
 
 func (r *offerRepository) Update(offer *models.Offer) error {
-	var err = r.db.Save(offer).Error
+	var err = r.db.Debug().Save(offer).Error
 	if err != nil {
 		mlog.Log("Failed to update offer: " + err.Error())
 		return err
@@ -134,4 +135,15 @@ func (r *offerRepository) UpdateExpiredOffers() error {
 			models.OfferStatusOpen,
 		}).
 		Update("status", models.OfferStatusExpired).Error
+}
+
+func (r *offerRepository) GetById(id uint) (*models.Offer, error) {
+	var offer models.Offer
+	if err := r.db.Preload("Submarket").
+		Preload("EnergyType").
+		Preload("Seller").
+		First(&offer, id).Error; err != nil {
+		return nil, err
+	}
+	return &offer, nil
 }
