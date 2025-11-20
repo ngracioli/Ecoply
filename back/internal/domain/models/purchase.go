@@ -42,3 +42,19 @@ func (p *Purchase) IsWaiting() bool {
 func (p *Purchase) IsCancelled() bool {
 	return p.Status == PurchaseStatusCanceled
 }
+
+func (p *Purchase) IsPix() bool {
+	return p.PaymentMethod == PurchasePaymentPix
+}
+
+func (p *Purchase) IsCard() bool {
+	return p.PaymentMethod == PurchasePaymentCard
+}
+
+func (p *Purchase) IsBillet() bool {
+	return p.PaymentMethod == PurchasePaymentBillet
+}
+
+func (p *Purchase) IsOwner(user *User) bool {
+	return user.ID == p.BuyerId
+}

@@ -7,6 +7,7 @@ import (
 	"ecoply/internal/domain/requests"
 	"ecoply/internal/domain/resources"
 	"ecoply/internal/domain/utils"
+	"ecoply/internal/mlog"
 	"errors"
 	"net/http"
 	"time"
@@ -18,6 +19,7 @@ type PurchaseService interface {
 	Create(request *requests.CreatePurchase, offerUuid string, user *models.User) *merr.ResponseError
 	List(request *requests.ListPurchase, user *models.User) (*utils.PaginationWrapper[*resources.Purchase], *merr.ResponseError)
 	Cancel(pruchaseUuid string, user *models.User) *merr.ResponseError
+	FindByUuid(user *models.User, uuid string) (*resources.Purchase, *merr.ResponseError)
 }
 
 type purchaseService struct {
@@ -41,9 +43,9 @@ func (s *purchaseService) Create(
 ) *merr.ResponseError {
 	var errResponse *merr.ResponseError
 	var offer *models.Offer
+	var purchase *models.Purchase
 
 	var err error = s.db.Transaction(func(tx *gorm.DB) error {
-		var purchase *models.Purchase
 		var err error
 
 		offer, err = s.offerRepo.WithTransaction(tx).GetByUuid(offerUuid)
@@ -84,7 +86,7 @@ func (s *purchaseService) Create(
 			OfferId:       offer.ID,
 			PricePerMwh:   offer.PricePerMwh,
 			PaymentMethod: request.PaymentMethod,
-			Status:        models.PurchaseStatusCompleted,
+			Status:        models.PurchaseStatusWaiting,
 			BuyerId:       user.ID,
 			QuantityMwh:   request.QuantityMwh,
 		}
@@ -103,6 +105,8 @@ func (s *purchaseService) Create(
 	if err != nil {
 		return merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
+
+	s.dispatchPurchasePaymentProcessor(user, purchase)
 
 	return nil
 }
@@ -165,7 +169,7 @@ func (s *purchaseService) Cancel(purchaseUuid string, user *models.User) *merr.R
 			return ErrInternal
 		}
 
-		if user.ID != purchase.BuyerId {
+		if !purchase.IsOwner(user) {
 			responseErr = merr.NewResponseError(http.StatusForbidden, ErrUserIsNotThePurchaseOwner)
 			return ErrUserIsNotThePurchaseOwner
 		}
@@ -217,4 +221,56 @@ func isPurchaseCancelable(purchase *models.Purchase) bool {
 	var now = utils.NowInLocal()
 
 	return !now.After(maxCancelDate) && !purchase.IsCancelled()
+}
+
+func (s *purchaseService) dispatchPurchasePaymentProcessor(user *models.User, purchase *models.Purchase) {
+	var proccessTimeMap map[string]time.Duration = map[string]time.Duration{
+		models.PurchasePaymentPix:    time.Second * 0,
+		models.PurchasePaymentCard:   time.Minute * 5,
+		models.PurchasePaymentBillet: time.Hour * 24 * 2,
+	}
+	var proccessTime time.Duration = proccessTimeMap[purchase.PaymentMethod]
+
+	go func(service *purchaseService, purchaaseUuid string) {
+		time.Sleep(proccessTime)
+
+		err := s.db.Transaction(func(tx *gorm.DB) error {
+			var purchase *models.Purchase
+			var error error
+
+			purchase, error = s.purchaseRepo.FindByUuid(purchaaseUuid)
+			if error != nil {
+				return error
+			}
+
+			if purchase.IsWaiting() {
+				purchase.Status = models.PurchaseStatusCompleted
+			}
+
+			return s.purchaseRepo.Update(purchase)
+		})
+
+		if err != nil {
+			s.Cancel(purchaaseUuid, user)
+			mlog.Log("Failed to proccess purchase payment: " + err.Error())
+		}
+	}(s, purchase.Uuid)
+}
+
+func (s *purchaseService) FindByUuid(user *models.User, uuid string) (*resources.Purchase, *merr.ResponseError) {
+	var purchase *models.Purchase
+	var error error
+
+	purchase, error = s.purchaseRepo.FindByUuid(uuid)
+	if error != nil {
+		return nil, merr.NewResponseError(http.StatusNotFound, ErrPurchaseNotFound)
+	}
+
+	if !purchase.IsOwner(user) {
+		return nil, merr.NewResponseError(http.StatusForbidden, ErrUserIsNotThePurchaseOwner)
+	}
+
+	resource := makePurchaseResourceFromModel(purchase)
+
+	return resource, nil
 }

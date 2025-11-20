@@ -51,8 +51,14 @@ func (r *purchaseRepository) Delete(uuid string) error {
 
 func (r *purchaseRepository) FindByUuid(uuid string) (*models.Purchase, error) {
 	var purchase models.Purchase
-	if err := r.db.Preload("Buyer").
-		Preload("Offer").
+	if err := r.db.
+		Preload("Buyer").
+		Preload("Offer", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, uuid, seller_id")
+		}).
+		Preload("Offer.Seller", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, uuid")
+		}).
 		Where("uuid = ?", uuid).First(&purchase).Error; err != nil {
 		mlog.Log("Failed to find purchase by uuid: " + err.Error())
 		return nil, err
