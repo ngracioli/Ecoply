@@ -68,7 +68,7 @@ func (r *offerRepository) Create(offer *models.Offer) (*models.Offer, error) {
 }
 
 func (r *offerRepository) Update(offer *models.Offer) error {
-	var err = r.db.Debug().Save(offer).Error
+	var err = r.db.Save(offer).Error
 	if err != nil {
 		mlog.Log("Failed to update offer: " + err.Error())
 		return err
