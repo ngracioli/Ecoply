@@ -8,6 +8,8 @@ import (
 )
 
 type EnergyTypeRepository interface {
+	WithTransaction(tx *gorm.DB) EnergyTypeRepository
+
 	GetByType(energy string) (*models.EnergyType, error)
 }
 
@@ -19,11 +21,14 @@ func NewEnergyRepository(db *gorm.DB) EnergyTypeRepository {
 	return &energyTypeRepository{db: db}
 }
 
+func (r *energyTypeRepository) WithTransaction(tx *gorm.DB) EnergyTypeRepository {
+	return NewEnergyRepository(tx)
+}
+
 func (r *energyTypeRepository) GetByType(energy string) (*models.EnergyType, error) {
 	var energyType models.EnergyType
-	var err error
 
-	err = r.db.Where("type = ?", energy).Find(&energyType).Error
+	var err = r.db.Where("type = ?", energy).Find(&energyType).Error
 	if err != nil {
 		mlog.Log("Failed to find energy type: " + err.Error())
 		return nil, err

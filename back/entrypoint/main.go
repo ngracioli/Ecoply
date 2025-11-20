@@ -5,6 +5,7 @@ import (
 	"ecoply/internal/database"
 	"ecoply/internal/domain/handlers"
 	"ecoply/internal/domain/services"
+	"ecoply/internal/domain/tasks"
 	"ecoply/internal/domain/validation"
 	"ecoply/internal/mlog"
 	"ecoply/internal/server"
@@ -31,14 +32,9 @@ func main() {
 
 	serverContext := buildServerContext(cfg, db)
 
-	offerUpdateCh := launchExpiredOffersUpdaterJob(
-		serverContext.Services.OfferService,
-	)
+	tasks.RunBackgroundTasks(serverContext)
 
 	server.NewAndRun(serverContext)
-
-	offerUpdateCh <- true
-	close(offerUpdateCh)
 }
 
 func buildServerContext(cfg *config.Config, db *gorm.DB) *server.ServerContext {
@@ -93,27 +89,4 @@ func loadEnvironment() *config.Config {
 	}
 
 	return config
-}
-
-// Must be called after services initialization
-func launchExpiredOffersUpdaterJob(offerService services.OfferService) chan bool {
-	ticker := time.NewTicker(5 * time.Minute)
-	closeChannel := make(chan bool)
-
-	go func(offerService services.OfferService) {
-		for {
-			select {
-			case <-ticker.C:
-				err := offerService.UpdateExpiredOffers()
-				if err != nil {
-					mlog.Log("Error updating expired offers: " + err.Error())
-				}
-			case <-closeChannel:
-				ticker.Stop()
-				return
-			}
-		}
-	}(offerService)
-
-	return closeChannel
 }

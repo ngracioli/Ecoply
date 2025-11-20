@@ -8,6 +8,8 @@ import (
 )
 
 type UserTypeRepository interface {
+	WithTransaction(tx *gorm.DB) UserTypeRepository
+
 	FindById(id uint) (*models.UserType, error)
 	FindByName(name string) (*models.UserType, error)
 }
@@ -18,6 +20,10 @@ type userTypeRepository struct {
 
 func NewUserTypeRepository(db *gorm.DB) UserTypeRepository {
 	return &userTypeRepository{db: db}
+}
+
+func (e *userTypeRepository) WithTransaction(tx *gorm.DB) UserTypeRepository {
+	return NewUserTypeRepository(tx)
 }
 
 func (e *userTypeRepository) FindById(id uint) (*models.UserType, error) {

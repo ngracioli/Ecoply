@@ -8,11 +8,17 @@ import (
 )
 
 type SubmarketRepository interface {
+	WithTransaction(tx *gorm.DB) SubmarketRepository
+
 	FindByName(name string) (*models.Submarket, error)
 }
 
 type submarketRepository struct {
 	db *gorm.DB
+}
+
+func (r *submarketRepository) WithTransaction(tx *gorm.DB) SubmarketRepository {
+	return NewSubmarketRepository(tx)
 }
 
 func NewSubmarketRepository(db *gorm.DB) SubmarketRepository {
