@@ -11,7 +11,10 @@ import (
 )
 
 type OfferRepository interface {
+	WithTransaction(tx *gorm.DB) OfferRepository
+
 	GetByUuid(uuid string) (*models.Offer, error)
+	GetById(id uint) (*models.Offer, error)
 	GetBySellerId(userId uint) ([]*models.Offer, error)
 	Create(*models.Offer) (*models.Offer, error)
 	List(request *requests.ListOffers, user *models.User) (*utils.PaginationWrapper[*models.Offer], error)
@@ -26,6 +29,10 @@ type offerRepository struct {
 
 func NewOfferRepository(db *gorm.DB) OfferRepository {
 	return &offerRepository{db: db}
+}
+
+func (r *offerRepository) WithTransaction(tx *gorm.DB) OfferRepository {
+	return NewOfferRepository(tx)
 }
 
 func (r *offerRepository) GetByUuid(uuid string) (*models.Offer, error) {
@@ -61,22 +68,20 @@ func (r *offerRepository) Create(offer *models.Offer) (*models.Offer, error) {
 }
 
 func (r *offerRepository) Update(offer *models.Offer) error {
-	var err error
-
-	err = r.db.Save(offer).Error
+	var err = r.db.Save(offer).Error
 	if err != nil {
 		mlog.Log("Failed to update offer: " + err.Error())
+		return err
 	}
 
 	return nil
 }
 
 func (r *offerRepository) Delete(uuid string) error {
-	var err error
-
-	err = r.db.Where("uuid = ?", uuid).Delete(&models.Offer{}).Error
+	var err = r.db.Where("uuid = ?", uuid).Delete(&models.Offer{}).Error
 	if err != nil {
 		mlog.Log("Failed to delete offfer: " + err.Error())
+		return err
 	}
 
 	return nil
@@ -85,9 +90,12 @@ func (r *offerRepository) Delete(uuid string) error {
 func (r *offerRepository) List(request *requests.ListOffers, user *models.User) (*utils.PaginationWrapper[*models.Offer], error) {
 	var offers []*models.Offer
 
-	result := r.db.Joins("Submarket").
-		Joins("EnergyType").
-		Joins("Seller").
+	result := r.db.
+		Preload("Submarket").
+		Preload("EnergyType").
+		Preload("Seller").
+		InnerJoins("Submarket").
+		InnerJoins("EnergyType").
 		Where("seller_id != ?", user.ID).
 		Where("status NOT IN (?)", []string{models.OfferStatusExpired, models.OfferStatusFulfilled})
 
@@ -115,7 +123,7 @@ func (r *offerRepository) List(request *requests.ListOffers, user *models.User) 
 		return nil, err
 	}
 
-	var paginationWrapper = utils.NewPaginationWrapper[*models.Offer](request.Page, request.PageSize, offers)
+	var paginationWrapper = utils.NewPaginationWrapper(request.Page, request.PageSize, offers)
 
 	return paginationWrapper, nil
 }
@@ -127,4 +135,15 @@ func (r *offerRepository) UpdateExpiredOffers() error {
 			models.OfferStatusOpen,
 		}).
 		Update("status", models.OfferStatusExpired).Error
+}
+
+func (r *offerRepository) GetById(id uint) (*models.Offer, error) {
+	var offer models.Offer
+	if err := r.db.Preload("Submarket").
+		Preload("EnergyType").
+		Preload("Seller").
+		First(&offer, id).Error; err != nil {
+		return nil, err
+	}
+	return &offer, nil
 }

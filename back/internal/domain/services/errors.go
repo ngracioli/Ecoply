@@ -46,4 +46,9 @@ var (
 	ErrInsufficientOfferQuantity = errors.New("insufficient offer quantity")
 	ErrCannotPurchaseOwnOffer    = errors.New("cannot purchase own offer")
 	ErrOfferHasEnded             = errors.New("offer has ended")
+
+	// Purchase
+	ErrUserIsNotThePurchaseOwner = errors.New("user is not the purchase owner")
+	ErrPurchaseNotFound          = errors.New("purchase not found")
+	ErrPurchaseCannotBeCancelled = errors.New("purchase can not be cancelled")
 )

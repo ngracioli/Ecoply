@@ -8,6 +8,8 @@ import (
 )
 
 type AgentRepository interface {
+	WithTransaction(tx *gorm.DB) AgentRepository
+
 	Create(agent *models.Agent) (*models.Agent, error)
 	FindById(id uint) (*models.Agent, error)
 	FindByCnpj(cnpj string) (*models.Agent, error)
@@ -20,6 +22,10 @@ type agentRepository struct {
 
 func NewAgentRepository(db *gorm.DB) AgentRepository {
 	return &agentRepository{db: db}
+}
+
+func (a *agentRepository) WithTransaction(tx *gorm.DB) AgentRepository {
+	return NewAgentRepository(tx)
 }
 
 func (a *agentRepository) Create(agent *models.Agent) (*models.Agent, error) {

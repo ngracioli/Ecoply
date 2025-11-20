@@ -4,6 +4,12 @@ import "gorm.io/gorm"
 
 const (
 	PurchaseStatusCompleted = "completed"
+	PurchaseStatusWaiting   = "waiting"
+	PurchaseStatusCanceled  = "canceled"
+
+	PurchasePaymentPix    = "pix"
+	PurchasePaymentCard   = "card"
+	PurchasePaymentBillet = "billet"
 )
 
 type Purchase struct {
@@ -16,6 +22,8 @@ type Purchase struct {
 
 	Status string `gorm:"type:varchar(50);not null"`
 
+	PaymentMethod string `gorm:"type:varchar(20);not null"`
+
 	BuyerId uint `gorm:"references:ID;not null"`
 	Buyer   User `gorm:"foreignKey:BuyerId"`
 
@@ -25,4 +33,28 @@ type Purchase struct {
 
 func (p *Purchase) IsCompleted() bool {
 	return p.Status == PurchaseStatusCompleted
+}
+
+func (p *Purchase) IsWaiting() bool {
+	return p.Status == PurchaseStatusWaiting
+}
+
+func (p *Purchase) IsCancelled() bool {
+	return p.Status == PurchaseStatusCanceled
+}
+
+func (p *Purchase) IsPix() bool {
+	return p.PaymentMethod == PurchasePaymentPix
+}
+
+func (p *Purchase) IsCard() bool {
+	return p.PaymentMethod == PurchasePaymentCard
+}
+
+func (p *Purchase) IsBillet() bool {
+	return p.PaymentMethod == PurchasePaymentBillet
+}
+
+func (p *Purchase) IsOwner(user *User) bool {
+	return user.ID == p.BuyerId
 }
