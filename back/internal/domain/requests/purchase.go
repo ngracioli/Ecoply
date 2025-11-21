@@ -11,3 +11,12 @@ type ListPurchase struct {
 	Status        string `form:"status" binding:"omitempty"`
 	PaymentMethod string `form:"payment_method" binding:"omitempty"`
 }
+
+type ListPurchasesFromOffer struct {
+	Page              int    `form:"page" binding:"required,min=1"`
+	PageSize          int    `form:"page_size" binding:"required,min=1,max=100"`
+	AscendingPrice    bool   `form:"ascending_price" binding:"omitempty"`
+	AscendingQuantity bool   `form:"ascending_quantity" binding:"omitempty"`
+	StartDate         string `form:"start_date" binding:"omitempty"`
+	EndDate           string `form:"end_date" binding:"omitempty"`
+}
