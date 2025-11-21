@@ -23,6 +23,7 @@ type OfferService interface {
 	Update(user *models.User, uuid string, request *requests.UpdateOffer) *merr.ResponseError
 	Delete(user *models.User, uuid string) *merr.ResponseError
 	List(params *requests.ListOffers, user *models.User) (*utils.PaginationWrapper[*resources.Offer], *merr.ResponseError)
+	Purchases(offerUuid string, request *requests.ListPurchasesFromOffer, user *models.User) (*utils.PaginationWrapper[*resources.Purchase], *merr.ResponseError)
 	UpdateExpiredOffers() error
 }
 
@@ -309,19 +310,20 @@ func validateUpdateRequest(offer *models.Offer, request *requests.UpdateOffer) e
 }
 
 func makeOfferResourceFromModel(offer *models.Offer) *resources.Offer {
+	var createdAt time.Time = utils.TruncateDateToLocal(offer.CreatedAt)
 	var response resources.Offer = resources.Offer{
 		Uuid:                 offer.Uuid,
 		PricePerMwh:          offer.PricePerMwh,
 		InitialQuantityMwh:   offer.InitialQuantityMwh,
 		RemainingQuantityMwh: offer.RemainingQuantityMwh,
 		Description:          offer.Description,
-		PeriodStart:          offer.PeriodStart.Format("2006-01-02"),
-		PeriodEnd:            offer.PeriodEnd.Format("2006-01-02"),
+		PeriodStart:          offer.PeriodStart.Format(time.DateOnly),
+		PeriodEnd:            offer.PeriodEnd.Format(time.DateOnly),
 		Status:               offer.Status,
 		EnergyType:           offer.EnergyType.Type,
 		Submarket:            offer.Submarket.Name,
 		SellerUuid:           offer.Seller.Uuid,
-		CreatedAt:            offer.CreatedAt,
+		CreatedAt:            createdAt,
 	}
 
 	return &response
@@ -353,4 +355,50 @@ func (s *offerService) List(request *requests.ListOffers, user *models.User) (*u
 
 func (s *offerService) UpdateExpiredOffers() error {
 	return s.offerRepo.UpdateExpiredOffers()
+}
+
+func (s *offerService) Purchases(offerUuid string, request *requests.ListPurchasesFromOffer, user *models.User) (*utils.PaginationWrapper[*resources.Purchase], *merr.ResponseError) {
+	var offer *models.Offer
+	var err error
+
+	offer, err = s.offerRepo.GetByUuid(offerUuid)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, merr.NewResponseError(http.StatusNotFound, ErrOfferNotFound)
+	} else if err != nil {
+		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+	}
+
+	if !offer.IsOwner(user) {
+		return nil, merr.NewResponseError(http.StatusForbidden, ErrUserIsNotTheOfferOwner)
+	}
+
+	var list *utils.PaginationWrapper[*models.Purchase]
+	list, err = s.offerRepo.Purchases(offerUuid, request)
+	if err != nil {
+		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+	}
+
+	var response utils.PaginationWrapper[*resources.Purchase]
+
+	response.Page = list.Page
+	response.PageSize = list.PageSize
+	response.HasNext = list.HasNext
+	response.HasPrev = list.HasPrev
+	response.Data = make([]*resources.Purchase, 0, len(list.Data))
+
+	for _, purchase := range list.Data {
+		var createdAt time.Time = utils.TruncateDateToLocal(purchase.CreatedAt)
+		response.Data = append(response.Data, &resources.Purchase{
+			Uuid:          purchase.Uuid,
+			QuantityMwh:   purchase.QuantityMwh,
+			PricePerMwh:   purchase.PricePerMwh,
+			Status:        purchase.Status,
+			PaymentMethod: purchase.PaymentMethod,
+			OfferUuid:     purchase.Offer.Uuid,
+			SellerUuid:    purchase.Offer.Seller.Uuid,
+			CreatedAt:     createdAt.Format(time.RFC3339),
+		})
+	}
+
+	return &response, nil
 }
