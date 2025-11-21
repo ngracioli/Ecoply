@@ -39,7 +39,7 @@ type Offer struct {
 	SellerId uint `gorm:"references:ID;not null"`
 	Seller   User `gorm:"foreignKey:SellerId"`
 
-	Purchase []Purchase `gorm:"foreignKey:OfferId"`
+	Purchases []Purchase `gorm:"foreignKey:OfferId"`
 }
 
 func (o *Offer) IsExpired() bool {
@@ -59,4 +59,8 @@ func (o *Offer) IsOpen() bool {
 
 func (o *Offer) IsFulfilled() bool {
 	return o.Status == OfferStatusFulfilled
+}
+
+func (o *Offer) IsOwner(user *User) bool {
+	return o.SellerId == user.ID
 }

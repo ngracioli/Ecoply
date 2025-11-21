@@ -20,6 +20,7 @@ func registerRoutes(router *gin.Engine, s *ServerContext) {
 	var offerHandlers handlers.OfferHandlers = s.Handlers.OfferHandlers
 	var cnpjHandlers handlers.CnpjHandlers = s.Handlers.CnpjHandlers
 	var purchaseHandlers handlers.PurchaseHandlers = s.Handlers.PurchaseHandlers
+	var contractHandlers handlers.ContractHandlers = s.Handlers.ContractHandlers
 
 	router.LoadHTMLGlob(htmlPath + "/index.html")
 
@@ -67,8 +68,9 @@ func registerRoutes(router *gin.Engine, s *ServerContext) {
 			offer.PUT(":uuid", middlewares.SupplierMiddleware(s.Services.UserTypeService), offerHandlers.Update)
 			offer.DELETE(":uuid", middlewares.SupplierMiddleware(s.Services.UserTypeService), offerHandlers.Delete)
 
-			purchase := offer.Group(":uuid/purchase")
+			purchase := offer.Group(":uuid/purchases")
 			{
+				purchase.GET("", middlewares.SupplierMiddleware(s.Services.UserTypeService), offerHandlers.Purchases)
 				purchase.POST("", purchaseHandlers.Create)
 			}
 
@@ -86,6 +88,7 @@ func registerRoutes(router *gin.Engine, s *ServerContext) {
 			purchases.GET("", purchaseHandlers.List)
 			purchases.GET(":uuid", purchaseHandlers.FindByUuid)
 			purchases.POST(":uuid/cancel", purchaseHandlers.Cancel)
+			purchases.GET(":uuid/contract", contractHandlers.Get)
 		}
 
 		me := v1.Group("me").Use(middlewares.JwtAuthMiddleware(

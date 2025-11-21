@@ -51,4 +51,8 @@ var (
 	ErrUserIsNotThePurchaseOwner = errors.New("user is not the purchase owner")
 	ErrPurchaseNotFound          = errors.New("purchase not found")
 	ErrPurchaseCannotBeCancelled = errors.New("purchase can not be cancelled")
+
+	// Contract
+	ErrUserIsNotContractMember = errors.New("user is not a member of the contract")
+	ErrPurchaseIsNotCompleted  = errors.New("purchase is not completed")
 )
