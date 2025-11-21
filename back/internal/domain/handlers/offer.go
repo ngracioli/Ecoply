@@ -17,6 +17,7 @@ type OfferHandlers interface {
 	Create(c *gin.Context)
 	Update(c *gin.Context)
 	Delete(c *gin.Context)
+	Purchases(c *gin.Context)
 }
 
 type offerHandler struct {
@@ -122,4 +123,24 @@ func (h *offerHandler) Delete(c *gin.Context) {
 	}
 
 	c.AbortWithStatus(http.StatusNoContent)
+}
+
+func (h *offerHandler) Purchases(c *gin.Context) {
+	var params requests.ListPurchasesFromOffer
+	var uuid string = c.Param("uuid")
+	var user *models.User = GetUserFromContext(c)
+
+	if err := c.ShouldBindQuery(&params); err != nil {
+		var response *merr.ResponseError = merr.BindValidationErrorsToResponse(err)
+		c.JSON(response.StatusCode, response)
+		return
+	}
+
+	response, err := h.offerService.Purchases(uuid, &params, user)
+	if err != nil {
+		c.JSON(err.StatusCode, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
 }

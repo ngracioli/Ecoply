@@ -68,8 +68,9 @@ func registerRoutes(router *gin.Engine, s *ServerContext) {
 			offer.PUT(":uuid", middlewares.SupplierMiddleware(s.Services.UserTypeService), offerHandlers.Update)
 			offer.DELETE(":uuid", middlewares.SupplierMiddleware(s.Services.UserTypeService), offerHandlers.Delete)
 
-			purchase := offer.Group(":uuid/purchase")
+			purchase := offer.Group(":uuid/purchases")
 			{
+				purchase.GET("", middlewares.SupplierMiddleware(s.Services.UserTypeService), offerHandlers.Purchases)
 				purchase.POST("", purchaseHandlers.Create)
 			}
 
