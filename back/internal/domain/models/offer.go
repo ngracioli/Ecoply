@@ -60,3 +60,7 @@ func (o *Offer) IsOpen() bool {
 func (o *Offer) IsFulfilled() bool {
 	return o.Status == OfferStatusFulfilled
 }
+
+func (o *Offer) IsOwner(user *User) bool {
+	return o.SellerId == user.ID
+}

@@ -23,6 +23,7 @@ type ServerServices struct {
 	services.OfferService
 	services.PurchaseService
 	services.UserTypeService
+	services.ContractService
 }
 
 type ServerHandlers struct {
@@ -30,6 +31,7 @@ type ServerHandlers struct {
 	handlers.CnpjHandlers
 	handlers.OfferHandlers
 	handlers.PurchaseHandlers
+	handlers.ContractHandlers
 }
 
 type ServerContext struct {

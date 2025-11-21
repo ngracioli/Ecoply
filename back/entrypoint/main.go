@@ -44,6 +44,7 @@ func buildServerContext(cfg *config.Config, db *gorm.DB) *server.ServerContext {
 		OfferService:    services.NewOfferService(db),
 		PurchaseService: services.NewPurchaseService(db),
 		UserTypeService: services.NewUserTypeService(db),
+		ContractService: services.NewContractService(db),
 	}
 
 	handlers := server.ServerHandlers{
@@ -51,6 +52,7 @@ func buildServerContext(cfg *config.Config, db *gorm.DB) *server.ServerContext {
 		CnpjHandlers:     handlers.NewCnpjHandler(),
 		OfferHandlers:    handlers.NewOfferHandler(services.OfferService),
 		PurchaseHandlers: handlers.NewPurchaseHandlers(services.PurchaseService),
+		ContractHandlers: handlers.NewContractHandlers(services.ContractService),
 	}
 
 	return &server.ServerContext{

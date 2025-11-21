@@ -18,6 +18,7 @@ type OfferRepository interface {
 	GetBySellerId(userId uint) ([]*models.Offer, error)
 	Create(*models.Offer) (*models.Offer, error)
 	List(request *requests.ListOffers, user *models.User) (*utils.PaginationWrapper[*models.Offer], error)
+	Purchases(offerUuid string, request *requests.ListPurchases) (*utils.PaginationWrapper[*models.Purchase], error)
 	Update(offer *models.Offer) error
 	Delete(uuid string) error
 	UpdateExpiredOffers() error
@@ -146,4 +147,8 @@ func (r *offerRepository) GetById(id uint) (*models.Offer, error) {
 		return nil, err
 	}
 	return &offer, nil
+}
+
+func (r *offerRepository) Purchases(offerUuid string, request *requests.ListPurchases) (*utils.PaginationWrapper[*models.Purchase], error) {
+	return nil, nil
 }
