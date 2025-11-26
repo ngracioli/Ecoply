@@ -14,7 +14,8 @@ import (
 
 type PurchaseHandlers interface {
 	Create(c *gin.Context)
-	List(c *gin.Context)
+	ListPurchases(c *gin.Context)
+	ListSales(c *gin.Context)
 	FindByUuid(c *gin.Context)
 	Cancel(c *gin.Context)
 }
@@ -40,16 +41,16 @@ func (h *purchaseHandlers) Create(c *gin.Context) {
 		return
 	}
 
-	err := h.purchaseService.Create(&payload, offerUuid, user)
+	response, err := h.purchaseService.Create(&payload, offerUuid, user)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return
 	}
 
-	c.AbortWithStatus(http.StatusCreated)
+	c.JSON(http.StatusCreated, gin.H{"data": response})
 }
 
-func (h *purchaseHandlers) List(c *gin.Context) {
+func (h *purchaseHandlers) ListPurchases(c *gin.Context) {
 	var response *utils.PaginationWrapper[*resources.Purchase]
 	var payload requests.ListPurchase
 	var user *models.User = GetUserFromContext(c)
@@ -60,7 +61,27 @@ func (h *purchaseHandlers) List(c *gin.Context) {
 		return
 	}
 
-	response, err := h.purchaseService.List(&payload, user)
+	response, err := h.purchaseService.ListPurchases(&payload, user)
+	if err != nil {
+		c.JSON(err.StatusCode, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *purchaseHandlers) ListSales(c *gin.Context) {
+	var response *utils.PaginationWrapper[*resources.Purchase]
+	var payload requests.ListSold
+	var user *models.User = GetUserFromContext(c)
+
+	if err := c.ShouldBindQuery(&payload); err != nil {
+		var response *merr.ResponseError = merr.BindValidationErrorsToResponse(err)
+		c.JSON(response.StatusCode, response)
+		return
+	}
+
+	response, err := h.purchaseService.ListSold(&payload, user)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return

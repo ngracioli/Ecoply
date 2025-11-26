@@ -15,7 +15,7 @@ func RunBackgroundTasks(s *server.ServerContext) {
 func updateOfferStatusToExpired(service services.OfferService) {
 	var ctx context.Context = context.Background()
 
-	background.StartPeriodicTask(ctx, time.Duration(time.Minute*10), func() error {
+	background.StartPeriodicTask(ctx, time.Duration(time.Second*30), func() error {
 		return service.UpdateExpiredOffers()
 	})
 }

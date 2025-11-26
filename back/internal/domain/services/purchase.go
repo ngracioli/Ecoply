@@ -16,8 +16,9 @@ import (
 )
 
 type PurchaseService interface {
-	Create(request *requests.CreatePurchase, offerUuid string, user *models.User) *merr.ResponseError
-	List(request *requests.ListPurchase, user *models.User) (*utils.PaginationWrapper[*resources.Purchase], *merr.ResponseError)
+	Create(request *requests.CreatePurchase, offerUuid string, user *models.User) (*resources.Purchase, *merr.ResponseError)
+	ListPurchases(request *requests.ListPurchase, user *models.User) (*utils.PaginationWrapper[*resources.Purchase], *merr.ResponseError)
+	ListSold(request *requests.ListSold, user *models.User) (*utils.PaginationWrapper[*resources.Purchase], *merr.ResponseError)
 	Cancel(pruchaseUuid string, user *models.User) *merr.ResponseError
 	FindByUuid(user *models.User, uuid string) (*resources.Purchase, *merr.ResponseError)
 }
@@ -40,7 +41,7 @@ func (s *purchaseService) Create(
 	request *requests.CreatePurchase,
 	offerUuid string,
 	user *models.User,
-) *merr.ResponseError {
+) (*resources.Purchase, *merr.ResponseError) {
 	var errResponse *merr.ResponseError
 	var offer *models.Offer
 	var purchase *models.Purchase
@@ -95,30 +96,70 @@ func (s *purchaseService) Create(
 			return err
 		}
 
+		if err := tx.
+			Preload("Buyer").
+			Preload("Offer", func(db *gorm.DB) *gorm.DB {
+				return db.Select("id, uuid, seller_id")
+			}).
+			Preload("Offer.Seller", func(db *gorm.DB) *gorm.DB {
+				return db.Select("id, uuid, name")
+			}).Find(purchase).Error; err != nil {
+			return ErrInternal
+		}
+
 		return nil
 	})
 
 	if errResponse != nil {
-		return errResponse
+		return nil, errResponse
 	}
 
 	if err != nil {
-		return merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
 
 	s.dispatchPurchasePaymentProcessor(user, purchase)
 
-	return nil
+	response := makePurchaseResourceFromModel(purchase)
+
+	return response, nil
 }
 
-func (s *purchaseService) List(
+func (s *purchaseService) ListPurchases(
 	request *requests.ListPurchase,
 	user *models.User,
 ) (*utils.PaginationWrapper[*resources.Purchase], *merr.ResponseError) {
 	var list *utils.PaginationWrapper[*models.Purchase]
 	var err error
 
-	list, err = s.purchaseRepo.List(uint64(user.ID), request)
+	list, err = s.purchaseRepo.ListPurchases(uint64(user.ID), request)
+	if err != nil {
+		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+	}
+
+	var response utils.PaginationWrapper[*resources.Purchase]
+
+	response.Page = list.Page
+	response.PageSize = list.PageSize
+	response.HasNext = list.HasNext
+	response.HasPrev = list.HasPrev
+	response.Data = make([]*resources.Purchase, 0, len(list.Data))
+
+	for _, purchase := range list.Data {
+		response.Data = append(response.Data, makePurchaseResourceFromModel(purchase))
+	}
+
+	return &response, nil
+}
+
+func (s *purchaseService) ListSold(
+	request *requests.ListSold,
+	user *models.User,
+) (*utils.PaginationWrapper[*resources.Purchase], *merr.ResponseError) {
+	var list *utils.PaginationWrapper[*models.Purchase]
+	var err error
+
+	list, err = s.purchaseRepo.ListSold(uint64(user.ID), request)
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
@@ -149,6 +190,8 @@ func makePurchaseResourceFromModel(purchase *models.Purchase) *resources.Purchas
 		PaymentMethod: purchase.PaymentMethod,
 		OfferUuid:     purchase.Offer.Uuid,
 		SellerUuid:    purchase.Offer.Seller.Uuid,
+		BuyerName:     purchase.Buyer.Name,
+		SellerName:    purchase.Offer.Seller.Name,
 		CreatedAt:     createdAt.Format(time.RFC3339),
 	}
 }
@@ -226,8 +269,8 @@ func isPurchaseCancelable(purchase *models.Purchase) bool {
 func (s *purchaseService) dispatchPurchasePaymentProcessor(user *models.User, purchase *models.Purchase) {
 	var proccessTimeMap map[string]time.Duration = map[string]time.Duration{
 		models.PurchasePaymentPix:    time.Second * 0,
-		models.PurchasePaymentCard:   time.Minute * 5,
-		models.PurchasePaymentBillet: time.Hour * 24 * 2,
+		models.PurchasePaymentCard:   time.Minute * 1,
+		models.PurchasePaymentBillet: time.Minute * 3,
 	}
 	var proccessTime time.Duration = proccessTimeMap[purchase.PaymentMethod]
 
