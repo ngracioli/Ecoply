@@ -1,243 +1,70 @@
-🌱 Ecoply – Marketplace de Energia Excedente Renovável
-<p align="center"> <img src="https://img.shields.io/badge/Vue-3.0-42b883?style=for-the-badge&logo=vue.js&logoColor=white"/> <img src="https://img.shields.io/badge/Vite-5.0-646CFF?style=for-the-badge&logo=vite&logoColor=white"/> <img src="https://img.shields.io/badge/TailwindCSS-3.0-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white"/> <img src="https://img.shields.io/badge/PrimeVue-Latest-4CAF50?style=for-the-badge"/> <img src="https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white"/> <img src="https://img.shields.io/badge/Go-1.22-00ADD8?style=for-the-badge&logo=go&logoColor=white"/> <img src="https://img.shields.io/badge/Postman-Usado%20nos%20Testes-orange?style=for-the-badge&logo=postman"/> </p>
+# Ecoply: Negociação de Energia Excedente ⚡️
 
-A Ecoply é uma plataforma digital que conecta agentes do Mercado Livre de Energia (ACL) para comprar e vender energia excedente renovável de forma rápida, transparente e segura.
-O projeto cria um marketplace totalmente automatizado, onde geradores, comercializadores e consumidores livres podem negociar excedentes energéticos sem a burocracia dos contratos tradicionais.
+Um marketplace digital focado na compra e venda direta de **excedentes energéticos renováveis** no Brasil para Agentes da CCEE (Câmara de Comercialização de Energia Elétrica). A Ecoply simplifica a contratação bilateral, reduz o desperdício de energia e promove a eficiência no Mercado Livre de Energia (ACL).
 
-📌 Sumário
 
-🚀 Visão Geral
 
-⚡ Objetivo da Plataforma
+## ✨ Visão Geral do Projeto
 
-💡 Como Funciona
+O mercado de energia livre no Brasil frequentemente lida com **excedentes contratuais** que se tornam ativos valiosos, mas de difícil liquidez. O processo atual de negociação bilateral é manual, fragmentado e ineficiente.
 
-📸 Artefatos e Anexos
+A **Ecoply** resolve isso, atuando como uma plataforma centralizada e transparente:
 
-🛠️ Tecnologias Utilizadas
+* **Vendedor (Geradores/Comercializadores):** Publica seu excedente de energia renovável a um preço competitivo.
+* **Comprador (Consumidores Livres/Comercializadores):** Adquire a energia a um custo significativamente menor que o mercado regulado.
+* **Ecoply:** Gera receita por meio de uma **taxa de serviço (fee)** fixa por kWh transacionado, criando um ciclo virtuoso para todos.
 
-📂 Arquitetura do Projeto
+O projeto está alinhado com o **ODS 7 – Energia Limpa e Acessível**.
 
-📦 Funcionalidades
+---
 
-🔐 Requisitos Não Funcionais
+## 💻 Tecnologias Utilizadas
 
-🧠 Requisitos Inovadores
+Este projeto é dividido em uma arquitetura de frontend e backend, utilizando um conjunto de tecnologias modernas para garantir **escalabilidade** e **rápido tempo de resposta**.
 
-🌍 Agentes da CCEE
+| Categoria | Tecnologia | Descrição |
+| :--- | :--- | :--- |
+| **Frontend** | **Vue.js** (com **Vite**) | Framework reativo e rápido para a interface do usuário. |
+| | **TypeScript** | Garante código mais robusto e menos propenso a erros. |
+| | **PrimeVue** | Biblioteca de componentes UI para uma interface intuitiva. |
+| | **Tailwind CSS** | Framework utility-first para estilização rápida e responsiva. |
+| **Backend** | **Golang (Go)** | Linguagem de alto desempenho para o desenvolvimento da API. |
+| **Infraestrutura** | **Docker** | Containerização para ambientes de desenvolvimento e produção consistentes. |
+| | **Postman** | Utilizado para testes e documentação da API. |
 
-🗂️ Banco de Dados
+---
 
-🏗️ Como Rodar o Projeto
+## ⚙️ Funcionalidades Principais
 
-🚀 Visão Geral
+A plataforma Ecoply oferece as seguintes funcionalidades para agentes da CCEE:
 
-No Mercado Livre de Energia (ACL), empresas podem negociar energia diretamente — mas negociar excedentes energéticos ainda é um processo:
+* **Autenticação Segura:** Cadastro e login de usuários com **validação documental** e **autenticação por token**.
+* **Marketplace de Venda Direta:**
+    * Criação e gestão de ofertas de energia excedente (preço fixo por MWh).
+    * Filtros avançados (por submercado, preço, tipo de energia e vendedor).
+    * **Recomendação por Geolocalização** (ofertas próximas aparecem primeiro na listagem).
+* **Formalização Simplificada:**
+    * Geração de um **"termo de acordo"** digital após a compra.
+    * Emissão automática de **contratos** e **notas fiscais**.
+    * Geração de um **"resumo de registro"** com dados formatados para registro assistido na CCEE.
+* **Notificações:** Alertas sobre atividades (compras, fim de estoque) e atualizações de status.
 
-✔ manual
-✔ lento
-✔ burocrático
-✔ pouco transparente
+---
 
-A Ecoply transforma esse processo criando um marketplace digital onde:
+## 🚀 Como Executar o Projeto Localmente
 
-vendedores publicam ofertas de excedente
+Para clonar e executar o Ecoply em sua máquina local, siga os passos abaixo.
 
-compradores adquirem energia com preço fixo
+### Pré-requisitos
 
-a plataforma emite termos, documentos e guias para registro na CCEE
+Certifique-se de ter as seguintes ferramentas instaladas:
 
-Tudo isso com agilidade, segurança e transparência.
+* **Git**
+* **Docker**
+* **Docker Compose**
 
-⚡ Objetivo da Plataforma
+### 1. Clonar o Repositório
 
-Criar um ecossistema digital que:
-
-gere liquidez para excedentes energéticos
-
-reduza custos do comprador
-
-simplifique o processo de contratação bilateral
-
-incentive o uso de energia renovável (ODS 7)
-
-minimize desperdícios e aumente a eficiência do setor elétrico brasileiro
-
-💡 Como Funciona
-🔎 Validação dos Agentes
-
-Somente agentes ativos e validados da CCEE podem operar.
-
-💰 Marketplace de Ofertas
-
-Vendedores criam ofertas com preço fixo por MWh.
-
-Compradores filtram, visualizam e compram energia disponível.
-
-Submercado do comprador deve coincidir com o da oferta.
-
-📝 Contrato Bilateral Assistido
-
-A compra gera automaticamente:
-
-Termo de acordo digital
-
-Resumo formatado para registro na CCEE
-
-Passo a passo do registro do CCEAL
-
-💵 Liquidação Financeira
-
-Realizada pela própria CCEE no ciclo mensal.
-A Ecoply cobra apenas um fee de R$0,10/kWh negociado.
-
-📸 Artefatos e Anexos
-🧭 Landing Page
-
-📎 https://github.com/ngracioli/Ecoply/tree/main/anexos/frontend/landingPage
-
-📊 Dashboard
-
-📎 https://github.com/ngracioli/Ecoply/tree/main/anexos/dashboard
-
-🗺️ Diagrama Físico do Banco
-
-📎 https://github.com/ngracioli/Ecoply/blob/main/anexos/banco_diagrama_fisico.png
-
-🛠️ Tecnologias Utilizadas
-Frontend
-
-Vue 3
-
-Vite
-
-TailwindCSS
-
-PrimeVue
-
-TypeScript
-
-Backend
-
-Golang
-
-API com autenticação JWT
-
-Arquitetura com camadas (handlers, services, repositories)
-
-Integração com banco SQL
-
-Testes
-
-Postman para requisições, coleções e validação das APIs
-
-📂 Arquitetura do Projeto
-Ecoply/
-├─ frontend/
-│  ├─ src/
-│  ├─ components/
-│  ├─ pages/
-│  └─ ...
-├─ backend/
-│  ├─ cmd/
-│  ├─ internal/
-│  ├─ models/
-│  ├─ handlers/
-│  └─ ...
-└─ anexos/
-
-📦 Funcionalidades
-
-✔ Cadastro e autenticação com validação documental
-✔ Criação e gestão de ofertas
-✔ Filtros avançados (nome, preço, submercado, vendedor)
-✔ Recomendação por geolocalização
-✔ Compra de energia com atualização em tempo real
-✔ Perfil com edição de dados
-✔ Emissão automática de contratos e documentos
-✔ Tutoriais para registro no CCEE
-
-🔐 Requisitos Não Funcionais
-
-Autenticação por token segura
-
-Interface moderna, clara e responsiva
-
-Baixa latência
-
-Escalabilidade e modularidade
-
-🧠 Requisitos Inovadores
-
-Transparência total
-
-Automação documental
-
-Redução de burocracia no ACL
-
-Gestão descentralizada de excedentes
-
-🌍 Agentes da CCEE
-
-A plataforma atende:
-
-Geradores
-
-Comercializadores
-
-Consumidores Livres
-
-Consumidores Especiais
-
-🗂️ Banco de Dados
-
-Principais entidades:
-
-users
-
-agents
-
-offers
-
-purchases
-
-submarkets
-
-user_types
-
-addresses
-
-Diagrama disponível no repositório.
-
-🏗️ Como Rodar o Projeto
-🔧 Pré-requisitos
-
-Node.js 18+
-
-Go 1.22+
-
-npm ou yarn
-
-Banco relacional (PostgreSQL recomendado)
-
-Postman (opcional, porém recomendado)
-
-🖥️ Frontend (Vue + Vite)
-cd frontend
-npm install
-npm run dev
-
-
-Acesse:
-
-👉 http://localhost:5173/
-
-⚙️ Backend (Golang)
-cd backend
-go mod tidy
-go run cmd/main.go
-
-
-A API subirá normalmente em:
-
-👉 http://localhost:8080/
+```bash
+git clone [https://github.com/ngracioli/Ecoply.git](https://github.com/ngracioli/Ecoply.git)
+cd Ecoply
