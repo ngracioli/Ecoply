@@ -71,7 +71,6 @@ const form = reactive<RegisterRequest>({
 
 const errors = reactive<Record<string, string>>({});
 
-// Limpa o erro de um campo específico quando o usuário digita
 const clearFieldError = (field: string) => {
   if (errors[field]) {
     delete errors[field];
@@ -429,7 +428,6 @@ async function submitFinal() {
       <p class="text-gray-600">Preencha os passos para começar</p>
     </div>
 
-    <!-- Progress indicator -->
     <div class="mb-4 flex items-center justify-center gap-2">
       <div
         v-for="i in 4"
@@ -447,7 +445,6 @@ async function submitFinal() {
     >
       <Toast />
 
-      <!-- STEP 1: Dados Pessoais -->
       <div v-show="step === 1" class="flex flex-col gap-5">
         <div class="flex flex-col gap-2">
           <label for="name" class="text-sm font-semibold text-gray-800"
@@ -551,7 +548,6 @@ async function submitFinal() {
         />
       </div>
 
-      <!-- STEP 2: Tipo e CNPJ -->
       <div v-show="step === 2" class="flex flex-col gap-5">
         <Message
           severity="info"
@@ -624,7 +620,6 @@ async function submitFinal() {
         </div>
       </div>
 
-      <!-- STEP 3: Confirma CNPJ (readonly fields) -->
       <div v-show="step === 3" class="flex flex-col gap-5">
         <Message
           severity="info"
@@ -727,7 +722,6 @@ async function submitFinal() {
         </div>
       </div>
 
-      <!-- STEP 4: Endereço via CEP -->
       <div v-show="step === 4" class="flex flex-col gap-5">
         <div class="flex flex-col gap-2">
           <label for="cep" class="text-sm font-semibold text-gray-700"

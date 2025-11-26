@@ -514,12 +514,12 @@ watch(
 
     <template #footer>
       <div
-        class="flex items-center justify-between border-t border-neutral-100 px-6 py-4"
+        class="flex items-center justify-between gap-4 border-t border-neutral-100 px-6 py-4"
       >
         <p class="text-xs text-neutral-500">
           <span class="text-red-500">*</span> Campos obrigatórios
         </p>
-        <div class="flex gap-3">
+        <div class="flex shrink-0 gap-3">
           <button
             @click="closeDialog"
             :disabled="isSubmitting"

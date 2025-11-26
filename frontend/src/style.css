@@ -52,7 +52,6 @@
   }
 }
 
-/* Prevenir overflow horizontal em todos os breakpoints */
 html,
 body {
   overflow-x: hidden;
@@ -68,4 +67,32 @@ body {
 ::-moz-selection {
   background: theme("colors.primary-color");
   color: theme("colors.white");
+}
+
+button,
+a,
+[role="button"],
+[onclick],
+.cursor-pointer,
+label[for],
+input[type="checkbox"],
+input[type="radio"],
+input[type="submit"],
+input[type="button"],
+select,
+[tabindex]:not([tabindex="-1"]),
+.clickable {
+  cursor: pointer;
+}
+
+[to],
+[href] {
+  cursor: pointer;
+}
+
+button:disabled,
+a:disabled,
+[disabled],
+.disabled {
+  cursor: not-allowed;
 }

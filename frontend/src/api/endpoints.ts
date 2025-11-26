@@ -13,4 +13,12 @@ export const OFFER_ENDPOINTS = {
   UPDATE: (uuid: string) => `/api/v1/offers/${uuid}`,
   CREATE: "/api/v1/offers",
   MY_OFFERS: "/api/v1/me/offers",
+  PURCHASE: (uuid: string) => `/api/v1/offers/${uuid}/purchases`,
+} as const;
+
+export const PURCHASE_ENDPOINTS = {
+  LIST: "/api/v1/purchases",
+  SALES: "/api/v1/sales",
+  CONTRACT: (purchaseUuid: string) =>
+    `/api/v1/purchases/${purchaseUuid}/contract`,
 } as const;

@@ -1,4 +1,4 @@
-export type PaymentMethod = "pix" | "credit_card" | "boleto";
+export type PaymentMethod = "pix" | "card" | "billet";
 
 export interface CheckoutFormData {
   quantity_mwh: number;

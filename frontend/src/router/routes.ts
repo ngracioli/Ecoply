@@ -38,4 +38,10 @@ export const routes: AppRoute[] = [
     component: () => import("../views/Checkout.vue"),
     meta: { requiresAuth: true },
   },
+  {
+    path: RoutePaths.MANAGE_OFFER,
+    name: RouteNames.MANAGE_OFFER,
+    component: () => import("../views/dashboard/ManageOffer.vue"),
+    meta: { requiresAuth: true },
+  },
 ];
