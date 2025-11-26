@@ -1,8 +1,15 @@
 <script setup lang="ts">
-import { DollarSign, TrendingDown, TrendingUp, Zap } from "lucide-vue-next";
+import {
+  DollarSign,
+  TrendingDown,
+  TrendingUp,
+  Zap,
+  TrendingDown as ChartDown,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+} from "lucide-vue-next";
 import type { Component } from "vue";
-
-type ActivityType = "offer" | "success" | "payment";
 
 interface StatCard {
   title: string;
@@ -12,12 +19,15 @@ interface StatCard {
   icon: Component;
 }
 
-interface Activity {
+interface MarketInsight {
   id: number;
   title: string;
-  description: string;
-  time: string;
-  type: ActivityType;
+  value: string;
+  subtitle: string;
+  trend: "up" | "down" | "neutral";
+  icon: Component;
+  colorClass: string;
+  bgClass: string;
 }
 
 const stats: StatCard[] = [
@@ -51,27 +61,46 @@ const stats: StatCard[] = [
   },
 ];
 
-const recentActivity: Activity[] = [
+const marketInsights: MarketInsight[] = [
   {
     id: 1,
-    title: "Nova oferta disponível",
-    description: "Energia solar - 500 kWh",
-    time: "Há 2 horas",
-    type: "offer",
+    title: "Melhor Oferta Disponível",
+    value: "R$ 0,48/kWh",
+    subtitle: "Energia Solar • 850 kWh disponíveis",
+    trend: "down",
+    icon: TrendingDown,
+    colorClass: "text-emerald-600",
+    bgClass: "bg-emerald-50",
   },
   {
     id: 2,
-    title: "Negociação concluída",
-    description: "Contrato #1234 - R$ 2.500",
-    time: "Há 5 horas",
-    type: "success",
+    title: "Ofertas Expirando",
+    value: "3 ofertas",
+    subtitle: "Expiram nas próximas 48 horas",
+    trend: "neutral",
+    icon: Clock,
+    colorClass: "text-amber-600",
+    bgClass: "bg-amber-50",
   },
   {
     id: 3,
-    title: "Pagamento processado",
-    description: "Fatura #789 - R$ 1.800",
-    time: "Ontem",
-    type: "payment",
+    title: "Taxa de Sucesso",
+    value: "94%",
+    subtitle: "Das suas negociações foram concluídas",
+    trend: "up",
+    icon: CheckCircle,
+    colorClass: "text-blue-600",
+    bgClass: "bg-blue-50",
+  },
+  {
+    id: 4,
+    title: "Alerta de Mercado",
+    value: "Alta Demanda",
+    subtitle: "Preços 7% acima da média semanal",
+    trend: "up",
+    icon: AlertCircle,
+    colorClass: "text-purple-600",
+    bgClass: "bg-purple-50",
   },
 ];
 </script>
@@ -123,38 +152,90 @@ const recentActivity: Activity[] = [
       class="rounded-xl border border-neutral-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md"
     >
       <div class="border-b border-neutral-200 p-6">
-        <h2 class="text-lg font-semibold text-neutral-900">
-          Atividades Recentes
-        </h2>
-        <p class="mt-1 text-sm text-neutral-500">
-          Acompanhe suas últimas movimentações
-        </p>
-      </div>
-      <div class="divide-y divide-neutral-100">
-        <div
-          v-for="activity in recentActivity"
-          :key="activity.id"
-          class="group flex items-center gap-4 p-6 transition-all duration-200 hover:bg-neutral-50"
-        >
-          <div
-            :class="[
-              'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg transition-all duration-200',
-              activity.type === 'offer'
-                ? 'bg-blue-50 text-blue-600 group-hover:bg-blue-100'
-                : activity.type === 'success'
-                  ? 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100'
-                  : 'bg-purple-50 text-purple-600 group-hover:bg-purple-100',
-            ]"
-          >
-            <Zap :size="20" :stroke-width="2" />
-          </div>
-          <div class="flex-1">
-            <h4 class="font-medium text-neutral-900">{{ activity.title }}</h4>
-            <p class="mt-0.5 text-sm text-neutral-500">
-              {{ activity.description }}
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-semibold text-neutral-900">
+              Insights do Mercado
+            </h2>
+            <p class="mt-1 text-sm text-neutral-500">
+              Informações em tempo real para suas decisões
             </p>
           </div>
-          <span class="text-sm text-neutral-400">{{ activity.time }}</span>
+          <div
+            class="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2"
+          >
+            <div
+              class="h-2 w-2 animate-pulse rounded-full bg-emerald-500"
+            ></div>
+            <span class="text-sm font-medium text-emerald-700">Ao vivo</span>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 gap-4 p-6 md:grid-cols-2 lg:grid-cols-4">
+        <div
+          v-for="insight in marketInsights"
+          :key="insight.id"
+          class="group relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-5 shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-md"
+        >
+          <div class="flex items-start gap-3">
+            <div
+              :class="[
+                'flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl transition-all duration-300 group-hover:scale-110',
+                insight.bgClass,
+                insight.colorClass,
+              ]"
+            >
+              <component :is="insight.icon" :size="24" :stroke-width="2" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-xs font-medium text-neutral-500">
+                {{ insight.title }}
+              </p>
+              <h3 :class="['mt-1 text-2xl font-bold', insight.colorClass]">
+                {{ insight.value }}
+              </h3>
+              <p class="mt-2 line-clamp-2 text-sm text-neutral-600">
+                {{ insight.subtitle }}
+              </p>
+              <div class="mt-3 flex items-center gap-1">
+                <component
+                  :is="
+                    insight.trend === 'up'
+                      ? TrendingUp
+                      : insight.trend === 'down'
+                        ? TrendingDown
+                        : Clock
+                  "
+                  :size="14"
+                  :class="[
+                    insight.trend === 'up'
+                      ? 'text-red-500'
+                      : insight.trend === 'down'
+                        ? 'text-emerald-500'
+                        : 'text-amber-500',
+                  ]"
+                />
+                <span
+                  :class="[
+                    'text-xs font-medium',
+                    insight.trend === 'up'
+                      ? 'text-red-600'
+                      : insight.trend === 'down'
+                        ? 'text-emerald-600'
+                        : 'text-amber-600',
+                  ]"
+                >
+                  {{
+                    insight.trend === "up"
+                      ? "Em alta"
+                      : insight.trend === "down"
+                        ? "Oportunidade"
+                        : "Atenção"
+                  }}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -21,7 +21,6 @@ const errors = ref<{ email?: string; password?: string }>({});
 const hasLoginError = ref<boolean>(false);
 const toast = useToast();
 
-// Limpa o erro de um campo específico quando o usuário digita
 const clearFieldError = (field: "email" | "password") => {
   if (errors.value[field]) {
     errors.value[field] = undefined;

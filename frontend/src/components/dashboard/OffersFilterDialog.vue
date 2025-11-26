@@ -20,13 +20,11 @@ const emit = defineEmits<{
   (e: "apply-filters", filters: FilterOptions): void;
 }>();
 
-// Estados dos filtros
 const selectedSubmarket = ref<string>("");
 const selectedEnergyType = ref<string>("");
 const periodStart = ref<string>("");
 const periodEnd = ref<string>("");
 
-// Opções de submercado
 const submarketOptions = [
   { value: "", label: "Todos" },
   { value: "SE_CO", label: "Sudeste/Centro-Oeste (SE/CO)" },
@@ -35,7 +33,6 @@ const submarketOptions = [
   { value: "N", label: "Norte (N)" },
 ];
 
-// Opções de tipo de energia
 const energyTypeOptions = [
   { value: "", label: "Todos" },
   { value: "solar", label: "Solar" },
@@ -78,14 +75,12 @@ const applyFilters = () => {
   closeDialog();
 };
 
-// Fecha o dialog ao clicar fora
 const handleBackdropClick = (event: MouseEvent) => {
   if ((event.target as HTMLElement).classList.contains("dialog-backdrop")) {
     closeDialog();
   }
 };
 
-// Expõe a função clearFilters para o componente pai
 defineExpose({
   clearFilters,
 });
@@ -120,7 +115,6 @@ defineExpose({
           class="relative w-full max-w-2xl rounded-xl bg-white shadow-2xl"
           @click.stop
         >
-          <!-- Header -->
           <div
             class="flex items-center justify-between border-b border-neutral-200 p-6"
           >
@@ -145,9 +139,7 @@ defineExpose({
             </button>
           </div>
 
-          <!-- Content -->
           <div class="space-y-6 p-6">
-            <!-- Submercado -->
             <div class="space-y-2">
               <label
                 for="submarket"
@@ -170,7 +162,6 @@ defineExpose({
               </select>
             </div>
 
-            <!-- Tipo de Energia -->
             <div class="space-y-2">
               <label
                 for="energy-type"
@@ -193,13 +184,11 @@ defineExpose({
               </select>
             </div>
 
-            <!-- Período -->
             <div class="space-y-4">
               <h3 class="text-sm font-medium text-neutral-700">
                 Período de Fornecimento
               </h3>
               <div class="grid grid-cols-2 gap-4">
-                <!-- Data Início -->
                 <div class="space-y-2">
                   <label
                     for="period-start"
@@ -215,7 +204,6 @@ defineExpose({
                   />
                 </div>
 
-                <!-- Data Fim -->
                 <div class="space-y-2">
                   <label
                     for="period-end"
@@ -234,7 +222,6 @@ defineExpose({
             </div>
           </div>
 
-          <!-- Footer -->
           <div
             class="flex items-center justify-between border-t border-neutral-200 p-6"
           >
@@ -266,7 +253,6 @@ defineExpose({
 </template>
 
 <style scoped>
-/* Animações customizadas para melhor UX */
 .dialog-enter-active,
 .dialog-leave-active {
   transition: opacity 0.3s ease;

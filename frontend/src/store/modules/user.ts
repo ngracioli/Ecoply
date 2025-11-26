@@ -88,6 +88,10 @@ const user: Module<UserState, unknown> = {
     userToken(state): string | null {
       return state.token;
     },
+
+    userSubmarket(state): string | null {
+      return state.currentUser?.agent?.submarket_name ?? null;
+    },
   },
 };
 
