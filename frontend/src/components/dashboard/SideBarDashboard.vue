@@ -79,7 +79,6 @@ const toggleProfileDropdown = () => {
   const wasOpen = isProfileDropdownOpen.value;
   isProfileDropdownOpen.value = !isProfileDropdownOpen.value;
 
-  // Se estiver abrindo o dropdown e não estiver em uma aba de perfil, seleciona "profile"
   if (
     !wasOpen &&
     activeItem.value !== "profile" &&

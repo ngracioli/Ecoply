@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { Trash2, Edit } from "lucide-vue-next";
 import { useRouter } from "vue-router";
 import api from "../../axios";
@@ -11,13 +11,8 @@ import type {
 import CreateOfferDialog from "./CreateOfferDialog.vue";
 import EnergyOfferCard from "./EnergyOfferCard.vue";
 import ConfirmDialog from "../shared/ConfirmDialog.vue";
+import DeleteOfferModal from "./DeleteOfferModal.vue";
 import { RouteNames } from "../../router/types";
-
-interface PaginationInfo {
-  start: number;
-  end: number;
-  total: number;
-}
 
 interface ApiError {
   response?: {
@@ -28,8 +23,6 @@ interface ApiError {
   message?: string;
 }
 
-const PAGE_SIZE = 10;
-
 const router = useRouter();
 const showCreateDialog = ref(false);
 const showDeleteDialog = ref(false);
@@ -37,22 +30,8 @@ const offerToDelete = ref<string | null>(null);
 const offerToEdit = ref<OfferListItem | null>(null);
 const offers = ref<OfferListItem[]>([]);
 const loading = ref(false);
-const deleting = ref(false);
 const error = ref<string | null>(null);
-
-const currentPage = ref(1);
-const hasNext = ref(false);
-const hasPrev = ref(false);
-
-const paginationInfo = computed<PaginationInfo>(() => {
-  const start = (currentPage.value - 1) * PAGE_SIZE + 1;
-  const end = start + offers.value.length - 1;
-  return { start, end, total: offers.value.length };
-});
-
-const scrollToTop = () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-};
+const showDeleteErrorModal = ref(false);
 
 const loadMyOffers = async () => {
   loading.value = true;
@@ -61,17 +40,9 @@ const loadMyOffers = async () => {
   try {
     const response = await api.get<OffersListResponse>(
       OFFER_ENDPOINTS.MY_OFFERS,
-      {
-        params: {
-          page_size: PAGE_SIZE,
-          page: currentPage.value,
-        },
-      },
     );
 
     offers.value = response.data.data;
-    hasNext.value = response.data.has_next;
-    hasPrev.value = response.data.has_prev;
   } catch (err) {
     const apiError = err as ApiError;
     const errorMessage = apiError.message || "Erro desconhecido";
@@ -93,6 +64,10 @@ const openEditDialog = (offer: OfferListItem) => {
   showCreateDialog.value = true;
 };
 
+const isOfferEditable = (offer: OfferListItem): boolean => {
+  return offer.status === "fresh";
+};
+
 const handleOfferCreated = () => {
   loadMyOffers();
 };
@@ -100,22 +75,6 @@ const handleOfferCreated = () => {
 const handleOfferUpdated = () => {
   loadMyOffers();
   offerToEdit.value = null;
-};
-
-const goToNextPage = () => {
-  if (hasNext.value) {
-    currentPage.value++;
-    loadMyOffers();
-    scrollToTop();
-  }
-};
-
-const goToPrevPage = () => {
-  if (hasPrev.value) {
-    currentPage.value--;
-    loadMyOffers();
-    scrollToTop();
-  }
 };
 
 const deleteOffer = async (offerUuid: string) => {
@@ -126,31 +85,30 @@ const deleteOffer = async (offerUuid: string) => {
 const confirmDelete = async () => {
   if (!offerToDelete.value) return;
 
-  deleting.value = true;
+  showDeleteDialog.value = false;
 
   try {
     await api.delete(OFFER_ENDPOINTS.DELETE(offerToDelete.value));
-    showDeleteDialog.value = false;
     offerToDelete.value = null;
     await loadMyOffers();
   } catch (err) {
-    const apiError = err as ApiError;
-    const serverMessage = apiError.response?.data?.message;
-    const errorMessage = `Erro ao excluir oferta: ${serverMessage || "Tente novamente."}`;
-
-    alert(errorMessage);
-  } finally {
-    deleting.value = false;
+    showDeleteErrorModal.value = true;
   }
 };
 
 const cancelDelete = () => {
   offerToDelete.value = null;
+  showDeleteDialog.value = false;
+};
+
+const closeDeleteErrorModal = () => {
+  showDeleteErrorModal.value = false;
+  offerToDelete.value = null;
 };
 
 const viewOfferDetails = (offerUuid: string) => {
   router.push({
-    name: RouteNames.OFFER_DETAIL,
+    name: RouteNames.MANAGE_OFFER,
     params: { id: offerUuid },
   });
 };
@@ -199,108 +157,65 @@ onMounted(() => {
       </button>
     </div>
 
-    <div
-      v-else-if="offers.length > 0"
-      class="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3"
-    >
-      <EnergyOfferCard
-        v-for="offer in offers"
-        :key="offer.uuid"
-        :offer="offer"
-        actionButtonText="Visualizar Oferta"
-        @click="viewOfferDetails(offer.uuid)"
-      >
-        <template #actions>
-          <div class="flex gap-2">
-            <button
-              @click="openEditDialog(offer)"
-              class="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-blue-500 bg-transparent py-2.5 text-sm font-medium text-blue-600 transition-all duration-200 hover:bg-blue-500 hover:text-white"
-            >
-              <Edit :size="16" />
-              Editar
-            </button>
-            <button
-              @click="deleteOffer(offer.uuid)"
-              class="flex flex-1 items-center justify-center gap-2 rounded-lg border-2 border-red-500 bg-transparent py-2.5 text-sm font-medium text-red-600 transition-all duration-200 hover:bg-red-500 hover:text-white"
-            >
-              <Trash2 :size="16" />
-              Excluir
-            </button>
-          </div>
-        </template>
-      </EnergyOfferCard>
-    </div>
-
-    <div
-      v-if="offers.length > 0"
-      class="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-6 py-4 shadow-sm"
-    >
-      <button
-        @click="goToPrevPage"
-        :disabled="!hasPrev"
-        :class="[
-          'flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
-          hasPrev
-            ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:shadow-md'
-            : 'cursor-not-allowed bg-neutral-100 text-neutral-400',
-        ]"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+    <div v-else-if="offers.length > 0" class="flex flex-col gap-6">
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+        <EnergyOfferCard
+          v-for="offer in offers"
+          :key="offer.uuid"
+          :offer="offer"
+          actionButtonText="Visualizar Oferta"
+          @click="viewOfferDetails(offer.uuid)"
         >
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-        Anterior
-      </button>
-
-      <div class="flex flex-col items-center gap-1">
-        <div class="flex items-center gap-2">
-          <span class="text-sm font-medium text-neutral-600">Página</span>
-          <span
-            class="rounded-lg bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-600"
-          >
-            {{ currentPage }}
-          </span>
-        </div>
-        <span class="text-xs text-neutral-500">
-          Mostrando {{ paginationInfo.start }} -
-          {{ paginationInfo.end }} ofertas
-        </span>
+          <template #actions>
+            <div class="flex gap-2">
+              <button
+                v-tooltip.top="{
+                  value: isOfferEditable(offer)
+                    ? ''
+                    : 'Você só pode editar ofertas que ainda não tiveram interações',
+                  showDelay: 300,
+                  hideDelay: 100,
+                  class: 'tooltip-info',
+                  disabled: isOfferEditable(offer),
+                }"
+                @click="openEditDialog(offer)"
+                :disabled="!isOfferEditable(offer)"
+                :class="[
+                  'flex flex-1 items-center justify-center gap-2 rounded-lg border-2 py-2.5 text-sm font-medium transition-all duration-200',
+                  isOfferEditable(offer)
+                    ? 'border-blue-500 bg-transparent text-blue-600 hover:bg-blue-500 hover:text-white'
+                    : 'cursor-not-allowed border-neutral-300 bg-neutral-100 text-neutral-400',
+                ]"
+              >
+                <Edit :size="16" />
+                Editar
+              </button>
+              <button
+                v-tooltip.top="{
+                  value: isOfferEditable(offer)
+                    ? ''
+                    : 'Você só pode excluir ofertas que ainda não tiveram interações',
+                  showDelay: 300,
+                  hideDelay: 100,
+                  class: 'tooltip-info',
+                  disabled: isOfferEditable(offer),
+                }"
+                @click="deleteOffer(offer.uuid)"
+                :disabled="!isOfferEditable(offer)"
+                :class="[
+                  'flex flex-1 items-center justify-center gap-2 rounded-lg border-2 py-2.5 text-sm font-medium transition-all duration-200',
+                  isOfferEditable(offer)
+                    ? 'border-red-500 bg-transparent text-red-600 hover:bg-red-500 hover:text-white'
+                    : 'cursor-not-allowed border-neutral-300 bg-neutral-100 text-neutral-400',
+                ]"
+              >
+                <Trash2 :size="16" />
+                Excluir
+              </button>
+            </div>
+          </template>
+        </EnergyOfferCard>
       </div>
-
-      <button
-        @click="goToNextPage"
-        :disabled="!hasNext"
-        :class="[
-          'flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
-          hasNext
-            ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:shadow-md'
-            : 'cursor-not-allowed bg-neutral-100 text-neutral-400',
-        ]"
-      >
-        Próxima
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
-      </button>
     </div>
 
     <div
@@ -330,9 +245,28 @@ onMounted(() => {
       confirm-text="Excluir"
       cancel-text="Cancelar"
       variant="danger"
-      :loading="deleting"
       @confirm="confirmDelete"
       @cancel="cancelDelete"
     />
+
+    <DeleteOfferModal
+      :visible="showDeleteErrorModal"
+      @close="closeDeleteErrorModal"
+    />
   </div>
 </template>
+
+<style>
+.tooltip-info .p-tooltip-text {
+  background-color: rgb(240 255 250) !important;
+  color: rgb(21 128 61) !important;
+  border: 1px solid rgb(200 247 218) !important;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15) !important;
+  font-size: 0.875rem !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+.tooltip-info .p-tooltip-arrow {
+  border-top-color: rgb(240 255 250) !important;
+}
+</style>

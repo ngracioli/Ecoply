@@ -7,6 +7,7 @@ import store from "./store";
 import PrimeVue from "primevue/config";
 import Lara from "@primeuix/themes/lara";
 import ToastService from "primevue/toastservice";
+import Tooltip from "primevue/tooltip";
 
 const app = createApp(App);
 
@@ -24,5 +25,7 @@ app.use(PrimeVue, {
 });
 
 app.use(ToastService);
+
+app.directive("tooltip", Tooltip);
 
 app.mount("#app");
