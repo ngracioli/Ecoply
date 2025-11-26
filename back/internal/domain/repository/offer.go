@@ -18,7 +18,7 @@ type OfferRepository interface {
 	GetBySellerId(userId uint) ([]*models.Offer, error)
 	Create(*models.Offer) (*models.Offer, error)
 	List(request *requests.ListOffers, user *models.User) (*utils.PaginationWrapper[*models.Offer], error)
-	Purchases(offerUuid string, request *requests.ListPurchasesFromOffer) (*utils.PaginationWrapper[*models.Purchase], error)
+	Purchases(offerUuid string, request *requests.ListPurchasesFromOffer) ([]*models.Purchase, error)
 	Update(offer *models.Offer) error
 	Delete(uuid string) error
 	UpdateExpiredOffers() error
@@ -149,7 +149,7 @@ func (r *offerRepository) GetById(id uint) (*models.Offer, error) {
 	return &offer, nil
 }
 
-func (r *offerRepository) Purchases(offerUuid string, request *requests.ListPurchasesFromOffer) (*utils.PaginationWrapper[*models.Purchase], error) {
+func (r *offerRepository) Purchases(offerUuid string, request *requests.ListPurchasesFromOffer) ([]*models.Purchase, error) {
 	var purchases []*models.Purchase
 
 	offer, err := r.GetByUuid(offerUuid)
@@ -157,43 +157,22 @@ func (r *offerRepository) Purchases(offerUuid string, request *requests.ListPurc
 		return nil, err
 	}
 
-	result := r.db.Debug().
+	result := r.db.
 		Preload("Buyer").
 		Preload("Offer", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id, uuid, seller_id")
 		}).
 		Preload("Offer.Seller", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id, uuid")
+			return db.Select("id, uuid", "name")
 		}).
 		Where("purchases.offer_id = ?", offer.ID).
-		Where("purchases.status IN (?)", []string{models.PurchaseStatusCompleted})
-
-	if request.StartDate != "" {
-		result = result.Where("purchases.created_at >= ?", request.StartDate)
-	}
-
-	if request.EndDate != "" {
-		result = result.Where("purchases.created_at <= ?", request.EndDate)
-	}
-
-	if request.AscendingPrice {
-		result = result.Order("purchases.price_per_mwh ASC")
-	} else {
-		result = result.Order("purchases.price_per_mwh DESC")
-	}
-
-	if request.AscendingQuantity {
-		result = result.Order("purchases.quantity_mwh ASC")
-	}
-
-	result = result.Scopes(scopes.Paginate(r.db, request.Page, request.PageSize))
+		Where("purchases.status IN (?)", []string{models.PurchaseStatusCompleted}).
+		Order("purchases.created_at ASC")
 
 	if err := result.Find(&purchases).Error; err != nil {
 		mlog.Log("Failed to list purchases from offer: " + err.Error())
 		return nil, err
 	}
 
-	var paginationWrapper = utils.NewPaginationWrapper(request.Page, request.PageSize, purchases)
-
-	return paginationWrapper, nil
+	return purchases, nil
 }

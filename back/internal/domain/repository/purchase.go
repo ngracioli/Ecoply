@@ -16,7 +16,8 @@ type PurchaseRepository interface {
 	Create(purchase *models.Purchase) error
 	Update(purchase *models.Purchase) error
 	FindByUuid(uuid string) (*models.Purchase, error)
-	List(userId uint64, request *requests.ListPurchase) (*utils.PaginationWrapper[*models.Purchase], error)
+	ListPurchases(buyerId uint64, request *requests.ListPurchase) (*utils.PaginationWrapper[*models.Purchase], error)
+	ListSold(sellerId uint64, request *requests.ListSold) (*utils.PaginationWrapper[*models.Purchase], error)
 }
 
 type purchaseRepository struct {
@@ -74,18 +75,18 @@ func (r *purchaseRepository) Update(purchase *models.Purchase) error {
 	return nil
 }
 
-func (r *purchaseRepository) List(userId uint64, request *requests.ListPurchase) (*utils.PaginationWrapper[*models.Purchase], error) {
+func (r *purchaseRepository) ListPurchases(buyerId uint64, request *requests.ListPurchase) (*utils.PaginationWrapper[*models.Purchase], error) {
 	var purchases []*models.Purchase
 
-	result := r.db.
+	result := r.db.Debug().
 		Preload("Buyer").
 		Preload("Offer", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id, uuid, seller_id")
 		}).
 		Preload("Offer.Seller", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id, uuid")
+			return db.Select("id, uuid, name")
 		}).
-		Where("purchases.buyer_id = ?", userId)
+		Where("purchases.buyer_id = ?", buyerId)
 
 	if request.Status != "" {
 		result = result.Where("purchases.status = ?", request.Status)
@@ -93,6 +94,67 @@ func (r *purchaseRepository) List(userId uint64, request *requests.ListPurchase)
 
 	if request.PaymentMethod != "" {
 		result = result.Where("purchases.payment_method = ?", request.PaymentMethod)
+	}
+
+	switch request.OrderPrice {
+	case "asc":
+		result = result.Order("purchases.price_per_mwh ASC")
+	case "desc":
+		result = result.Order("purchases.price_per_mwh DESC")
+	}
+
+	switch request.OrderQuantity {
+	case "asc":
+		result = result.Order("purchases.quantity_mwh ASC")
+	case "desc":
+		result = result.Order("purchases.quantity_mwh DESC")
+	}
+
+	result = result.Scopes(scopes.Paginate(r.db, request.Page, request.PageSize))
+
+	if err := result.Find(&purchases).Error; err != nil {
+		mlog.Log("Failed to list purchases: " + err.Error())
+		return nil, err
+	}
+
+	var paginationWrapper = utils.NewPaginationWrapper(request.Page, request.PageSize, purchases)
+
+	return paginationWrapper, nil
+}
+
+func (r *purchaseRepository) ListSold(sellerId uint64, request *requests.ListSold) (*utils.PaginationWrapper[*models.Purchase], error) {
+	var purchases []*models.Purchase
+
+	result := r.db.
+		Preload("Buyer").
+		Preload("Offer", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, uuid, seller_id").
+				Where("seller_id = ?", sellerId)
+		}).
+		Preload("Offer.Seller", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, uuid, name")
+		})
+
+	if request.Status != "" {
+		result = result.Where("purchases.status = ?", request.Status)
+	}
+
+	if request.PaymentMethod != "" {
+		result = result.Where("purchases.payment_method = ?", request.PaymentMethod)
+	}
+
+	switch request.OrderPrice {
+	case "asc":
+		result = result.Order("purchases.price_per_mwh ASC")
+	case "desc":
+		result = result.Order("purchases.price_per_mwh DESC")
+	}
+
+	switch request.OrderQuantity {
+	case "asc":
+		result = result.Order("purchases.quantity_mwh ASC")
+	case "desc":
+		result = result.Order("purchases.quantity_mwh DESC")
 	}
 
 	result = result.Scopes(scopes.Paginate(r.db, request.Page, request.PageSize))
