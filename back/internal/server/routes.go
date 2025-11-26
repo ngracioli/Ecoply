@@ -85,10 +85,18 @@ func registerRoutes(router *gin.Engine, s *ServerContext) {
 			jwtService,
 		))
 		{
-			purchases.GET("", purchaseHandlers.List)
+			purchases.GET("", purchaseHandlers.ListPurchases)
 			purchases.GET(":uuid", purchaseHandlers.FindByUuid)
 			purchases.POST(":uuid/cancel", purchaseHandlers.Cancel)
 			purchases.GET(":uuid/contract", contractHandlers.Get)
+		}
+
+		sales := v1.Group("sales", middlewares.JwtAuthMiddleware(
+			s.Services.UserService,
+			jwtService,
+		), middlewares.SupplierMiddleware(s.Services.UserTypeService))
+		{
+			sales.GET("", purchaseHandlers.ListSales)
 		}
 
 		me := v1.Group("me").Use(middlewares.JwtAuthMiddleware(

@@ -23,7 +23,7 @@ type OfferService interface {
 	Update(user *models.User, uuid string, request *requests.UpdateOffer) *merr.ResponseError
 	Delete(user *models.User, uuid string) *merr.ResponseError
 	List(params *requests.ListOffers, user *models.User) (*utils.PaginationWrapper[*resources.Offer], *merr.ResponseError)
-	Purchases(offerUuid string, request *requests.ListPurchasesFromOffer, user *models.User) (*utils.PaginationWrapper[*resources.Purchase], *merr.ResponseError)
+	Purchases(offerUuid string, request *requests.ListPurchasesFromOffer, user *models.User) ([]*resources.Purchase, *merr.ResponseError)
 	UpdateExpiredOffers() error
 }
 
@@ -357,7 +357,7 @@ func (s *offerService) UpdateExpiredOffers() error {
 	return s.offerRepo.UpdateExpiredOffers()
 }
 
-func (s *offerService) Purchases(offerUuid string, request *requests.ListPurchasesFromOffer, user *models.User) (*utils.PaginationWrapper[*resources.Purchase], *merr.ResponseError) {
+func (s *offerService) Purchases(offerUuid string, request *requests.ListPurchasesFromOffer, user *models.User) ([]*resources.Purchase, *merr.ResponseError) {
 	var offer *models.Offer
 	var err error
 
@@ -372,23 +372,16 @@ func (s *offerService) Purchases(offerUuid string, request *requests.ListPurchas
 		return nil, merr.NewResponseError(http.StatusForbidden, ErrUserIsNotTheOfferOwner)
 	}
 
-	var list *utils.PaginationWrapper[*models.Purchase]
-	list, err = s.offerRepo.Purchases(offerUuid, request)
+	purchases, err := s.offerRepo.Purchases(offerUuid, request)
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
 
-	var response utils.PaginationWrapper[*resources.Purchase]
+	response := make([]*resources.Purchase, 0, len(purchases))
 
-	response.Page = list.Page
-	response.PageSize = list.PageSize
-	response.HasNext = list.HasNext
-	response.HasPrev = list.HasPrev
-	response.Data = make([]*resources.Purchase, 0, len(list.Data))
-
-	for _, purchase := range list.Data {
+	for _, purchase := range purchases {
 		var createdAt time.Time = utils.TruncateDateToLocal(purchase.CreatedAt)
-		response.Data = append(response.Data, &resources.Purchase{
+		response = append(response, &resources.Purchase{
 			Uuid:          purchase.Uuid,
 			QuantityMwh:   purchase.QuantityMwh,
 			PricePerMwh:   purchase.PricePerMwh,
@@ -396,9 +389,11 @@ func (s *offerService) Purchases(offerUuid string, request *requests.ListPurchas
 			PaymentMethod: purchase.PaymentMethod,
 			OfferUuid:     purchase.Offer.Uuid,
 			SellerUuid:    purchase.Offer.Seller.Uuid,
+			BuyerName:     purchase.Buyer.Name,
+			SellerName:    purchase.Offer.Seller.Name,
 			CreatedAt:     createdAt.Format(time.RFC3339),
 		})
 	}
 
-	return &response, nil
+	return response, nil
 }
