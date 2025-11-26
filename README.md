@@ -166,16 +166,17 @@ O **Diagrama Físico** completo está disponível na seção de anexos.
 cd frontend
 npm install
 npm run dev
+```
+* Acesse a aplicação em: 👉 http://localhost:5173/
 
-Acesse a aplicação em: 👉 http://localhost:5173/
+### 2. ⚙️ Rodando o Backend (Golang)
 
-2. ⚙️ Rodando o Backend (Golang)
-
-Bash
+```Bash
 
 cd backend
 go mod tidy
 go run cmd/main.go
+```
 
 A API estará rodando em: 👉 http://localhost:8080/
 
