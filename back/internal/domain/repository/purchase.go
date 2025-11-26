@@ -86,7 +86,8 @@ func (r *purchaseRepository) ListPurchases(buyerId uint64, request *requests.Lis
 		Preload("Offer.Seller", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id, uuid, name")
 		}).
-		Where("purchases.buyer_id = ?", buyerId)
+		Where("purchases.buyer_id = ?", buyerId).
+		Select("purchases.*, (purchases.price_per_mwh * purchases.quantity_mwh) AS purchase_value")
 
 	if request.Status != "" {
 		result = result.Where("purchases.status = ?", request.Status)
@@ -98,9 +99,9 @@ func (r *purchaseRepository) ListPurchases(buyerId uint64, request *requests.Lis
 
 	switch request.OrderPrice {
 	case "asc":
-		result = result.Order("purchases.price_per_mwh ASC")
+		result = result.Order("purchase_value ASC")
 	case "desc":
-		result = result.Order("purchases.price_per_mwh DESC")
+		result = result.Order("purchase_value DESC")
 	}
 
 	switch request.OrderQuantity {
@@ -133,7 +134,8 @@ func (r *purchaseRepository) ListSold(sellerId uint64, request *requests.ListSol
 		}).
 		Preload("Offer.Seller", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id, uuid, name")
-		})
+		}).
+		Select("purchases.*, (purchases.price_per_mwh * purchases.quantity_mwh) AS purchase_value")
 
 	if request.Status != "" {
 		result = result.Where("purchases.status = ?", request.Status)
@@ -145,9 +147,9 @@ func (r *purchaseRepository) ListSold(sellerId uint64, request *requests.ListSol
 
 	switch request.OrderPrice {
 	case "asc":
-		result = result.Order("purchases.price_per_mwh ASC")
+		result = result.Order("purchase_value ASC")
 	case "desc":
-		result = result.Order("purchases.price_per_mwh DESC")
+		result = result.Order("purchase_value DESC")
 	}
 
 	switch request.OrderQuantity {
