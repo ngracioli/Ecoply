@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import Dialog from "primevue/dialog";
-import { AlertTriangle } from "lucide-vue-next";
+import { AlertTriangle, CheckCircle, Info } from "lucide-vue-next";
 
 interface ConfirmDialogProps {
   visible: boolean;
@@ -9,7 +9,7 @@ interface ConfirmDialogProps {
   message?: string;
   confirmText?: string;
   cancelText?: string;
-  variant?: "danger" | "warning" | "info";
+  variant?: "danger" | "warning" | "info" | "success";
   loading?: boolean;
 }
 
@@ -43,6 +43,7 @@ const variantConfig = computed(() => {
       iconColor: "text-red-600",
       confirmBg: "bg-red-600 hover:bg-red-700",
       confirmBgDisabled: "bg-red-400",
+      icon: AlertTriangle,
     },
     warning: {
       gradient: "from-amber-500 to-orange-600",
@@ -50,6 +51,7 @@ const variantConfig = computed(() => {
       iconColor: "text-amber-600",
       confirmBg: "bg-amber-600 hover:bg-amber-700",
       confirmBgDisabled: "bg-amber-400",
+      icon: AlertTriangle,
     },
     info: {
       gradient: "from-blue-500 to-indigo-600",
@@ -57,6 +59,15 @@ const variantConfig = computed(() => {
       iconColor: "text-blue-600",
       confirmBg: "bg-blue-600 hover:bg-blue-700",
       confirmBgDisabled: "bg-blue-400",
+      icon: Info,
+    },
+    success: {
+      gradient: "from-emerald-500 to-green-600",
+      iconBg: "bg-emerald-100",
+      iconColor: "text-emerald-600",
+      confirmBg: "bg-emerald-600 hover:bg-emerald-700",
+      confirmBgDisabled: "bg-emerald-400",
+      icon: CheckCircle,
     },
   };
 
@@ -85,7 +96,11 @@ const handleCancel = () => {
     <template #header>
       <div class="flex items-center gap-3">
         <div :class="['rounded-full p-2', variantConfig.iconBg]">
-          <AlertTriangle :size="24" :class="variantConfig.iconColor" />
+          <component
+            :is="variantConfig.icon"
+            :size="24"
+            :class="variantConfig.iconColor"
+          />
         </div>
         <h3 class="text-xl font-bold text-neutral-900">
           {{ title }}
@@ -93,18 +108,19 @@ const handleCancel = () => {
       </div>
     </template>
 
-    <div class="py-4">
-      <p class="text-sm leading-relaxed text-neutral-600">
+    <div class="py-6">
+      <p class="text-base leading-relaxed text-neutral-600">
         {{ message }}
       </p>
     </div>
 
     <template #footer>
-      <div class="flex gap-3">
+      <div class="flex flex-col gap-3 sm:flex-row">
         <button
+          v-if="cancelText"
           @click="handleCancel"
           :disabled="loading"
-          class="flex-1 rounded-lg border-2 border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 transition-all duration-200 hover:border-neutral-400 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+          class="flex-1 rounded-lg border-2 border-neutral-300 bg-white px-6 py-3 text-sm font-medium whitespace-nowrap text-neutral-700 transition-all duration-200 hover:border-neutral-400 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {{ cancelText }}
         </button>
@@ -112,7 +128,8 @@ const handleCancel = () => {
           @click="handleConfirm"
           :disabled="loading"
           :class="[
-            'flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white shadow-md transition-all duration-200 hover:shadow-lg disabled:cursor-not-allowed disabled:shadow-none',
+            cancelText ? 'flex-1' : 'w-full',
+            'rounded-lg px-6 py-3 text-sm font-medium whitespace-nowrap text-white shadow-md transition-all duration-200 hover:shadow-lg disabled:cursor-not-allowed disabled:shadow-none',
             loading ? variantConfig.confirmBgDisabled : variantConfig.confirmBg,
           ]"
         >

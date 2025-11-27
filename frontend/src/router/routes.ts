@@ -1,6 +1,6 @@
 import type { AppRoute } from "./types";
 import { RouteNames, RoutePaths } from "./types";
-import LandingPage from "../views/LandingPage.vue";
+import LandingPage from "../views/landing/LandingPage.vue";
 import Login from "../views/auth/Login.vue";
 import Register from "../views/auth/Register.vue";
 
@@ -29,13 +29,13 @@ export const routes: AppRoute[] = [
   {
     path: RoutePaths.OFFER_DETAIL,
     name: RouteNames.OFFER_DETAIL,
-    component: () => import("../views/OfferDetail.vue"),
+    component: () => import("../views/offers/OfferDetail.vue"),
     meta: { requiresAuth: true },
   },
   {
     path: RoutePaths.CHECKOUT,
     name: RouteNames.CHECKOUT,
-    component: () => import("../views/Checkout.vue"),
+    component: () => import("../views/checkout/Checkout.vue"),
     meta: { requiresAuth: true },
   },
   {

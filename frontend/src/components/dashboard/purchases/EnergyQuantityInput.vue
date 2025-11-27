@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { ref, watch } from "vue";
 
 interface Props {
   modelValue: number | null;
@@ -8,21 +8,73 @@ interface Props {
 
 interface Emits {
   (e: "update:modelValue", value: number | null): void;
+  (e: "validationChange", isValid: boolean): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const quantity = computed({
-  get: () => props.modelValue,
-  set: (value) => {
-    if (value && value > props.maxQuantity) {
-      emit("update:modelValue", props.maxQuantity);
+const hasError = ref(false);
+const errorMessage = ref("");
+const inputValue = ref<string>("");
+
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (newValue === null || newValue === undefined) {
+      inputValue.value = "";
     } else {
-      emit("update:modelValue", value);
+      inputValue.value = String(newValue);
     }
   },
-});
+  { immediate: true },
+);
+
+const validateAndEmit = (value: string) => {
+  if (value === "" || value === null) {
+    hasError.value = false;
+    errorMessage.value = "";
+    emit("update:modelValue", null);
+    emit("validationChange", false);
+    return;
+  }
+
+  const numValue = parseFloat(value);
+
+  if (isNaN(numValue)) {
+    hasError.value = true;
+    errorMessage.value = "Digite um número válido";
+    emit("validationChange", false);
+    return;
+  }
+
+  if (numValue < 0.1) {
+    hasError.value = true;
+    errorMessage.value = "A quantidade mínima é 0.1 MWh";
+    emit("validationChange", false);
+    emit("update:modelValue", numValue);
+    return;
+  }
+
+  if (numValue > props.maxQuantity) {
+    hasError.value = true;
+    errorMessage.value = `A quantidade máxima disponível é ${formatQuantity(props.maxQuantity)}`;
+    emit("validationChange", false);
+    emit("update:modelValue", numValue);
+    return;
+  }
+
+  hasError.value = false;
+  errorMessage.value = "";
+  emit("update:modelValue", numValue);
+  emit("validationChange", true);
+};
+
+const handleInput = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  inputValue.value = target.value;
+  validateAndEmit(target.value);
+};
 
 const formatQuantity = (mwh: number) => {
   return `${mwh.toLocaleString("pt-BR")} MWh`;
@@ -41,15 +93,24 @@ const formatQuantity = (mwh: number) => {
           Quantidade (MWh)
         </label>
         <input
-          v-model.number="quantity"
+          :value="inputValue"
+          @input="handleInput"
           type="number"
           step="0.1"
           :max="maxQuantity"
           min="0.1"
           placeholder="Digite a quantidade desejada"
-          class="w-full rounded-lg border border-neutral-300 px-4 py-3 text-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none"
+          :class="[
+            'w-full rounded-lg border px-4 py-3 text-lg transition-colors focus:outline-none',
+            hasError
+              ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+              : 'border-neutral-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20',
+          ]"
         />
-        <p class="mt-2 text-sm text-neutral-500">
+        <p v-if="hasError" class="mt-2 text-sm font-medium text-red-600">
+          {{ errorMessage }}
+        </p>
+        <p v-else class="mt-2 text-sm text-neutral-500">
           Disponível: {{ formatQuantity(maxQuantity) }} | Mínimo: 0.1 MWh
         </p>
       </div>
