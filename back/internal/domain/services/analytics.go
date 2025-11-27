@@ -71,7 +71,7 @@ func (s *analyticsService) makeSupplierInfo(user *models.User) (*resources.Suppl
 		Joins("JOIN offers ON offers.id = purchases.offer_id").
 		Where("offers.seller_id = ?", user.ID).
 		Where("purchases.status = ?", models.PurchaseStatusCompleted).
-		Select("SUM(purchases.quantity_mwh * purchases.price_per_mwh) AS total").
+		Select("COALESCE(SUM(purchases.quantity_mwh * purchases.price_per_mwh), 0) AS total").
 		Scan(&moneyEarned).Error
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
@@ -91,12 +91,12 @@ func (s *analyticsService) makeSupplierInfo(user *models.User) (*resources.Suppl
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
 
-	err = s.db.Model(&models.Offer{}).Where("seller_id = ?", user.ID).Select("AVG(price_per_mwh) AS avg_price").Scan(&userPriceAvg).Error
+	err = s.db.Model(&models.Offer{}).Where("seller_id = ?", user.ID).Select("COALESCE(AVG(price_per_mwh), 0) AS avg_price").Scan(&userPriceAvg).Error
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
 
-	err = s.db.Model(&models.Offer{}).Select("AVG(price_per_mwh) AS avg_price").Scan(&platformPriceAvg).Error
+	err = s.db.Model(&models.Offer{}).Select("COALESCE(AVG(price_per_mwh), 0) AS avg_price").Scan(&platformPriceAvg).Error
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
@@ -128,7 +128,7 @@ func (s *analyticsService) makeBuyerInfo(user *models.User) (*resources.BuyerInf
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
 
-	err = s.db.Model(&models.Purchase{}).Select("SUM(quantity_mwh) AS total").Where("buyer_id = ?", user.ID).Scan(&energyTransacted).Error
+	err = s.db.Model(&models.Purchase{}).Select("COALESCE(SUM(quantity_mwh), 0) AS total").Where("buyer_id = ?", user.ID).Scan(&energyTransacted).Error
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
