@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useRouter } from "vue-router";
-import { Calendar, MapPin } from "lucide-vue-next";
-import type { OfferListItem } from "../../types/responses/offers";
-import type { EnergyType } from "../../types/offer";
+import { Calendar } from "lucide-vue-next";
+import type { OfferListItem } from "../../../types/responses/offers";
+import type { EnergyType } from "../../../types/offer";
+import ProgressBar from "../../shared/ProgressBar.vue";
+import SubmarketBadge from "../../shared/SubmarketBadge.vue";
 
 interface Props {
   offer: OfferListItem;
   actionButtonText?: string;
+}
+
+interface Emits {
+  (e: "click"): void;
 }
 
 interface EnergyTypeConfig {
@@ -17,7 +22,7 @@ interface EnergyTypeConfig {
 }
 
 const props = defineProps<Props>();
-const router = useRouter();
+const emit = defineEmits<Emits>();
 
 const ENERGY_TYPE_CONFIG: Record<EnergyType, EnergyTypeConfig> = {
   solar: {
@@ -53,8 +58,7 @@ const formatPrice = (price: number): string => {
 };
 
 const formatQuantity = (quantityMwh: number): string => {
-  const quantityKwh = (quantityMwh * 1000).toFixed(0);
-  return `${parseInt(quantityKwh).toLocaleString("pt-BR")} kWh`;
+  return `${quantityMwh.toLocaleString("pt-BR")} MWh`;
 };
 
 const formatDate = (dateString: string): string => {
@@ -76,6 +80,7 @@ const displayData = computed(() => ({
   description: props.offer.description,
   price: formatPrice(props.offer.price_per_mwh),
   quantity: formatQuantity(props.offer.remaining_quantity_mwh),
+  initialQuantity: formatQuantity(props.offer.initial_quantity_mwh),
   deadline: formatDate(props.offer.period_end),
   location: props.offer.submarket,
   type: props.offer.energy_type,
@@ -83,8 +88,8 @@ const displayData = computed(() => ({
 
 const typeConfig = computed(() => getEnergyTypeConfig(displayData.value.type));
 
-const viewDetails = () => {
-  router.push(`/offer/${props.offer.uuid}`);
+const handleActionClick = () => {
+  emit("click");
 };
 </script>
 
@@ -104,7 +109,9 @@ const viewDetails = () => {
             <span class="text-sm text-neutral-500">/MWh</span>
           </div>
           <p class="mt-1 text-sm font-medium text-neutral-600">
-            {{ displayData.quantity }} disponíveis
+            Disponível:
+            <span class="font-semibold">{{ displayData.quantity }}</span> de
+            <span class="font-semibold">{{ displayData.initialQuantity }}</span>
           </p>
         </div>
         <span
@@ -117,14 +124,24 @@ const viewDetails = () => {
         </span>
       </div>
 
-      <p class="mt-4 text-sm leading-relaxed text-neutral-600">
-        {{ displayData.description }}
-      </p>
+      <div class="mt-4">
+        <ProgressBar
+          :current-value="offer.remaining_quantity_mwh"
+          :total-value="offer.initial_quantity_mwh"
+          :show-percentage="true"
+          height="sm"
+          gradient-from="emerald-500"
+          gradient-to="green-500"
+        />
+      </div>
 
       <div class="mt-6 flex flex-col gap-3 border-t border-neutral-100 pt-4">
-        <div class="flex items-center gap-2 text-sm text-neutral-600">
-          <MapPin :size="16" class="text-neutral-400" />
-          <span>{{ displayData.location }}</span>
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-neutral-500">Submercado:</span>
+          <SubmarketBadge
+            :offer-submarket="displayData.location"
+            size="small"
+          />
         </div>
         <div class="flex items-center gap-2 text-sm text-neutral-600">
           <Calendar :size="16" class="text-neutral-400" />
@@ -134,7 +151,7 @@ const viewDetails = () => {
 
       <div class="mt-6 flex flex-col gap-2">
         <button
-          @click="viewDetails"
+          @click="handleActionClick"
           class="w-full rounded-lg border-2 border-emerald-500 bg-transparent py-2.5 text-sm font-medium text-emerald-600 transition-all duration-200 hover:bg-emerald-500 hover:text-white"
         >
           {{ actionButtonText || "Ver Detalhes" }}

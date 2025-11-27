@@ -14,6 +14,8 @@ export const enum RouteNames {
   REGISTER = "Register",
   DASHBOARD = "Dashboard",
   OFFER_DETAIL = "OfferDetail",
+  CHECKOUT = "Checkout",
+  MANAGE_OFFER = "ManageOffer",
 }
 
 export const enum RoutePaths {
@@ -22,4 +24,6 @@ export const enum RoutePaths {
   REGISTER = "/register",
   DASHBOARD = "/dashboard",
   OFFER_DETAIL = "/offer/:id",
+  CHECKOUT = "/checkout/:id",
+  MANAGE_OFFER = "/dashboard/offer/:id",
 }

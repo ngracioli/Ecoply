@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { useStore } from "vuex";
 import { Bell } from "lucide-vue-next";
-import type { RootState } from "../../store";
+import type { RootState } from "../../../store";
 
 type GreetingPeriod = "Bom dia" | "Boa tarde" | "Boa noite";
 

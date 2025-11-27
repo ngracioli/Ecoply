@@ -4,15 +4,15 @@ import { computed, ref } from "vue";
 const props = withDefaults(
   defineProps<{
     modelValue: string | number | null;
-    id?: string; // used for input id and label for attribute
+    id?: string;
     label?: string;
-    hint?: string; // helper text when no error
-    errorMessage?: string; // message to show and also sets error state
+    hint?: string;
+    errorMessage?: string;
     required?: boolean;
     placeholder?: string;
     disabled?: boolean;
-    type?: string; // base input type (ignored if password prop active)
-    password?: boolean; // enable password visibility toggle
+    type?: string;
+    password?: boolean;
     showPasswordLabel?: string;
     hidePasswordLabel?: string;
   }>(),
@@ -46,7 +46,6 @@ function onInput(e: Event) {
   emit("update:modelValue", target.value);
 }
 
-// password toggle logic
 const show = ref(false);
 const inputType = computed(() => {
   if (props.password) {
@@ -98,7 +97,6 @@ function togglePassword() {
           class="text-lg leading-none"
         ></i>
       </button>
-      <!-- Right slot (still supported) -->
       <slot v-if="!password" name="right" />
     </div>
 

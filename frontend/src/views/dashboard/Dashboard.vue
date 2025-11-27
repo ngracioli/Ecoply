@@ -3,13 +3,13 @@ import { onMounted, ref } from "vue";
 import type { Component } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import HistorySection from "../../components/dashboard/HistorySection.vue";
-import ManageOffersSection from "../../components/dashboard/ManageOffersSection.vue";
-import OffersSection from "../../components/dashboard/OffersSection.vue";
-import OverviewSection from "../../components/dashboard/OverviewSection.vue";
-import ProfileSection from "../../components/dashboard/ProfileSection.vue";
-import SideBarDashboard from "../../components/dashboard/SideBarDashboard.vue";
-import TopBar from "../../components/dashboard/TopBar.vue";
+import HistorySection from "../../components/dashboard/sections/HistorySection.vue";
+import ManageOffersSection from "../../components/dashboard/sections/ManageOffersSection.vue";
+import OffersSection from "../../components/dashboard/sections/OffersSection.vue";
+import OverviewSection from "../../components/dashboard/sections/OverviewSection.vue";
+import ProfileSection from "../../components/dashboard/sections/ProfileSection.vue";
+import SideBarDashboard from "../../components/dashboard/layout/SideBarDashboard.vue";
+import TopBar from "../../components/dashboard/layout/TopBar.vue";
 
 type DashboardSection =
   | "overview"

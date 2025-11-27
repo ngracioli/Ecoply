@@ -8,7 +8,7 @@ const props = withDefaults(
     size?: "sm" | "md" | "lg";
     loading?: boolean;
     disabled?: boolean;
-    full?: boolean; // full width
+    full?: boolean;
   }>(),
   {
     type: "button",
