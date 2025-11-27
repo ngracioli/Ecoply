@@ -1,108 +1,152 @@
 <script setup lang="ts">
-import IconSquared from "../shared/IconSquared.vue";
+import {
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Mail,
+  Phone,
+  MapPin,
+} from "lucide-vue-next";
 </script>
 
 <template>
   <footer class="border-t border-gray-200 bg-white">
-    <!-- Container principal usando FLEX -->
-    <div
-      class="mx-auto flex max-w-6xl items-start justify-between space-x-16 px-8 py-10"
-    >
-      <!-- Coluna 1 - SunShare -->
-      <div class="flex max-w-xs flex-col items-start">
-        <div class="mb-2">
-          <h1 class="text-primary-color text-2xl font-extrabold">Ecoply</h1>
+    <div class="mx-auto max-w-7xl px-8 py-12">
+      <div class="grid gap-12 md:grid-cols-4">
+        <div class="md:col-span-2">
+          <div class="mb-4 flex items-center gap-2">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600"
+            >
+              <i class="pi pi-bolt text-xl font-bold text-white"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900">Ecoply</h2>
+          </div>
+          <p class="mb-6 max-w-sm text-sm leading-relaxed text-gray-600">
+            Conectando produtores e consumidores de energia renovável para um
+            futuro mais sustentável e descentralizado.
+          </p>
+          <div class="flex gap-3">
+            <a
+              href="#"
+              class="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-600"
+            >
+              <Facebook :size="18" :stroke-width="2" />
+            </a>
+            <a
+              href="#"
+              class="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-600"
+            >
+              <Twitter :size="18" :stroke-width="2" />
+            </a>
+            <a
+              href="#"
+              class="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-600"
+            >
+              <Instagram :size="18" :stroke-width="2" />
+            </a>
+            <a
+              href="#"
+              class="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-600"
+            >
+              <Linkedin :size="18" :stroke-width="2" />
+            </a>
+          </div>
         </div>
-        <p class="mt-2 text-base text-gray-800">
-          Conectando produtores e consumidores de energia renovável para um
-          futuro mais sustentável e descentralizado.
+
+        <div>
+          <h3 class="mb-4 text-sm font-semibold text-gray-900">Navegação</h3>
+          <ul class="space-y-3">
+            <li>
+              <a
+                href="#home"
+                class="text-sm text-gray-600 transition-colors hover:text-emerald-600"
+              >
+                Início
+              </a>
+            </li>
+            <li>
+              <a
+                href="#how-it-works"
+                class="text-sm text-gray-600 transition-colors hover:text-emerald-600"
+              >
+                Como Funciona
+              </a>
+            </li>
+            <li>
+              <a
+                href="#benefits"
+                class="text-sm text-gray-600 transition-colors hover:text-emerald-600"
+              >
+                Benefícios
+              </a>
+            </li>
+            <li>
+              <a
+                href="#offer-demonstration"
+                class="text-sm text-gray-600 transition-colors hover:text-emerald-600"
+              >
+                Ofertas
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="mb-4 text-sm font-semibold text-gray-900">Contato</h3>
+          <ul class="space-y-3">
+            <li>
+              <a
+                href="mailto:contato@ecoply.com.br"
+                class="flex items-center gap-2 text-sm text-gray-600 transition-colors hover:text-emerald-600"
+              >
+                <Mail :size="16" :stroke-width="2" />
+                <span>contato@ecoply.com.br</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href="tel:+551999999999"
+                class="flex items-center gap-2 text-sm text-gray-600 transition-colors hover:text-emerald-600"
+              >
+                <Phone :size="16" :stroke-width="2" />
+                <span>(19) 9999-9999</span>
+              </a>
+            </li>
+            <li class="flex items-center gap-2 text-sm text-gray-600">
+              <MapPin :size="16" :stroke-width="2" />
+              <span>Rio Claro, SP</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div
+        class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-gray-200 pt-8 md:flex-row"
+      >
+        <p class="text-sm text-gray-600">
+          © 2025
+          <span class="font-semibold text-emerald-600">Ecoply</span>. Todos os
+          direitos reservados.
         </p>
-        <div class="mt-6 flex space-x-4 text-2xl">
+        <div class="flex gap-6">
           <a
             href="#"
-            class="hover:text-accent-color transform transition hover:scale-110"
+            class="text-sm text-gray-600 transition-colors hover:text-emerald-600"
           >
-            <IconSquared :icon="'pi-facebook'" />
+            Privacidade
           </a>
           <a
             href="#"
-            class="hover:text-accent-color transform transition hover:scale-110"
+            class="text-sm text-gray-600 transition-colors hover:text-emerald-600"
           >
-            <IconSquared :icon="'pi-twitter'" />
-          </a>
-          <a
-            href="#"
-            class="hover:text-accent-color transform transition hover:scale-110"
-          >
-            <IconSquared :icon="'pi-instagram'" />
-          </a>
-          <a
-            href="#"
-            class="hover:text-accent-color transform transition hover:scale-110"
-          >
-            <IconSquared :icon="'pi-linkedin'" />
+            Termos de Uso
           </a>
         </div>
       </div>
-
-      <div class="flex min-w-[180px] flex-col">
-        <h2 class="text-primary-color mb-3 text-lg font-semibold">Navegação</h2>
-        <ul class="space-y-2 text-base text-gray-700">
-          <li>
-            <a href="#" class="hover:text-accent-color transition">Início</a>
-          </li>
-          <li>
-            <a href="#" class="hover:text-accent-color transition"
-              >Como Funciona</a
-            >
-          </li>
-          <li>
-            <a href="#" class="hover:text-accent-color transition"
-              >Benefícios</a
-            >
-          </li>
-          <li>
-            <a href="#" class="hover:text-accent-color transition">Impacto</a>
-          </li>
-          <li>
-            <a href="#" class="hover:text-accent-color transition">Contato</a>
-          </li>
-        </ul>
-      </div>
-
-      <div class="flex min-w-[200px] flex-col items-start">
-        <h2 class="text-primary-color mb-3 text-lg font-semibold">Contato</h2>
-        <ul class="space-y-2 text-base text-gray-700">
-          <li>
-            <a
-              href="mailto:contato@sunshare.com.br"
-              class="hover:text-accent-color transition"
-              >contato@ecoply.com.br</a
-            >
-          </li>
-          <li>
-            <a
-              href="tel:+551999999999"
-              class="hover:text-accent-color transition"
-              >(19) 9999-9999</a
-            >
-          </li>
-          <li>Rio Claro, SP</li>
-        </ul>
-      </div>
-    </div>
-
-    <div
-      class="mx-auto mt-8 max-w-3/4 border-t border-gray-200 py-4 text-center text-sm text-gray-800"
-    >
-      © 2025 <span class="text-primary-color font-bold">Ecoply</span>. Todos os
-      direitos reservados.
     </div>
   </footer>
 </template>
 
-<style scoped>
-footer {
-  font-family: "Inter", "Roboto", Arial, sans-serif;
-}
-</style>
+<style scoped></style>

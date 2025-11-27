@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import axios from "../axios";
-import type { OfferListItem } from "../types/responses/offers";
+import api from "../../axios";
+import { OFFER_ENDPOINTS } from "../../api/endpoints";
+import type {
+  OfferListItem,
+  OfferDetailResponse,
+} from "../../types/responses/offers";
 import {
   Calendar,
   MapPin,
@@ -12,6 +16,8 @@ import {
   ArrowLeft,
   User,
 } from "lucide-vue-next";
+import ProgressBar from "../../components/shared/ProgressBar.vue";
+import SubmarketBadge from "../../components/shared/SubmarketBadge.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -25,7 +31,9 @@ const fetchOffer = async () => {
   try {
     loading.value = true;
     error.value = null;
-    const response = await axios.get(`/api/v1/offers/${offerId.value}`);
+    const response = await api.get<OfferDetailResponse>(
+      OFFER_ENDPOINTS.DETAIL(offerId.value),
+    );
     offer.value = response.data.data;
   } catch (err: any) {
     error.value =
@@ -78,9 +86,8 @@ const formatPrice = (price: number) => {
   return `R$ ${price.toFixed(2).replace(".", ",")}`;
 };
 
-const formatQuantity = (mwh: number) => {
-  const kwh = (mwh * 1000).toFixed(0);
-  return `${parseInt(kwh).toLocaleString("pt-BR")} kWh`;
+const formatQuantity = (quantityMwh: number) => {
+  return `${quantityMwh.toLocaleString("pt-BR")} MWh`;
 };
 
 const formatDate = (dateString: string) => {
@@ -101,38 +108,16 @@ const formatDateTime = (dateString: string) => {
   });
 };
 
-const getStatusBadge = (status: string) => {
-  const statusConfig = {
-    active: {
-      label: "Ativa",
-      class: "bg-green-100 text-green-700 border-green-300",
-    },
-    inactive: {
-      label: "Inativa",
-      class: "bg-gray-100 text-gray-700 border-gray-300",
-    },
-    expired: {
-      label: "Expirada",
-      class: "bg-red-100 text-red-700 border-red-300",
-    },
-  };
-  return (
-    statusConfig[status as keyof typeof statusConfig] || statusConfig.active
-  );
-};
-
-const calculatePercentageRemaining = () => {
-  if (!offer.value) return 0;
-  return (
-    (offer.value.remaining_quantity_mwh / offer.value.initial_quantity_mwh) *
-    100
-  ).toFixed(0);
+const goToCheckout = () => {
+  router.push({
+    name: "Checkout",
+    params: { id: offerId.value },
+  });
 };
 </script>
 
 <template>
   <div class="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100">
-    <!-- Header -->
     <header class="border-b border-neutral-200 bg-white shadow-sm">
       <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between">
@@ -151,9 +136,7 @@ const calculatePercentageRemaining = () => {
       </div>
     </header>
 
-    <!-- Content -->
     <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <!-- Loading State -->
       <div v-if="loading" class="flex items-center justify-center py-12">
         <div class="text-center">
           <div
@@ -163,7 +146,6 @@ const calculatePercentageRemaining = () => {
         </div>
       </div>
 
-      <!-- Error State -->
       <div
         v-else-if="error"
         class="rounded-lg border border-red-200 bg-red-50 p-6 text-center"
@@ -177,13 +159,10 @@ const calculatePercentageRemaining = () => {
         </button>
       </div>
 
-      <!-- Offer Details -->
       <div v-else-if="offer" class="space-y-6">
-        <!-- Main Card -->
         <div
           class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-lg"
         >
-          <!-- Gradient Header -->
           <div
             :class="[
               'h-3 w-full bg-gradient-to-r',
@@ -192,10 +171,12 @@ const calculatePercentageRemaining = () => {
           ></div>
 
           <div class="p-8">
-            <!-- Header Info -->
             <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
               <div class="flex-1">
-                <div class="mb-2 flex flex-wrap items-center gap-3">
+                <div class="flex flex-wrap items-center gap-3">
+                  <h2 class="text-2xl font-bold text-neutral-900">
+                    {{ offer.description }}
+                  </h2>
                   <span
                     :class="[
                       'rounded-full border px-4 py-1.5 text-sm font-medium capitalize',
@@ -204,18 +185,7 @@ const calculatePercentageRemaining = () => {
                   >
                     {{ getTypeLabel(offer.energy_type) }}
                   </span>
-                  <span
-                    :class="[
-                      'rounded-full border px-4 py-1.5 text-sm font-medium',
-                      getStatusBadge(offer.status).class,
-                    ]"
-                  >
-                    {{ getStatusBadge(offer.status).label }}
-                  </span>
                 </div>
-                <h2 class="text-2xl font-bold text-neutral-900">
-                  {{ offer.description }}
-                </h2>
               </div>
               <div class="text-right">
                 <div class="flex items-baseline gap-1">
@@ -227,9 +197,7 @@ const calculatePercentageRemaining = () => {
               </div>
             </div>
 
-            <!-- Stats Grid -->
             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <!-- Quantidade Disponível -->
               <div
                 class="rounded-lg border border-neutral-200 bg-neutral-50 p-6"
               >
@@ -245,24 +213,19 @@ const calculatePercentageRemaining = () => {
                   {{ formatQuantity(offer.remaining_quantity_mwh) }}
                 </p>
                 <div class="mt-3">
-                  <div
-                    class="flex items-center justify-between text-sm text-neutral-600"
-                  >
-                    <span>Disponível</span>
-                    <span>{{ calculatePercentageRemaining() }}%</span>
-                  </div>
-                  <div
-                    class="mt-2 h-2 overflow-hidden rounded-full bg-neutral-200"
-                  >
-                    <div
-                      :style="{ width: `${calculatePercentageRemaining()}%` }"
-                      class="h-full bg-gradient-to-r from-emerald-500 to-green-500 transition-all"
-                    ></div>
-                  </div>
+                  <ProgressBar
+                    :current-value="offer.remaining_quantity_mwh"
+                    :total-value="offer.initial_quantity_mwh"
+                    :show-percentage="true"
+                    :show-label="true"
+                    label="Disponível"
+                    height="sm"
+                    gradient-from="emerald-500"
+                    gradient-to="green-500"
+                  />
                 </div>
               </div>
 
-              <!-- Quantidade Inicial -->
               <div
                 class="rounded-lg border border-neutral-200 bg-neutral-50 p-6"
               >
@@ -282,7 +245,6 @@ const calculatePercentageRemaining = () => {
                 </p>
               </div>
 
-              <!-- Localização -->
               <div
                 class="rounded-lg border border-neutral-200 bg-neutral-50 p-6"
               >
@@ -292,15 +254,15 @@ const calculatePercentageRemaining = () => {
                   </div>
                   <h3 class="font-semibold text-neutral-700">Submercado</h3>
                 </div>
-                <p class="text-2xl font-bold text-neutral-900">
-                  {{ offer.submarket }}
-                </p>
+                <SubmarketBadge
+                  :offer-submarket="offer.submarket"
+                  size="medium"
+                />
                 <p class="mt-2 text-sm text-neutral-600">
                   Região de fornecimento
                 </p>
               </div>
 
-              <!-- Período de Início -->
               <div
                 class="rounded-lg border border-neutral-200 bg-neutral-50 p-6"
               >
@@ -317,7 +279,6 @@ const calculatePercentageRemaining = () => {
                 </p>
               </div>
 
-              <!-- Período de Fim -->
               <div
                 class="rounded-lg border border-neutral-200 bg-neutral-50 p-6"
               >
@@ -332,7 +293,6 @@ const calculatePercentageRemaining = () => {
                 </p>
               </div>
 
-              <!-- Data de Criação -->
               <div
                 class="rounded-lg border border-neutral-200 bg-neutral-50 p-6"
               >
@@ -348,7 +308,6 @@ const calculatePercentageRemaining = () => {
               </div>
             </div>
 
-            <!-- Additional Info -->
             <div
               class="mt-6 rounded-lg border border-neutral-200 bg-neutral-50 p-6"
             >
@@ -372,17 +331,12 @@ const calculatePercentageRemaining = () => {
               </p>
             </div>
 
-            <!-- Action Buttons -->
             <div class="mt-8 flex flex-wrap gap-4">
               <button
-                class="flex-1 rounded-lg bg-gradient-to-r from-emerald-500 to-green-500 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:shadow-xl"
+                @click="goToCheckout"
+                class="flex-1 rounded-lg bg-gradient-to-r from-emerald-500 to-green-500 px-6 py-3 font-semibold text-white shadow-lg transition-all hover:shadow-xl hover:brightness-110"
               >
                 Comprar Energia
-              </button>
-              <button
-                class="rounded-lg border border-neutral-300 bg-white px-6 py-3 font-semibold text-neutral-700 transition-colors hover:bg-neutral-50"
-              >
-                Entrar em Contato
               </button>
             </div>
           </div>

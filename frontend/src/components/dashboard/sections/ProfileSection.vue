@@ -133,11 +133,10 @@ const addressFields = computed<AddressField[]>(() => {
     </div>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <!-- Profile Card -->
       <div
-        class="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md lg:col-span-1"
+        class="flex items-center justify-center rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md lg:col-span-1"
       >
-        <div class="flex flex-col items-center text-center">
+        <div class="flex w-full flex-col items-center text-center">
           <div
             class="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg"
           >
@@ -152,15 +151,9 @@ const addressFields = computed<AddressField[]>(() => {
               {{ currentUser.agent.company_name }}
             </p>
           </div>
-          <button
-            class="mt-6 w-full rounded-lg border-2 border-emerald-500 bg-transparent py-2.5 text-sm font-medium text-emerald-600 transition-all duration-200 hover:bg-emerald-500 hover:text-white"
-          >
-            Editar Perfil
-          </button>
         </div>
       </div>
 
-      <!-- Information Details -->
       <div
         class="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md lg:col-span-2"
       >
@@ -191,7 +184,6 @@ const addressFields = computed<AddressField[]>(() => {
       </div>
     </div>
 
-    <!-- Address Section -->
     <div
       class="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md"
     >
@@ -217,31 +209,11 @@ const addressFields = computed<AddressField[]>(() => {
       </div>
     </div>
 
-    <!-- Additional Settings -->
     <div
       class="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md"
     >
       <h3 class="mb-6 text-lg font-semibold text-neutral-900">Preferências</h3>
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div
-          class="flex items-center justify-between rounded-lg border border-neutral-200 p-4 transition-all duration-200 hover:border-emerald-300"
-        >
-          <div>
-            <h4 class="font-medium text-neutral-900">
-              Notificações por E-mail
-            </h4>
-            <p class="mt-1 text-sm text-neutral-500">
-              Receba atualizações importantes
-            </p>
-          </div>
-          <label class="relative inline-flex cursor-pointer items-center">
-            <input type="checkbox" class="peer sr-only" checked />
-            <div
-              class="peer h-6 w-11 rounded-full bg-neutral-300 peer-checked:bg-emerald-500 peer-focus:ring-2 peer-focus:ring-emerald-500/20 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full"
-            ></div>
-          </label>
-        </div>
-
         <div
           class="flex items-center justify-between rounded-lg border border-neutral-200 p-4 transition-all duration-200 hover:border-emerald-300"
         >
@@ -262,7 +234,6 @@ const addressFields = computed<AddressField[]>(() => {
     </div>
   </div>
 
-  <!-- Loading or No User State -->
   <div v-else class="flex h-96 items-center justify-center">
     <div class="text-center">
       <div class="mb-4 flex justify-center">

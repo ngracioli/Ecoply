@@ -8,7 +8,7 @@ export interface Offer {
   description: string;
   period_start: string;
   period_end: string;
-  status: number;
+  status: string;
   energy_type: EnergyType;
   submarket: string;
   seller_agent_uuid: string;
