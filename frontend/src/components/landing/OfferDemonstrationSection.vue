@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import EnergyOfferCard from "../dashboard/EnergyOfferCard.vue";
+import EnergyOfferCard from "../dashboard/cards/EnergyOfferCard.vue";
 import type { OfferListItem } from "../../types/responses/offers";
 
 const mockOffers: OfferListItem[] = [

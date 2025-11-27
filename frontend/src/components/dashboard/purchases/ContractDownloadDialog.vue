@@ -32,11 +32,11 @@ const handleSkip = () => {
 <template>
   <ConfirmDialog
     v-model:visible="isVisible"
-    title="Baixar Contrato de Compra"
-    message="Sua compra foi realizada com sucesso! Deseja baixar o contrato da compra com todas as informações da transação?"
+    title="Compra Realizada com Sucesso!"
+    message="Deseja baixar o contrato de compra com todas as informações da transação?"
     confirm-text="Baixar Contrato"
-    cancel-text="Agora Não"
-    variant="info"
+    cancel-text="Não, obrigado"
+    variant="success"
     @confirm="handleDownload"
     @cancel="handleSkip"
   />

@@ -30,6 +30,7 @@ const quantityMwh = ref<number | null>(null);
 const paymentMethod = ref<PaymentMethod>("pix");
 const installments = ref<number>(1);
 const acceptedTerms = ref(false);
+const isQuantityValid = ref(false);
 const cardDetails = ref<CardDetails>({
   number: "",
   holder_name: "",
@@ -50,13 +51,12 @@ const installmentPrice = computed(() => {
   return totalPrice.value / installments.value;
 });
 
+const handleQuantityValidation = (isValid: boolean) => {
+  isQuantityValid.value = isValid;
+};
+
 const isFormValid = computed(() => {
-  if (
-    !quantityMwh.value ||
-    quantityMwh.value < 0.1 ||
-    quantityMwh.value > maxQuantity.value
-  )
-    return false;
+  if (!quantityMwh.value || !isQuantityValid.value) return false;
 
   if (!acceptedTerms.value) return false;
 
@@ -91,6 +91,7 @@ const handleSubmit = () => {
         <EnergyQuantityInput
           v-model="quantityMwh"
           :max-quantity="maxQuantity"
+          @validation-change="handleQuantityValidation"
         />
 
         <PaymentMethodSelector

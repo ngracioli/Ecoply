@@ -91,7 +91,7 @@ const handleClose = () => {
             ></div>
           </div>
           <h3 class="mb-2 text-2xl font-bold text-emerald-600">
-            Pagamento Aprovado!
+            Compra Concluída!
           </h3>
           <p class="text-center text-neutral-600">
             Sua compra foi realizada com sucesso
