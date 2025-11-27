@@ -48,8 +48,8 @@ const hasPrev = ref(false);
 
 const statusFilter = ref<"" | "completed" | "waiting" | "canceled">("");
 const paymentMethodFilter = ref<"" | "pix" | "card" | "billet">("");
-const priceOrder = ref<"asc" | "desc">("desc");
-const quantityOrder = ref<"asc" | "desc">("desc");
+const priceOrder = ref<"" | "asc" | "desc">("");
+const quantityOrder = ref<"" | "asc" | "desc">("");
 
 const showCancelDialog = ref(false);
 const purchaseToCancel = ref<string | null>(null);
@@ -71,18 +71,20 @@ const loadBuyerPurchases = async () => {
   error.value = null;
 
   try {
+    const params: Record<string, string | number> = {
+      page: currentPage.value,
+      page_size: PAGE_SIZE,
+    };
+
+    if (statusFilter.value) params.status = statusFilter.value;
+    if (paymentMethodFilter.value)
+      params.payment_method = paymentMethodFilter.value;
+    if (priceOrder.value) params.order_price = priceOrder.value;
+    if (quantityOrder.value) params.order_quantity = quantityOrder.value;
+
     const response = await api.get<PurchasesListResponse>(
       PURCHASE_ENDPOINTS.LIST,
-      {
-        params: {
-          page: currentPage.value,
-          page_size: PAGE_SIZE,
-          status: statusFilter.value,
-          payment_method: paymentMethodFilter.value,
-          order_price: priceOrder.value,
-          order_quantity: quantityOrder.value,
-        },
-      },
+      { params },
     );
 
     console.log("Resposta da API (Compras):", response.data);
@@ -110,18 +112,20 @@ const loadSellerPurchases = async () => {
   error.value = null;
 
   try {
+    const params: Record<string, string | number> = {
+      page: currentPage.value,
+      page_size: PAGE_SIZE,
+    };
+
+    if (statusFilter.value) params.status = statusFilter.value;
+    if (paymentMethodFilter.value)
+      params.payment_method = paymentMethodFilter.value;
+    if (priceOrder.value) params.order_price = priceOrder.value;
+    if (quantityOrder.value) params.order_quantity = quantityOrder.value;
+
     const response = await api.get<PurchasesListResponse>(
       PURCHASE_ENDPOINTS.SALES,
-      {
-        params: {
-          page: currentPage.value,
-          page_size: PAGE_SIZE,
-          status: statusFilter.value,
-          payment_method: paymentMethodFilter.value,
-          order_price: priceOrder.value,
-          order_quantity: quantityOrder.value,
-        },
-      },
+      { params },
     );
 
     console.log("Resposta da API (Vendas):", response.data);
@@ -232,8 +236,8 @@ watch(activeView, () => {
   currentPage.value = 1;
   statusFilter.value = "";
   paymentMethodFilter.value = "";
-  priceOrder.value = "desc";
-  quantityOrder.value = "desc";
+  priceOrder.value = "";
+  quantityOrder.value = "";
   loadPurchases();
 });
 
@@ -339,6 +343,7 @@ onMounted(() => {
             v-model="priceOrder"
             class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
           >
+            <option value="">Nenhuma</option>
             <option value="desc">Maior para Menor</option>
             <option value="asc">Menor para Maior</option>
           </select>
@@ -356,6 +361,7 @@ onMounted(() => {
             v-model="quantityOrder"
             class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none"
           >
+            <option value="">Nenhuma</option>
             <option value="desc">Maior para Menor</option>
             <option value="asc">Menor para Maior</option>
           </select>
