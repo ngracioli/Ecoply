@@ -27,7 +27,40 @@ func NewAnalyticsService(db *gorm.DB) AnalyticsService {
 }
 
 func (s *analyticsService) Platform() (*resources.PlatformAnalytics, *merr.ResponseError) {
-	return nil, nil
+	var platformAnalytics resources.PlatformAnalytics
+	var err error
+
+	err = s.db.Model(&models.Purchase{}).
+		Where("status = ?", models.PurchaseStatusCompleted).
+		Count(&platformAnalytics.SuccesfulPurchases).Error
+	if err != nil {
+		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+	}
+
+	err = s.db.Model(&models.Offer{}).
+		Where("status IN ?", []string{models.OfferStatusOpen, models.OfferStatusFresh}).
+		Count(&platformAnalytics.ActiveOffers).Error
+	if err != nil {
+		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+	}
+
+	err = s.db.Model(&models.Purchase{}).
+		Where("status = ?", models.PurchaseStatusCompleted).
+		Select("SUM(quantity_mwh * price_per_mwh) AS total").
+		Scan(&platformAnalytics.MoneyTransacted).Error
+	if err != nil {
+		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+	}
+
+	err = s.db.Model(&models.Purchase{}).
+		Where("status = ?", models.PurchaseStatusCompleted).
+		Select("SUM(quantity_mwh) AS total").
+		Scan(&platformAnalytics.EnergyTransacted).Error
+	if err != nil {
+		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+	}
+
+	return &platformAnalytics, nil
 }
 
 func (s *analyticsService) User(user *models.User) (*resources.UserAnalytics, *merr.ResponseError) {

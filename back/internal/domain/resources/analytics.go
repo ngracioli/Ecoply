@@ -1,10 +1,10 @@
 package resources
 
 type PlatformAnalytics struct {
-	SuccesfulPurchases int64 `json:"sucessful_purchases"`
-	ActiveOffers       int64 `json:"active_offers"`
-	MoneyTransacted    int64 `json:"money_transacted"`
-	EnergyTransacted   int64 `json:"energy_transacted"`
+	SuccesfulPurchases int64   `json:"sucessful_purchases"`
+	ActiveOffers       int64   `json:"active_offers"`
+	MoneyTransacted    float64 `json:"money_transacted"`
+	EnergyTransacted   float64 `json:"energy_transacted"`
 }
 
 type UserAnalytics struct {
