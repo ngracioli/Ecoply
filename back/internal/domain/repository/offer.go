@@ -53,6 +53,7 @@ func (r *offerRepository) GetBySellerId(userId uint) ([]*models.Offer, error) {
 		Preload("EnergyType").
 		Preload("Seller").
 		Where("seller_id = ?", userId).
+		Order("created_at DESC").
 		Find(&offers).Error; err != nil {
 		mlog.Log("Failed to get by seller id: " + err.Error())
 		return nil, err
@@ -167,7 +168,7 @@ func (r *offerRepository) Purchases(offerUuid string, request *requests.ListPurc
 		}).
 		Where("purchases.offer_id = ?", offer.ID).
 		Where("purchases.status IN (?)", []string{models.PurchaseStatusCompleted}).
-		Order("purchases.created_at ASC")
+		Order("purchases.created_at DESC")
 
 	if err := result.Find(&purchases).Error; err != nil {
 		mlog.Log("Failed to list purchases from offer: " + err.Error())

@@ -113,7 +113,7 @@ func (s *offerService) Update(user *models.User, uuid string, request *requests.
 	}
 
 	if offer.Status != models.OfferStatusFresh {
-		return merr.NewResponseError(http.StatusUnprocessableEntity, ErrCannotDeleteOffer)
+		return merr.NewResponseError(http.StatusUnprocessableEntity, ErrCannotUpdateOffer)
 	}
 
 	if offer.SellerId != user.ID {

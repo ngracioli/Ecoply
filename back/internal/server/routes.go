@@ -21,6 +21,7 @@ func registerRoutes(router *gin.Engine, s *ServerContext) {
 	var cnpjHandlers handlers.CnpjHandlers = s.Handlers.CnpjHandlers
 	var purchaseHandlers handlers.PurchaseHandlers = s.Handlers.PurchaseHandlers
 	var contractHandlers handlers.ContractHandlers = s.Handlers.ContractHandlers
+	var analyticsHandlers handlers.AnalyticsHandlers = s.Handlers.AnalyticsHandlers
 
 	router.LoadHTMLGlob(htmlPath + "/index.html")
 
@@ -106,6 +107,12 @@ func registerRoutes(router *gin.Engine, s *ServerContext) {
 		{
 			me.GET("", authHandlers.Me)
 			me.GET("offers", middlewares.SupplierMiddleware(s.Services.UserTypeService), offerHandlers.FromUser)
+			me.GET("analytics", analyticsHandlers.User)
+		}
+
+		analytics := v1.Group("analytics")
+		{
+			analytics.GET("platform", analyticsHandlers.Platform)
 		}
 	}
 }

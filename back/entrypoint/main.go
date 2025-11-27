@@ -39,20 +39,22 @@ func main() {
 
 func buildServerContext(cfg *config.Config, db *gorm.DB) *server.ServerContext {
 	services := server.ServerServices{
-		AuthService:     services.NewAuthService(cfg, db),
-		UserService:     services.NewUserService(db),
-		OfferService:    services.NewOfferService(db),
-		PurchaseService: services.NewPurchaseService(db),
-		UserTypeService: services.NewUserTypeService(db),
-		ContractService: services.NewContractService(db),
+		AuthService:      services.NewAuthService(cfg, db),
+		UserService:      services.NewUserService(db),
+		OfferService:     services.NewOfferService(db),
+		PurchaseService:  services.NewPurchaseService(db),
+		UserTypeService:  services.NewUserTypeService(db),
+		ContractService:  services.NewContractService(db),
+		AnalyticsService: services.NewAnalyticsService(db),
 	}
 
 	handlers := server.ServerHandlers{
-		AuthHandlers:     handlers.NewAuthHandler(services.AuthService),
-		CnpjHandlers:     handlers.NewCnpjHandler(),
-		OfferHandlers:    handlers.NewOfferHandler(services.OfferService),
-		PurchaseHandlers: handlers.NewPurchaseHandlers(services.PurchaseService),
-		ContractHandlers: handlers.NewContractHandlers(services.ContractService),
+		AuthHandlers:      handlers.NewAuthHandler(services.AuthService),
+		CnpjHandlers:      handlers.NewCnpjHandler(),
+		OfferHandlers:     handlers.NewOfferHandler(services.OfferService),
+		PurchaseHandlers:  handlers.NewPurchaseHandlers(services.PurchaseService),
+		ContractHandlers:  handlers.NewContractHandlers(services.ContractService),
+		AnalyticsHandlers: handlers.NewAnalyticsHandler(services.AnalyticsService),
 	}
 
 	return &server.ServerContext{

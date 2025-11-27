@@ -45,6 +45,7 @@ var (
 	ErrCannotDeleteOffer         = errors.New("offer can't be deleted")
 	ErrInsufficientOfferQuantity = errors.New("insufficient offer quantity")
 	ErrCannotPurchaseOwnOffer    = errors.New("cannot purchase own offer")
+	ErrCannotUpdateOffer         = errors.New("offer can't be updated")
 	ErrOfferHasEnded             = errors.New("offer has ended")
 
 	// Purchase
