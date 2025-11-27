@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import { ref, onMounted, onUnmounted } from "vue";
+import { Zap } from "lucide-vue-next";
 
 const router = useRouter();
 const scrolled = ref(false);
@@ -39,7 +40,7 @@ onUnmounted(() => {
               : 'bg-gradient-to-br from-emerald-400/90 to-emerald-600/90',
           ]"
         >
-          <i class="pi pi-bolt text-2xl font-bold text-white"></i>
+          <Zap :size="24" :stroke-width="2.5" class="text-white" />
         </div>
         <h1
           :class="[
