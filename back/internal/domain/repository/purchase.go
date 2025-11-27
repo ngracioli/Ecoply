@@ -97,6 +97,10 @@ func (r *purchaseRepository) ListPurchases(buyerId uint64, request *requests.Lis
 		result = result.Where("purchases.payment_method = ?", request.PaymentMethod)
 	}
 
+	if request.OrderPrice == "" && request.OrderQuantity == "" {
+		result = result.Order("created_at DESC")
+	}
+
 	switch request.OrderPrice {
 	case "asc":
 		result = result.Order("purchase_value ASC")
@@ -143,6 +147,10 @@ func (r *purchaseRepository) ListSold(sellerId uint64, request *requests.ListSol
 
 	if request.PaymentMethod != "" {
 		result = result.Where("purchases.payment_method = ?", request.PaymentMethod)
+	}
+
+	if request.OrderPrice == "" && request.OrderQuantity == "" {
+		result = result.Order("created_at DESC")
 	}
 
 	switch request.OrderPrice {
