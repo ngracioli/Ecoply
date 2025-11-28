@@ -185,7 +185,6 @@ const loadPurchases = async () => {
     const apiError = err as ApiError;
     const errorMessage = apiError.message || "Erro desconhecido";
     const serverMessage = apiError.response?.data?.message;
-    console.error(`Erro ao carregar compras: ${serverMessage || errorMessage}`);
   } finally {
     purchasesLoading.value = false;
   }

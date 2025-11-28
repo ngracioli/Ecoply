@@ -43,7 +43,6 @@ const fetchOffer = async () => {
   } catch (err: any) {
     error.value =
       err.response?.data?.message || "Erro ao carregar os detalhes da oferta";
-    console.error("Erro ao buscar oferta:", err);
   } finally {
     loading.value = false;
   }
