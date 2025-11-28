@@ -35,7 +35,6 @@ onMounted(async () => {
   try {
     await store.dispatch("user/fetchCurrentUser");
   } catch (error) {
-    console.error("Erro ao carregar usuário:", error);
     router.push({ name: "Login" });
   }
 });

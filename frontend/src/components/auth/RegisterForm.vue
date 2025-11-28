@@ -31,9 +31,7 @@ async function loadStates() {
       (a: { sigla: string }, b: { sigla: string }) =>
         a.sigla.localeCompare(b.sigla),
     );
-  } catch (err) {
-    console.error("Erro ao carregar estados:", err);
-  }
+  } catch (err) {}
 }
 
 loadStates();
@@ -190,7 +188,6 @@ async function checkEmailAvailability(): Promise<boolean> {
       return false;
     }
 
-    console.error("Erro ao verificar disponibilidade do email:", err);
     errors["email"] = "Erro ao verificar disponibilidade do e-mail.";
     return false;
   }
@@ -212,7 +209,6 @@ async function checkCNPJAvailability(): Promise<boolean> {
       return false;
     }
 
-    console.error("Erro ao verificar disponibilidade do CNPJ:", err);
     errors["agent.cnpj"] = "Erro ao verificar disponibilidade do CNPJ.";
     return false;
   }
@@ -310,7 +306,6 @@ async function confirmCnpj() {
     );
     step.value = 3;
   } catch (err: any) {
-    console.error(err);
     errors["agent.cnpj"] = "Falha ao consultar CNPJ. Tente novamente.";
   } finally {
     loading.value = false;
@@ -349,7 +344,6 @@ async function fetchCep() {
     }
     showSuccess("Endereço preenchido a partir do CEP.");
   } catch (err: any) {
-    console.error(err);
     errors["address.cep"] = "Erro ao consultar CEP.";
   } finally {
     loading.value = false;
@@ -400,14 +394,11 @@ async function submitFinal() {
       },
     };
 
-    console.log("Payload sendo enviado:", JSON.stringify(payload, null, 2));
-
     await store.dispatch("auth/register", payload);
 
     showSuccess("Cadastro realizado com sucesso!");
     router.push({ name: "Dashboard" });
   } catch (err: any) {
-    console.error(err);
     errors["submit"] =
       err.response?.data?.message || "Erro ao finalizar cadastro.";
   } finally {

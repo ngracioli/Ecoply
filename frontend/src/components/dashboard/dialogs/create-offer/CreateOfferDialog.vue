@@ -247,8 +247,6 @@ const handleSubmit = async () => {
         energy_type: newOffer.energy_type,
       };
 
-      console.log("Payload de edição:", payload);
-
       await api.put<CreateOfferResponse>(
         OFFER_ENDPOINTS.UPDATE(props.offer.uuid),
         payload,
@@ -272,7 +270,6 @@ const handleSubmit = async () => {
 
     closeDialog();
   } catch (error) {
-    console.error("Erro ao salvar oferta:", error);
     const errorMessage = isEditMode.value
       ? "Erro ao atualizar oferta. Por favor, tente novamente."
       : "Erro ao criar oferta. Por favor, tente novamente.";

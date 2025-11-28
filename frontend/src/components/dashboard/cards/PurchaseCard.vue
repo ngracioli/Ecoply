@@ -76,14 +76,14 @@ const formatCurrency = (value: number): string => {
 };
 
 const formatQuantity = (value: number): string => {
-  return `${value.toLocaleString("pt-BR")} kWh`;
+  return `${value.toLocaleString("pt-BR")} MWh`;
 };
 
 const calculateTotalAmount = (
   quantity: number,
   pricePerMwh: number,
 ): number => {
-  return (quantity * pricePerMwh) / 1000;
+  return quantity * pricePerMwh;
 };
 
 const getPartnerName = (): string => {

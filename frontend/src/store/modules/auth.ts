@@ -25,7 +25,6 @@ const auth: Module<AuthState, unknown> = {
         commit("user/setToken", token, { root: true });
         commit("user/setUser", user, { root: true });
       } catch (error) {
-        console.error("Login failed:", error);
         throw error;
       }
     },
@@ -41,7 +40,6 @@ const auth: Module<AuthState, unknown> = {
         commit("user/setToken", token, { root: true });
         commit("user/setUser", user, { root: true });
       } catch (error) {
-        console.error("Registration failed:", error);
         throw error;
       }
     },

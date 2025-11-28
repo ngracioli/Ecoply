@@ -46,7 +46,6 @@ const user: Module<UserState, unknown> = {
         const response = await api.get<UserMeResponse>(AUTH_ENDPOINTS.ME);
         commit("setUser", response.data.data);
       } catch (error) {
-        console.error("Erro ao buscar dados do usuário:", error);
         throw error;
       }
     },

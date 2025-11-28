@@ -87,15 +87,11 @@ const loadBuyerPurchases = async () => {
       { params },
     );
 
-    console.log("Resposta da API (Compras):", response.data);
-
     purchases.value = response.data.data;
     hasNext.value = response.data.has_next;
     hasPrev.value = response.data.has_prev;
   } catch (err) {
     const apiError = err as ApiError;
-    console.error("Erro completo:", err);
-    console.error("Response:", apiError.response);
 
     const errorMessage =
       apiError.response?.data?.message ||
@@ -128,15 +124,11 @@ const loadSellerPurchases = async () => {
       { params },
     );
 
-    console.log("Resposta da API (Vendas):", response.data);
-
     purchases.value = response.data.data;
     hasNext.value = response.data.has_next;
     hasPrev.value = response.data.has_prev;
   } catch (err) {
     const apiError = err as ApiError;
-    console.error("Erro completo:", err);
-    console.error("Response:", apiError.response);
 
     const errorMessage =
       apiError.response?.data?.message ||
@@ -191,7 +183,6 @@ const confirmCancelPurchase = async () => {
     purchaseToCancel.value = null;
   } catch (err) {
     const apiError = err as ApiError;
-    console.error("Erro ao cancelar compra:", err);
 
     const errorMessage =
       apiError.response?.data?.message ||
@@ -220,7 +211,6 @@ const handleDownloadContract = async (purchaseUuid: string) => {
     generateContract(contractData);
   } catch (err) {
     const apiError = err as ApiError;
-    console.error("Erro ao baixar contrato:", err);
 
     const errorMessage =
       apiError.response?.data?.message ||

@@ -101,14 +101,11 @@ const loadOffers = async () => {
       },
     });
 
-    console.log("Resposta da API:", response.data);
     offers.value = response.data.data;
     hasNext.value = response.data.has_next;
     hasPrev.value = response.data.has_prev;
   } catch (err) {
     const apiError = err as ApiError;
-    console.error("Erro completo:", err);
-    console.error("Response:", apiError.response);
 
     const errorMessage =
       apiError.response?.data?.message ||

@@ -14,6 +14,7 @@ type UserAnalytics struct {
 
 type SupplierInfo struct {
 	MoneyEarned          float64 `json:"money_earned"`
+	PurchasesCount       int64   `json:"purchases_count"`
 	ActiveOffers         int64   `json:"active_offers"`
 	AlmostExpiringOffers int64   `json:"almost_expiring_offers"`
 	UserPriceAvg         float64 `json:"user_price_avg"`

@@ -131,6 +131,8 @@ func (r *purchaseRepository) ListSold(sellerId uint64, request *requests.ListSol
 	var purchases []*models.Purchase
 
 	result := r.db.
+		Joins("JOIN offers ON offers.id = purchases.offer_id").
+		Where("offers.seller_id = ?", sellerId).
 		Preload("Buyer").
 		Preload("Offer", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id, uuid, seller_id").

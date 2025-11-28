@@ -84,6 +84,7 @@ func (s *analyticsService) User(user *models.User) (*resources.UserAnalytics, *m
 
 func (s *analyticsService) makeSupplierInfo(user *models.User) (*resources.SupplierInfo, *merr.ResponseError) {
 	var moneyEarned float64
+	var purchasesCount int64
 	var activeOffers int64
 	var almostExpiringOffers int64
 	var userPriceAvg float64
@@ -106,6 +107,16 @@ func (s *analyticsService) makeSupplierInfo(user *models.User) (*resources.Suppl
 		Where("purchases.status = ?", models.PurchaseStatusCompleted).
 		Select("COALESCE(SUM(purchases.quantity_mwh * purchases.price_per_mwh), 0) AS total").
 		Scan(&moneyEarned).Error
+	if err != nil {
+		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
+	}
+
+	err = s.db.
+		Model(&models.Purchase{}).
+		Joins("JOIN offers ON offers.id = purchases.offer_id").
+		Where("offers.seller_id = ?", user.ID).
+		Where("purchases.status = ?", models.PurchaseStatusCompleted).
+		Count(&purchasesCount).Error
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
@@ -136,6 +147,7 @@ func (s *analyticsService) makeSupplierInfo(user *models.User) (*resources.Suppl
 
 	var supplierInfo resources.SupplierInfo = resources.SupplierInfo{
 		MoneyEarned:          moneyEarned,
+		PurchasesCount:       purchasesCount,
 		ActiveOffers:         activeOffers,
 		AlmostExpiringOffers: almostExpiringOffers,
 		UserPriceAvg:         userPriceAvg,
@@ -156,12 +168,19 @@ func (s *analyticsService) makeBuyerInfo(user *models.User) (*resources.BuyerInf
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
 
-	err = s.db.Model(&models.Purchase{}).Count(&purchasesCount).Where("buyer_id = ?", user.ID).Error
+	err = s.db.Model(&models.Purchase{}).
+		Where("buyer_id = ?", user.ID).
+		Where("status = ?", models.PurchaseStatusCompleted).
+		Count(&purchasesCount).Error
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
 
-	err = s.db.Model(&models.Purchase{}).Select("COALESCE(SUM(quantity_mwh), 0) AS total").Where("buyer_id = ?", user.ID).Scan(&energyTransacted).Error
+	err = s.db.Model(&models.Purchase{}).
+		Where("buyer_id = ?", user.ID).
+		Where("status = ?", models.PurchaseStatusCompleted).
+		Select("COALESCE(SUM(quantity_mwh), 0) AS total").
+		Scan(&energyTransacted).Error
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}

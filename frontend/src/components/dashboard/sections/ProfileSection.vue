@@ -14,7 +14,7 @@ import type { Component } from "vue";
 import type {
   User as UserType,
   UserType as UserTypeEnum,
-} from "../../types/user";
+} from "../../../types/user";
 
 interface ProfileField {
   icon: Component;
@@ -205,30 +205,6 @@ const addressFields = computed<AddressField[]>(() => {
           <p class="mt-1 text-sm font-medium text-neutral-900">
             {{ field.value }}
           </p>
-        </div>
-      </div>
-    </div>
-
-    <div
-      class="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md"
-    >
-      <h3 class="mb-6 text-lg font-semibold text-neutral-900">Preferências</h3>
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div
-          class="flex items-center justify-between rounded-lg border border-neutral-200 p-4 transition-all duration-200 hover:border-emerald-300"
-        >
-          <div>
-            <h4 class="font-medium text-neutral-900">Alertas de Ofertas</h4>
-            <p class="mt-1 text-sm text-neutral-500">
-              Novidades no marketplace
-            </p>
-          </div>
-          <label class="relative inline-flex cursor-pointer items-center">
-            <input type="checkbox" class="peer sr-only" checked />
-            <div
-              class="peer h-6 w-11 rounded-full bg-neutral-300 peer-checked:bg-emerald-500 peer-focus:ring-2 peer-focus:ring-emerald-500/20 peer-focus:outline-none after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full"
-            ></div>
-          </label>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ export const AUTH_ENDPOINTS = {
   AVAILABLE: "/api/v1/auth/available",
   ME: "/api/v1/me",
   MY_OFFERS: "/api/v1/me/offers",
+  ANALYTICS: "/api/v1/me/analytics",
 } as const;
 
 export const OFFER_ENDPOINTS = {
