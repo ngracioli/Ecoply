@@ -182,9 +182,6 @@ const loadPurchases = async () => {
     );
     purchases.value = response.data.data;
   } catch (err) {
-    const apiError = err as ApiError;
-    const errorMessage = apiError.message || "Erro desconhecido";
-    const serverMessage = apiError.response?.data?.message;
   } finally {
     purchasesLoading.value = false;
   }

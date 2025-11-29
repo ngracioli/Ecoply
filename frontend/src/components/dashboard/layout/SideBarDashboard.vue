@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, type Component } from "vue";
+import { computed, ref, type Component } from "vue";
 import { useStore } from "vuex";
 import {
   ChevronDown,
