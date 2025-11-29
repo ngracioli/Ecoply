@@ -16,7 +16,7 @@ WORKDIR /app
 RUN apk add --no-cache tzdata
 
 COPY --from=build /app/bin/ecoply .
-COPY --from=build /app/web .
+COPY --from=build /app/web /app/web
 RUN chmod +x ecoply
 
 CMD [ "./ecoply" ]
