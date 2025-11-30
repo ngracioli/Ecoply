@@ -46,7 +46,7 @@ func (s *analyticsService) Platform() (*resources.PlatformAnalytics, *merr.Respo
 
 	err = s.db.Model(&models.Purchase{}).
 		Where("status = ?", models.PurchaseStatusCompleted).
-		Select("SUM(quantity_mwh * price_per_mwh) AS total").
+		Select("COALESCE(SUM(quantity_mwh * price_per_mwh), 0) AS total").
 		Scan(&platformAnalytics.MoneyTransacted).Error
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
@@ -54,7 +54,7 @@ func (s *analyticsService) Platform() (*resources.PlatformAnalytics, *merr.Respo
 
 	err = s.db.Model(&models.Purchase{}).
 		Where("status = ?", models.PurchaseStatusCompleted).
-		Select("SUM(quantity_mwh) AS total").
+		Select("COALESCE(SUM(quantity_mwh), 0) AS total").
 		Scan(&platformAnalytics.EnergyTransacted).Error
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
