@@ -164,9 +164,7 @@ const loadOffer = async () => {
     offer.value = response.data.data;
   } catch (err) {
     const apiError = err as ApiError;
-    const errorMessage = apiError.message || "Erro desconhecido";
-    const serverMessage = apiError.response?.data?.message;
-    error.value = `Erro ao carregar oferta: ${serverMessage || errorMessage}`;
+    error.value = `Erro ao carregar oferta: ${apiError.response?.data?.message || apiError.message || "Erro desconhecido"}`;
   } finally {
     loading.value = false;
   }
