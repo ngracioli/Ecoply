@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { Zap, Users, CheckCircle } from "lucide-vue-next";
+import { Zap } from "lucide-vue-next";
 
 const router = useRouter();
 
