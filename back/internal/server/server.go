@@ -25,6 +25,7 @@ type ServerServices struct {
 	services.UserTypeService
 	services.ContractService
 	services.AnalyticsService
+	services.CceeService
 }
 
 type ServerHandlers struct {
@@ -34,6 +35,7 @@ type ServerHandlers struct {
 	handlers.PurchaseHandlers
 	handlers.ContractHandlers
 	handlers.AnalyticsHandlers
+	handlers.CceeHandlers
 }
 
 type ServerContext struct {
