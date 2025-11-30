@@ -42,55 +42,13 @@ const goToDashboard = () => {
 
       <button
         @click="goToDashboard"
-        class="group mb-16 inline-flex items-center gap-3 rounded-full bg-white px-10 py-5 text-lg font-semibold text-emerald-900 shadow-xl shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/40"
+        class="group inline-flex items-center gap-3 rounded-full bg-white px-10 py-5 text-lg font-semibold text-emerald-900 shadow-xl shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/40"
       >
         Começar Agora
         <i
           class="pi pi-arrow-right text-base transition-transform duration-300 group-hover:translate-x-1"
         ></i>
       </button>
-
-      <div class="grid gap-8 md:grid-cols-3">
-        <div
-          class="group flex flex-col items-center rounded-2xl border border-emerald-700/50 bg-emerald-800/30 p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:border-emerald-600/50 hover:bg-emerald-800/50"
-        >
-          <div
-            class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600/50"
-          >
-            <Zap :size="24" class="text-emerald-100" :stroke-width="2" />
-          </div>
-          <div class="mb-1 text-4xl font-bold text-white">234+</div>
-          <div class="text-sm text-emerald-200/80">Ofertas Abertas</div>
-        </div>
-
-        <div
-          class="group flex flex-col items-center rounded-2xl border border-emerald-700/50 bg-emerald-800/30 p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:border-emerald-600/50 hover:bg-emerald-800/50"
-        >
-          <div
-            class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600/50"
-          >
-            <CheckCircle
-              :size="24"
-              class="text-emerald-100"
-              :stroke-width="2"
-            />
-          </div>
-          <div class="mb-1 text-4xl font-bold text-white">301+</div>
-          <div class="text-sm text-emerald-200/80">Transações Concluídas</div>
-        </div>
-
-        <div
-          class="group flex flex-col items-center rounded-2xl border border-emerald-700/50 bg-emerald-800/30 p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:border-emerald-600/50 hover:bg-emerald-800/50"
-        >
-          <div
-            class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600/50"
-          >
-            <Users :size="24" class="text-emerald-100" :stroke-width="2" />
-          </div>
-          <div class="mb-1 text-4xl font-bold text-white">24/7</div>
-          <div class="text-sm text-emerald-200/80">Suporte ao Cliente</div>
-        </div>
-      </div>
     </div>
   </section>
 </template>

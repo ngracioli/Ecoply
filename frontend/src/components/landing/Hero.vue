@@ -1,4 +1,14 @@
 <script setup lang="ts">
+import { computed } from "vue";
+import type { PlatformAnalytics } from "../../types/analytics";
+
+interface Props {
+  platformData: PlatformAnalytics;
+  loading: boolean;
+}
+
+const props = defineProps<Props>();
+
 const scrollToOffers = () => {
   const element = document.getElementById("offer-demonstration");
   element?.scrollIntoView({ behavior: "smooth" });
@@ -8,6 +18,54 @@ const scrollToHowItWorks = () => {
   const element = document.getElementById("how-it-works");
   element?.scrollIntoView({ behavior: "smooth" });
 };
+
+const formatNumber = (num: number): string => {
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + "k";
+  }
+  return num.toString();
+};
+
+const formatMoney = (num: number): string => {
+  if (num >= 1000000) {
+    return "R$ " + (num / 1000000).toFixed(1) + "M+";
+  }
+  if (num >= 1000) {
+    return "R$ " + (num / 1000).toFixed(1) + "k+";
+  }
+  return "R$ " + num.toFixed(0) + "+";
+};
+
+const formatEnergy = (num: number): string => {
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + "k+";
+  }
+  return num.toFixed(1) + "+";
+};
+
+const activeOffersText = computed(() => {
+  return props.loading
+    ? "..."
+    : formatNumber(props.platformData.active_offers) + "+";
+});
+
+const successfulPurchasesText = computed(() => {
+  return props.loading
+    ? "..."
+    : formatNumber(props.platformData.sucessful_purchases) + "+";
+});
+
+const moneyTransactedText = computed(() => {
+  return props.loading
+    ? "..."
+    : formatMoney(props.platformData.money_transacted);
+});
+
+const energyTransactedText = computed(() => {
+  return props.loading
+    ? "..."
+    : formatEnergy(props.platformData.energy_transacted);
+});
 </script>
 
 <template>
@@ -68,12 +126,12 @@ const scrollToHowItWorks = () => {
         </button>
       </div>
 
-      <div class="mt-20 grid grid-cols-3 gap-8">
+      <div class="mt-20 grid grid-cols-4 gap-8">
         <div class="group cursor-default">
           <div
             class="text-4xl font-bold text-white transition-transform duration-300 group-hover:scale-110"
           >
-            234+
+            {{ activeOffersText }}
           </div>
           <div class="mt-2 text-sm text-emerald-200/80">Ofertas Ativas</div>
         </div>
@@ -81,19 +139,31 @@ const scrollToHowItWorks = () => {
           <div
             class="text-4xl font-bold text-white transition-transform duration-300 group-hover:scale-110"
           >
-            301+
+            {{ energyTransactedText }}
           </div>
           <div class="mt-2 text-sm text-emerald-200/80">
-            Transações Concluídas
+            Energia Movimentada (MWh)
           </div>
         </div>
         <div class="group cursor-default">
           <div
             class="text-4xl font-bold text-white transition-transform duration-300 group-hover:scale-110"
           >
-            24/7
+            {{ moneyTransactedText }}
           </div>
-          <div class="mt-2 text-sm text-emerald-200/80">Suporte ao Cliente</div>
+          <div class="mt-2 text-sm text-emerald-200/80">
+            Volume Transacionado
+          </div>
+        </div>
+        <div class="group cursor-default">
+          <div
+            class="text-4xl font-bold text-white transition-transform duration-300 group-hover:scale-110"
+          >
+            {{ successfulPurchasesText }}
+          </div>
+          <div class="mt-2 text-sm text-emerald-200/80">
+            Transações Concluídas
+          </div>
         </div>
       </div>
     </div>

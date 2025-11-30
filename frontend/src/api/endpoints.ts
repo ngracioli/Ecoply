@@ -7,6 +7,10 @@ export const AUTH_ENDPOINTS = {
   ANALYTICS: "/api/v1/me/analytics",
 } as const;
 
+export const ANALYTICS_ENDPOINTS = {
+  PLATFORM: "/api/v1/analytics/platform",
+} as const;
+
 export const OFFER_ENDPOINTS = {
   LIST: "/api/v1/offers",
   DETAIL: (uuid: string) => `/api/v1/offers/${uuid}`,

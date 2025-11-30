@@ -1,6 +1,26 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import EnergyOfferCard from "../dashboard/cards/EnergyOfferCard.vue";
 import type { OfferListItem } from "../../types/responses/offers";
+import type { PlatformAnalytics } from "../../types/analytics";
+
+interface Props {
+  platformData: PlatformAnalytics;
+  loading: boolean;
+}
+
+const props = defineProps<Props>();
+
+const formatNumber = (num: number): string => {
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + "k";
+  }
+  return num.toString();
+};
+
+const offersText = computed(() => {
+  return props.loading ? "..." : formatNumber(props.platformData.active_offers);
+});
 
 const mockOffers: OfferListItem[] = [
   {
@@ -96,7 +116,7 @@ const scrollToDashboard = () => {
 
       <div class="text-center">
         <p class="mb-6 text-sm text-gray-600">
-          Mais de 234 ofertas disponíveis na plataforma
+          Mais de {{ offersText }} ofertas disponíveis na plataforma
         </p>
         <button
           @click="scrollToDashboard"

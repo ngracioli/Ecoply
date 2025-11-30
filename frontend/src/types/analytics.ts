@@ -21,3 +21,14 @@ export interface AnalyticsData {
 export interface AnalyticsResponse {
   data: AnalyticsData;
 }
+
+export interface PlatformAnalytics {
+  sucessful_purchases: number;
+  active_offers: number;
+  money_transacted: number;
+  energy_transacted: number;
+}
+
+export interface PlatformAnalyticsResponse {
+  data: PlatformAnalytics;
+}
