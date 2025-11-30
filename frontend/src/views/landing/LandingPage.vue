@@ -25,8 +25,11 @@ const fetchPlatformAnalytics = async () => {
     const response = await api.get<PlatformAnalyticsResponse>(
       ANALYTICS_ENDPOINTS.PLATFORM,
     );
-    platformData.value = response.data.data;
+    if (response.data?.data) {
+      platformData.value = response.data.data;
+    }
   } catch (error) {
+    console.error("Erro ao buscar analytics:", error);
   } finally {
     loading.value = false;
   }
