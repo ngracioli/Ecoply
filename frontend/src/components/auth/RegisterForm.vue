@@ -16,6 +16,8 @@ import type { RegisterRequest } from "../../types/requests/auth";
 import axios from "axios";
 import api from "../../axios";
 import type { StateConsult } from "../../types/responses/brazilStates";
+import type { CCEEAgentsResponse, CCEEAgent } from "../../types/responses/ccee";
+import { CCEE_ENDPOINTS } from "../../api/endpoints";
 
 const toast = useToast();
 const store = useStore();
@@ -39,9 +41,7 @@ loadStates();
 const step = ref<number>(1);
 const loading = ref(false);
 const brazilStates = ref<StateConsult>([]);
-const cceeAgents = ref<
-  Array<{ label: string; value: string; submarket: string }>
->([]);
+const cceeAgents = ref<CCEEAgent[]>([]);
 
 const form = reactive<RegisterRequest>({
   name: "",
@@ -232,18 +232,6 @@ function onlyDigits(s: string) {
   return (s || "").replace(/\D/g, "");
 }
 
-function mapSubmarketToCode(submarket: string): string {
-  const submarketMap: Record<string, string> = {
-    SUDESTE: "SE_CO",
-    SUL: "S",
-    NORTE: "N",
-    NORDESTE: "NE",
-  };
-
-  const upperSubmarket = (submarket || "").toUpperCase().trim();
-  return submarketMap[upperSubmarket] || submarket;
-}
-
 async function confirmCnpj() {
   clearErrors();
   if (!validateStep(2)) return;
@@ -265,38 +253,17 @@ async function confirmCnpj() {
     }
     const dataBrasil = await respBrasil.json();
 
-    const respCCEE = await fetch(
-      `https://dadosabertos.ccee.org.br/api/3/action/datastore_search?resource_id=71169d34-7171-47bb-8217-4ff140fed41d&q=${cnpjDigits}`,
-    );
-    if (!respCCEE.ok) {
-      errors["agent.cnpj"] = "Erro ao consultar dados CCEE.";
-      return;
-    }
-    const dataCCEE = await respCCEE.json();
+    const respCCEE = await api.get<CCEEAgentsResponse>(CCEE_ENDPOINTS.AGENTS(cnpjDigits));
 
-    if (!dataCCEE.success || !dataCCEE.result || dataCCEE.result.total === 0) {
+    if (!respCCEE.data || !respCCEE.data.data || respCCEE.data.data.length === 0) {
       errors["agent.cnpj"] = "CNPJ não está vinculado a nenhum agente CCEE.";
-      return;
-    }
-
-    const validRecords = dataCCEE.result.records.filter(
-      (record: any) => onlyDigits(record.CNPJ) === cnpjDigits,
-    );
-
-    if (validRecords.length === 0) {
-      errors["agent.cnpj"] =
-        "CNPJ não corresponde exatamente aos registros CCEE.";
       return;
     }
 
     form.agent.company_name =
       dataBrasil.razao_social || dataBrasil.nome_fantasia || "";
 
-    cceeAgents.value = validRecords.map((record: any) => ({
-      label: `${record.COD_PERF_AGENTE} - ${record.SIGLA_PERFIL_AGENTE}`,
-      value: String(record.COD_PERF_AGENTE),
-      submarket: mapSubmarketToCode(record.SUBMERCADO),
-    }));
+    cceeAgents.value = respCCEE.data.data;
 
     form.agent.ccee_code = "";
     form.agent.submarket_name = "";
@@ -306,7 +273,12 @@ async function confirmCnpj() {
     );
     step.value = 3;
   } catch (err: any) {
-    errors["agent.cnpj"] = "Falha ao consultar CNPJ. Tente novamente.";
+    if (err.response?.status === 404) {
+      errors["agent.cnpj"] = "CNPJ não está vinculado a nenhum agente CCEE.";
+    } else {
+      errors["agent.cnpj"] =
+        err.response?.data?.message || "Falha ao consultar CNPJ. Tente novamente.";
+    }
   } finally {
     loading.value = false;
   }

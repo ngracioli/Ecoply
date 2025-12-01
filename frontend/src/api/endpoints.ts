@@ -27,3 +27,7 @@ export const PURCHASE_ENDPOINTS = {
   CONTRACT: (purchaseUuid: string) =>
     `/api/v1/purchases/${purchaseUuid}/contract`,
 } as const;
+
+export const CCEE_ENDPOINTS = {
+  AGENTS: (cnpj: string) => `/api/v1/ccee/agents/${cnpj}`,
+} as const;
