@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const createDecimalValidator = (
   decimalPlaces: number,
-  maxTotalChars: number,
+  totalDigits: number,
   minValue: number,
   fieldName: string,
 ) => {
@@ -28,11 +28,15 @@ const createDecimalValidator = (
     )
     .refine(
       (val) => {
+        const num = parseFloat(val);
+        if (isNaN(num)) return false;
+
+        // Conta dígitos totais (antes e depois do ponto)
         const digitsOnly = val.replace(/[.,]/g, "");
-        return digitsOnly.length <= maxTotalChars;
+        return digitsOnly.length <= totalDigits;
       },
       {
-        message: `${fieldName} deve ter no máximo ${maxTotalChars} caracteres no total`,
+        message: `${fieldName} deve ter no máximo ${totalDigits} dígitos`,
       },
     )
     .refine(
@@ -44,6 +48,17 @@ const createDecimalValidator = (
     );
 };
 
+const isValidDate = (dateString: string): boolean => {
+  const [year, month, day] = dateString.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+
+  return (
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day
+  );
+};
+
 export const offerSchema = z
   .object({
     price_per_mwh: createDecimalValidator(2, 10, 0.01, "Preço por MWh"),
@@ -51,32 +66,38 @@ export const offerSchema = z
     period_start: z
       .string()
       .min(1, { message: "Data de início é obrigatória" })
-      .refine(
-        (val) => {
-          const date = new Date(val);
-          return !isNaN(date.getTime());
-        },
-        { message: "Data de início inválida" },
-      )
-      .refine(
-        (val) => {
-          const selectedDate = new Date(val + "T00:00:00");
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          return selectedDate >= today;
-        },
-        { message: "Data de início não pode ser anterior a hoje" },
-      ),
+      .superRefine((val, ctx) => {
+        const date = new Date(val);
+        if (isNaN(date.getTime()) || !isValidDate(val)) {
+          ctx.addIssue({
+            code: "custom",
+            message: "Data de início inválida",
+          });
+          return z.NEVER;
+        }
+
+        const selectedDate = new Date(val + "T00:00:00");
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (selectedDate < today) {
+          ctx.addIssue({
+            code: "custom",
+            message: "Data de início não pode ser anterior a hoje",
+          });
+        }
+      }),
     period_end: z
       .string()
       .min(1, { message: "Data de término é obrigatória" })
-      .refine(
-        (val) => {
-          const date = new Date(val);
-          return !isNaN(date.getTime());
-        },
-        { message: "Data de término inválida" },
-      ),
+      .superRefine((val, ctx) => {
+        const date = new Date(val);
+        if (isNaN(date.getTime()) || !isValidDate(val)) {
+          ctx.addIssue({
+            code: "custom",
+            message: "Data de término inválida",
+          });
+        }
+      }),
     description: z
       .string()
       .min(5, { message: "Descrição deve ter no mínimo 5 caracteres" })
@@ -87,6 +108,9 @@ export const offerSchema = z
   })
   .refine(
     (data) => {
+      if (!isValidDate(data.period_start) || !isValidDate(data.period_end)) {
+        return true;
+      }
       const start = new Date(data.period_start);
       const end = new Date(data.period_end);
       return start < end;

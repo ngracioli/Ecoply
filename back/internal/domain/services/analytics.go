@@ -140,7 +140,7 @@ func (s *analyticsService) makeSupplierInfo(user *models.User) (*resources.Suppl
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
 
-	err = s.db.Model(&models.Offer{}).Select("COALESCE(AVG(price_per_mwh), 0) AS avg_price").Scan(&platformPriceAvg).Error
+	err = s.db.Model(&models.Offer{}).Where("seller_id != ?", user.ID).Select("COALESCE(AVG(price_per_mwh), 0) AS avg_price").Scan(&platformPriceAvg).Error
 	if err != nil {
 		return nil, merr.NewResponseError(http.StatusInternalServerError, ErrInternal)
 	}
@@ -188,6 +188,7 @@ func (s *analyticsService) makeBuyerInfo(user *models.User) (*resources.BuyerInf
 	err = s.db.Model(&models.Offer{}).
 		Select("uuid").
 		Where("submarket_id = ?", user.Agent.SubmarketId).
+		Where("seller_id != ?", user.ID).
 		Where("status IN (?)", []string{
 			models.OfferStatusFresh,
 			models.OfferStatusOpen,

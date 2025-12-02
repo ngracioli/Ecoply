@@ -109,7 +109,7 @@ const marketInsights = computed((): MarketInsight[] => {
 
     insights.push({
       id: 3,
-      title: "Preço Médio",
+      title: "SEU PREÇO MÉDIO",
       value: formatCurrency(supplier.user_price_avg),
       subtitle: isAboveAverage
         ? `${priceDiffPercent}% acima da média da plataforma (${formatCurrency(supplier.platform_price_avg)})`
@@ -296,7 +296,7 @@ onMounted(() => {
               <div class="flex items-center gap-2 text-neutral-500">
                 <DollarSign :size="16" :stroke-width="2" />
                 <p class="text-xs font-medium tracking-wide uppercase">
-                  Receita Total
+                  Sua Receita Total
                 </p>
               </div>
               <p class="mt-3 text-2xl font-bold text-neutral-900">
@@ -329,7 +329,7 @@ onMounted(() => {
               <div class="flex items-center gap-2 text-neutral-500">
                 <ShoppingCart :size="16" :stroke-width="2" />
                 <p class="text-xs font-medium tracking-wide uppercase">
-                  Vendas Concluídas
+                  Suas Vendas Concluídas
                 </p>
               </div>
               <p class="mt-3 text-3xl font-bold text-neutral-900">
@@ -359,7 +359,7 @@ onMounted(() => {
               <div class="flex items-center gap-2 text-neutral-500">
                 <Package :size="16" :stroke-width="2" />
                 <p class="text-xs font-medium tracking-wide uppercase">
-                  Ofertas Ativas
+                  Suas Ofertas Ativas
                 </p>
               </div>
               <p class="mt-3 text-3xl font-bold text-neutral-900">
@@ -391,7 +391,7 @@ onMounted(() => {
               <div class="flex items-center gap-2 text-neutral-500">
                 <Clock :size="16" :stroke-width="2" />
                 <p class="text-xs font-medium tracking-wide uppercase">
-                  Expirando em 48h
+                  Suas Ofertas Expirando
                 </p>
               </div>
               <p
@@ -447,7 +447,7 @@ onMounted(() => {
               <div class="flex items-center gap-2 text-neutral-500">
                 <ShoppingCart :size="16" :stroke-width="2" />
                 <p class="text-xs font-medium tracking-wide uppercase">
-                  Compras Realizadas
+                  Suas Compras Realizadas
                 </p>
               </div>
               <p class="mt-3 text-3xl font-bold text-neutral-900">
@@ -477,7 +477,7 @@ onMounted(() => {
               <div class="flex items-center gap-2 text-neutral-500">
                 <Zap :size="16" :stroke-width="2" />
                 <p class="text-xs font-medium tracking-wide uppercase">
-                  Energia Adquirida
+                  Sua Energia Adquirida
                 </p>
               </div>
               <div class="mt-3 flex items-baseline gap-2">

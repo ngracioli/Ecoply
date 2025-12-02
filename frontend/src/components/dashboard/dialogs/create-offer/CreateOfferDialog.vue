@@ -135,6 +135,30 @@ const getInputClass = (error?: string): string => {
   return `${baseClasses} ${errorClasses}`;
 };
 
+const validateField = (fieldName: keyof OfferFormErrors) => {
+  const fieldValue = newOffer[fieldName];
+
+  if (fieldName === "price_per_mwh" || fieldName === "quantity_mwh") {
+    if (!fieldValue || fieldValue === "") {
+      errors.value[fieldName] = undefined;
+      return;
+    }
+
+    const schema =
+      fieldName === "price_per_mwh"
+        ? offerSchema.shape.price_per_mwh
+        : offerSchema.shape.quantity_mwh;
+
+    const result = schema.safeParse(fieldValue);
+
+    if (!result.success) {
+      errors.value[fieldName] = result.error.issues[0]?.message;
+    } else {
+      errors.value[fieldName] = undefined;
+    }
+  }
+};
+
 const resetForm = () => {
   Object.assign(newOffer, INITIAL_FORM_STATE);
   errors.value = {};
@@ -280,6 +304,20 @@ const handleSubmit = async () => {
 };
 
 watch(
+  () => newOffer.price_per_mwh,
+  () => {
+    validateField("price_per_mwh");
+  },
+);
+
+watch(
+  () => newOffer.quantity_mwh,
+  () => {
+    validateField("quantity_mwh");
+  },
+);
+
+watch(
   () => props.visible,
   (isVisible) => {
     if (isVisible) {
@@ -394,6 +432,8 @@ watch(
               v-model="newOffer.price_per_mwh"
               type="number"
               step="0.01"
+              min="0.01"
+              max="99999999.99"
               placeholder="10.35"
               :class="getInputClass(errors.price_per_mwh)"
               class="w-full rounded-lg border-2 py-3 pr-4 pl-12"
@@ -419,6 +459,8 @@ watch(
               v-model="newOffer.quantity_mwh"
               type="number"
               step="0.001"
+              min="0.001"
+              max="9999999.999"
               placeholder="100.35"
               :class="getInputClass(errors.quantity_mwh)"
               class="w-full rounded-lg border-2 px-4 py-3 pr-16"
@@ -449,6 +491,7 @@ watch(
             id="period-start"
             v-model="newOffer.period_start"
             type="date"
+            lang="pt-BR"
             :class="getInputClass(errors.period_start)"
             class="w-full rounded-lg border-2 px-4 py-3"
           />
@@ -470,6 +513,7 @@ watch(
             id="period-end"
             v-model="newOffer.period_end"
             type="date"
+            lang="pt-BR"
             :class="getInputClass(errors.period_end)"
             class="w-full rounded-lg border-2 px-4 py-3"
           />
