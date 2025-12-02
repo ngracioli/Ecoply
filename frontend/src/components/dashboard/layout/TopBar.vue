@@ -6,10 +6,6 @@ import type { RootState } from "../../../store";
 
 type GreetingPeriod = "Bom dia" | "Boa tarde" | "Boa noite";
 
-const props = defineProps<{
-  isMobileMenuOpen: boolean;
-}>();
-
 const emit = defineEmits<{
   "toggle:mobileMenu": [];
 }>();
