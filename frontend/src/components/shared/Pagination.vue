@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ChevronLeft, ChevronRight } from "lucide-vue-next";
+
 interface PaginationProps {
   currentPage: number;
   hasNext: boolean;
@@ -22,47 +24,35 @@ defineEmits<PaginationEmits>();
 
 <template>
   <div
-    class="flex flex-col items-stretch justify-between gap-3 rounded-lg border border-neutral-200 bg-white px-3 py-3 shadow-sm sm:flex-row sm:items-center sm:gap-4 sm:px-6 sm:py-4"
+    class="flex items-center justify-between rounded-xl bg-white p-3 shadow-sm sm:rounded-2xl sm:p-4"
   >
     <button
       @click="$emit('prev')"
       :disabled="!hasPrev"
       :class="[
-        'flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200 active:scale-95 sm:gap-2 sm:px-4 sm:text-sm',
+        'flex h-9 w-9 shrink-0 touch-manipulation items-center justify-center rounded-full transition-all duration-200 sm:h-10 sm:w-10',
         hasPrev
-          ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:shadow-md'
-          : 'cursor-not-allowed bg-neutral-100 text-neutral-400',
+          ? 'bg-emerald-500 text-white shadow-md hover:bg-emerald-600 active:scale-95 active:shadow-sm'
+          : 'cursor-not-allowed bg-neutral-100 text-neutral-300',
       ]"
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-3.5 w-3.5 sm:h-4 sm:w-4"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <polyline points="15 18 9 12 15 6"></polyline>
-      </svg>
-      <span class="hidden sm:inline">Anterior</span>
-      <span class="sm:hidden">Ant.</span>
+      <ChevronLeft :size="18" class="sm:hidden" :stroke-width="2.5" />
+      <ChevronLeft :size="20" class="hidden sm:block" :stroke-width="2.5" />
     </button>
 
-    <div class="flex flex-col items-center gap-1 sm:gap-1">
-      <div class="flex items-center gap-1.5 sm:gap-2">
-        <span class="text-xs font-medium text-neutral-600 sm:text-sm"
+    <div class="flex min-w-0 flex-1 flex-col items-center gap-0.5 px-3">
+      <div class="flex items-center gap-1.5">
+        <span class="text-[10px] font-medium text-neutral-500 sm:text-xs"
           >Página</span
         >
         <span
-          class="rounded-lg bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-600 sm:px-3 sm:py-1 sm:text-sm"
+          class="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 sm:px-3 sm:text-sm"
         >
           {{ currentPage }}
         </span>
       </div>
-      <span class="text-[10px] text-neutral-500 sm:text-xs">
-        {{ itemsStart }} - {{ itemsEnd }} {{ itemLabel }}
+      <span class="truncate text-[10px] text-neutral-400 sm:text-xs">
+        {{ itemsStart }}-{{ itemsEnd }} {{ itemLabel }}
       </span>
     </div>
 
@@ -70,28 +60,14 @@ defineEmits<PaginationEmits>();
       @click="$emit('next')"
       :disabled="!hasNext"
       :class="[
-        'flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200 active:scale-95 sm:gap-2 sm:px-4 sm:text-sm',
+        'flex h-9 w-9 shrink-0 touch-manipulation items-center justify-center rounded-full transition-all duration-200 sm:h-10 sm:w-10',
         hasNext
-          ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:shadow-md'
-          : 'cursor-not-allowed bg-neutral-100 text-neutral-400',
+          ? 'bg-emerald-500 text-white shadow-md hover:bg-emerald-600 active:scale-95 active:shadow-sm'
+          : 'cursor-not-allowed bg-neutral-100 text-neutral-300',
       ]"
     >
-      <span class="hidden sm:inline">Próxima</span>
-      <span class="sm:hidden">Prox.</span>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-3.5 w-3.5 sm:h-4 sm:w-4"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <polyline points="9 18 15 12 9 6"></polyline>
-      </svg>
+      <ChevronRight :size="18" class="sm:hidden" :stroke-width="2.5" />
+      <ChevronRight :size="20" class="hidden sm:block" :stroke-width="2.5" />
     </button>
   </div>
 </template>
-
-<style scoped></style>

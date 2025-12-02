@@ -392,8 +392,8 @@ onMounted(() => {
       </div>
 
       <div
-        v-else-if="purchases.length > 0"
-        class="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm sm:rounded-xl"
+        v-if="!loading && !error && purchases.length > 0"
+        class="hidden overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm sm:rounded-xl md:block"
       >
         <div class="overflow-x-auto">
           <table class="w-full min-w-[800px]">
@@ -450,6 +450,22 @@ onMounted(() => {
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div
+        v-if="!loading && !error && purchases.length > 0"
+        class="flex flex-col gap-3 md:hidden"
+      >
+        <PurchaseCard
+          v-for="purchase in purchases"
+          :key="purchase.uuid"
+          :purchase="purchase"
+          :show-cancel-button="activeView === 'compras'"
+          :view-mode="activeView"
+          :as-mobile-card="true"
+          @cancel="handleCancelPurchase"
+          @download-contract="handleDownloadContract"
+        />
       </div>
 
       <Pagination

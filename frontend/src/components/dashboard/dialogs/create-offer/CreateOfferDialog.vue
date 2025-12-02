@@ -447,7 +447,7 @@ watch(
               max="99999999.99"
               placeholder="10.35"
               :class="getInputClass(errors.price_per_mwh)"
-              class="w-full touch-manipulation rounded-lg border-2 py-2.5 pr-3 pl-10 text-base sm:py-3 sm:pr-4 sm:pl-12"
+              class="w-full min-w-0 touch-manipulation rounded-lg border-2 py-2.5 pr-3 pl-10 text-base sm:py-3 sm:pr-4 sm:pl-12"
             />
           </div>
           <small
@@ -478,7 +478,7 @@ watch(
               max="9999999.999"
               placeholder="100.35"
               :class="getInputClass(errors.quantity_mwh)"
-              class="w-full touch-manipulation rounded-lg border-2 px-3 py-2.5 pr-14 text-base sm:px-4 sm:py-3 sm:pr-16"
+              class="w-full min-w-0 touch-manipulation rounded-lg border-2 px-3 py-2.5 pr-14 text-base sm:px-4 sm:py-3 sm:pr-16"
             />
             <span
               class="absolute top-1/2 right-3 -translate-y-1/2 text-xs text-neutral-500 sm:right-4 sm:text-sm"
@@ -512,7 +512,7 @@ watch(
             type="date"
             lang="pt-BR"
             :class="getInputClass(errors.period_start)"
-            class="w-full touch-manipulation rounded-lg border-2 px-3 py-2.5 text-base sm:px-4 sm:py-3"
+            class="w-full min-w-0 touch-manipulation rounded-lg border-2 px-3 py-2.5 text-base sm:px-4 sm:py-3"
           />
           <small
             v-if="errors.period_start"
@@ -538,7 +538,7 @@ watch(
             type="date"
             lang="pt-BR"
             :class="getInputClass(errors.period_end)"
-            class="w-full touch-manipulation rounded-lg border-2 px-3 py-2.5 text-base sm:px-4 sm:py-3"
+            class="w-full min-w-0 touch-manipulation rounded-lg border-2 px-3 py-2.5 text-base sm:px-4 sm:py-3"
           />
           <small
             v-if="errors.period_end"
@@ -584,14 +584,12 @@ watch(
 
     <template #footer>
       <div
-        class="flex flex-col items-start justify-between gap-3 border-t border-neutral-100 px-4 py-3 sm:flex-row sm:items-center sm:gap-4 sm:px-6 sm:py-4"
+        class="flex flex-col-reverse items-stretch justify-between gap-3 border-t border-neutral-100 px-4 py-3 sm:flex-row sm:items-center sm:gap-4 sm:px-6 sm:py-4"
       >
-        <p class="order-2 text-xs text-neutral-500 sm:order-1">
+        <p class="text-center text-xs text-neutral-500 sm:text-left">
           <span class="text-red-500">*</span> Campos obrigatórios
         </p>
-        <div
-          class="order-1 flex w-full shrink-0 gap-2.5 sm:order-2 sm:w-auto sm:gap-3"
-        >
+        <div class="flex w-full shrink-0 gap-2.5 sm:w-auto sm:gap-3">
           <button
             @click="closeDialog"
             :disabled="isSubmitting"

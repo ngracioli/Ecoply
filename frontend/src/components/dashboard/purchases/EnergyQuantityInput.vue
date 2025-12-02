@@ -105,7 +105,7 @@ const formatQuantity = (mwh: number) => {
           min="0.1"
           placeholder="Digite a quantidade desejada"
           :class="[
-            'w-full touch-manipulation rounded-lg border px-3 py-2.5 text-base transition-colors focus:outline-none sm:px-4 sm:py-3 sm:text-lg',
+            'w-full min-w-0 touch-manipulation rounded-lg border px-3 py-2.5 text-base transition-colors focus:outline-none sm:px-4 sm:py-3 sm:text-lg',
             hasError
               ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
               : 'border-neutral-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20',

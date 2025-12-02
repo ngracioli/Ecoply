@@ -86,7 +86,7 @@ const handleSubmit = () => {
 
 <template>
   <div class="grid gap-4 sm:gap-6 lg:grid-cols-3 lg:gap-8">
-    <div class="order-2 lg:order-1 lg:col-span-2">
+    <div class="order-1 lg:order-1 lg:col-span-2">
       <div class="space-y-4 sm:space-y-6">
         <EnergyQuantityInput
           v-model="quantityMwh"
@@ -114,7 +114,7 @@ const handleSubmit = () => {
       </div>
     </div>
 
-    <div class="order-1 lg:order-2 lg:col-span-1">
+    <div class="order-2 lg:order-2 lg:col-span-1">
       <OrderSummary
         :offer="offer"
         :quantity-mwh="quantityMwh"

@@ -22,6 +22,7 @@ const store = useStore();
 const router = useRouter();
 
 const activeSection = ref<DashboardSection>("overview");
+const isMobileMenuOpen = ref(false);
 
 const sectionComponents: Record<DashboardSection, Component> = {
   overview: OverviewSection,
@@ -47,14 +48,26 @@ const logout = async () => {
   await store.dispatch("auth/logout");
   router.push({ name: "Login" });
 };
+
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value;
+};
 </script>
 
 <template>
   <main class="flex h-dvh w-full overflow-hidden bg-neutral-50">
-    <SideBarDashboard @navigate="handleNavigate" @logout="logout" />
+    <SideBarDashboard
+      :isMobileMenuOpen="isMobileMenuOpen"
+      @update:isMobileMenuOpen="isMobileMenuOpen = $event"
+      @navigate="handleNavigate"
+      @logout="logout"
+    />
 
     <div class="flex flex-1 flex-col overflow-hidden">
-      <TopBar />
+      <TopBar
+        :isMobileMenuOpen="isMobileMenuOpen"
+        @toggle:mobileMenu="toggleMobileMenu"
+      />
       <div class="flex-1 overflow-y-auto">
         <div class="p-3 sm:p-5 md:p-6 lg:p-8">
           <Transition

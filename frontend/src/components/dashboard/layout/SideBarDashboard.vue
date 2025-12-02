@@ -8,7 +8,6 @@ import {
   LogOut,
   User,
   Zap,
-  Menu,
   X,
 } from "lucide-vue-next";
 
@@ -32,12 +31,15 @@ type MenuItemKey =
   | "profile"
   | "manage-offers";
 
+const props = defineProps<{
+  isMobileMenuOpen: boolean;
+}>();
+
 const emit = defineEmits<{
   navigate: [key: string];
   logout: [];
+  "update:isMobileMenuOpen": [value: boolean];
 }>();
-
-const isMobileMenuOpen = ref(false);
 
 const store = useStore();
 const activeItem = ref<MenuItemKey>("overview");
@@ -76,7 +78,7 @@ const isProfileActive = computed(
 const handleItemClick = (key: string) => {
   activeItem.value = key as MenuItemKey;
   isProfileDropdownOpen.value = false;
-  isMobileMenuOpen.value = false;
+  emit("update:isMobileMenuOpen", false);
   emit("navigate", key);
 };
 
@@ -96,29 +98,17 @@ const toggleProfileDropdown = () => {
 
 const handleSubItemClick = (key: string) => {
   activeItem.value = key as MenuItemKey;
-  isMobileMenuOpen.value = false;
+  emit("update:isMobileMenuOpen", false);
   emit("navigate", key);
 };
 
 const handleLogout = () => {
-  isMobileMenuOpen.value = false;
+  emit("update:isMobileMenuOpen", false);
   emit("logout");
-};
-
-const toggleMobileMenu = () => {
-  isMobileMenuOpen.value = !isMobileMenuOpen.value;
 };
 </script>
 
 <template>
-  <button
-    @click="toggleMobileMenu"
-    class="fixed top-4 left-4 z-50 flex touch-manipulation items-center justify-center rounded-lg border border-neutral-200 bg-white p-2.5 shadow-lg md:hidden"
-  >
-    <Menu v-if="!isMobileMenuOpen" :size="24" class="text-neutral-700" />
-    <X v-else :size="24" class="text-neutral-700" />
-  </button>
-
   <Transition
     name="mobile-menu"
     enter-active-class="transition-opacity duration-300"
@@ -129,8 +119,8 @@ const toggleMobileMenu = () => {
     leave-to-class="opacity-0"
   >
     <div
-      v-if="isMobileMenuOpen"
-      @click="isMobileMenuOpen = false"
+      v-if="props.isMobileMenuOpen"
+      @click="emit('update:isMobileMenuOpen', false)"
       class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
     ></div>
   </Transition>
@@ -139,20 +129,32 @@ const toggleMobileMenu = () => {
     :class="[
       'flex flex-col justify-between border-r border-neutral-200 bg-white transition-transform duration-300 ease-in-out',
       'fixed inset-y-0 left-0 z-40 h-screen w-64 md:static md:h-screen',
-      isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+      props.isMobileMenuOpen
+        ? 'translate-x-0'
+        : '-translate-x-full md:translate-x-0',
     ]"
   >
     <div class="p-4 sm:p-6">
-      <div class="mb-6 flex items-center gap-2.5 sm:mb-8 sm:gap-3">
-        <div
-          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md sm:h-10 sm:w-10"
-        >
-          <Zap :size="22" class="sm:hidden" :stroke-width="2.5" />
-          <Zap :size="24" class="hidden sm:block" :stroke-width="2.5" />
+      <div
+        class="mb-6 flex items-center justify-between gap-2.5 sm:mb-8 sm:gap-3"
+      >
+        <div class="flex items-center gap-2.5 sm:gap-3">
+          <div
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md sm:h-10 sm:w-10"
+          >
+            <Zap :size="22" class="sm:hidden" :stroke-width="2.5" />
+            <Zap :size="24" class="hidden sm:block" :stroke-width="2.5" />
+          </div>
+          <span class="text-lg font-bold text-neutral-800 sm:text-xl"
+            >Ecoply</span
+          >
         </div>
-        <span class="text-lg font-bold text-neutral-800 sm:text-xl"
-          >Ecoply</span
+        <button
+          @click="emit('update:isMobileMenuOpen', false)"
+          class="flex touch-manipulation items-center justify-center rounded-lg p-2 text-neutral-600 transition-colors hover:bg-neutral-100 active:bg-neutral-200 md:hidden"
         >
+          <X :size="20" :stroke-width="2" />
+        </button>
       </div>
 
       <ul class="flex flex-col gap-1">

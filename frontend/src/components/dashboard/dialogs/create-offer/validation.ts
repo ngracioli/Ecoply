@@ -31,7 +31,6 @@ const createDecimalValidator = (
         const num = parseFloat(val);
         if (isNaN(num)) return false;
 
-        // Conta dígitos totais (antes e depois do ponto)
         const digitsOnly = val.replace(/[.,]/g, "");
         return digitsOnly.length <= totalDigits;
       },

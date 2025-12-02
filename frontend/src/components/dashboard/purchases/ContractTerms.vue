@@ -177,7 +177,7 @@ const getTypeLabel = (type: string) => {
         id="accept-contract"
         v-model="acceptedTerms"
         type="checkbox"
-        class="mt-0.5 h-5 w-5 shrink-0 touch-manipulation rounded border-neutral-300 text-emerald-500 focus:ring-emerald-500 sm:mt-1"
+        class="mt-0.5 h-5 w-5 min-w-[1.25rem] shrink-0 touch-manipulation rounded border-neutral-300 text-emerald-500 focus:ring-emerald-500 sm:mt-1"
       />
       <label
         for="accept-contract"

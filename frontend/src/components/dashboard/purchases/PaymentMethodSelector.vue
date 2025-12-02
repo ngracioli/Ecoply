@@ -273,7 +273,7 @@ const formatPrice = (price: number) => {
           inputmode="numeric"
           placeholder="0000 0000 0000 0000"
           maxlength="19"
-          class="w-full touch-manipulation rounded-lg border border-neutral-300 px-3 py-2.5 text-base focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:py-3"
+          class="w-full min-w-0 touch-manipulation rounded-lg border border-neutral-300 px-3 py-2.5 text-base focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:py-3"
         />
       </div>
 
@@ -287,7 +287,7 @@ const formatPrice = (price: number) => {
           v-model="card.holder_name"
           type="text"
           placeholder="Nome como está no cartão"
-          class="w-full touch-manipulation rounded-lg border border-neutral-300 px-3 py-2.5 text-base uppercase focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:py-3"
+          class="w-full min-w-0 touch-manipulation rounded-lg border border-neutral-300 px-3 py-2.5 text-base uppercase focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:py-3"
         />
       </div>
 
@@ -305,7 +305,7 @@ const formatPrice = (price: number) => {
             inputmode="numeric"
             placeholder="MM/AA"
             maxlength="5"
-            class="w-full touch-manipulation rounded-lg border border-neutral-300 px-3 py-2.5 text-base focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:py-3"
+            class="w-full min-w-0 touch-manipulation rounded-lg border border-neutral-300 px-3 py-2.5 text-base focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:py-3"
           />
         </div>
         <div>
@@ -321,7 +321,7 @@ const formatPrice = (price: number) => {
             inputmode="numeric"
             placeholder="123"
             maxlength="4"
-            class="w-full touch-manipulation rounded-lg border border-neutral-300 px-3 py-2.5 text-base focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:py-3"
+            class="w-full min-w-0 touch-manipulation rounded-lg border border-neutral-300 px-3 py-2.5 text-base focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:py-3"
           />
         </div>
       </div>
@@ -334,7 +334,7 @@ const formatPrice = (price: number) => {
         </label>
         <select
           v-model.number="selectedInstallments"
-          class="w-full touch-manipulation rounded-lg border border-neutral-300 px-3 py-2.5 text-base focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:py-3"
+          class="w-full min-w-0 touch-manipulation rounded-lg border border-neutral-300 px-3 py-2.5 text-base focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:py-3"
         >
           <option v-for="n in availableInstallments" :key="n" :value="n">
             {{ n }}x de {{ formatPrice(installmentPrice / n) }}
