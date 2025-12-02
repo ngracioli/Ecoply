@@ -86,21 +86,13 @@ A compra gera automaticamente a documentação necessária:
 
 ## 📦 Funcionalidades e Requisitos
 
-### Requisitos Funcionais Principais
+### Requisitos Principais
 
 * ✔ Cadastro e autenticação de usuários com **validação documental**.
 * ✔ Criação e gestão de ofertas de venda de energia.
-* ✔ Filtros avançados: nome, preço, submercado e vendedor.
+* ✔ Filtros avançados: tipo de energia, submercado e data inicio/fim.
 * ✔ **Recomendação por Geolocalização** (ofertas próximas em destaque).
 * ✔ Emissão automática de **contratos e notas fiscais** após a transação.
-* ✔ Notificações sobre atividades e status de compras.
-
-### 🔐 Requisitos Não Funcionais
-
-* **Segurança:** Autenticação por token (JWT) e proteção de rotas.
-* **Usabilidade:** Interface moderna, clara e responsiva (Vue + PrimeVue).
-* **Performance:** Baixa latência e rápido tempo de resposta.
-* **Arquitetura:** Alta escalabilidade e modularidade.
 
 ### 🧠 Requisitos Inovadores
 
@@ -142,7 +134,7 @@ O **Diagrama Físico** completo está disponível na seção de anexos.
 
 ## 🔗 Links Importantes
 
-* 🌐 **Link do Webiste**: https://ecoply.app/
+* 🌐 **Link do Website**: https://ecoply.app/
 
 * 📘 **Documentação interna**: https://docs.google.com/document/d/1UwBPm3Txfcy7cO2q9TO8K7J3G8PPCgLKKpbg-3Oc5T8/edit?usp=sharing
 
