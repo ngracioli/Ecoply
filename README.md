@@ -24,7 +24,7 @@ O projeto cria um marketplace totalmente automatizado, onde geradores, comercial
 * [⚡ Objetivo da Plataforma](#-objetivo-da-plataforma)
 * [💡 Como Funciona](#-como-funciona)
 * [🛠️ Tecnologias Utilizadas](#-tecnologias-utilizadas)
-* [📦 Funcionalidades e Requisitos](#-funcionalidades-e-requisitos)
+* [📦 Funcionalidades](#-funcionalidades-e-requisitos)
 * [📸 Artefatos e Anexos](#-artefatos-e-anexos)
 * [🔗 Links Importantes](#-links-importantes)
 
@@ -73,31 +73,27 @@ A compra gera automaticamente a documentação necessária:
 
 ## 🛠️ Tecnologias Utilizadas
 
-| Categoria | Tecnologia | Versão Principal |
-| :--- | :--- | :--- |
-| **Frontend** | Vue | 3.x |
-| | Vite, TailwindCSS, PrimeVue | Latest |
-| | TypeScript | 5.x |
-| **Backend** | Golang (Go) | 1.22+ |
+| Categoria | Tecnologia | 
+| :--- | :--- |
+| **Frontend** | Vue |
+| | Vite, TailwindCSS, PrimeVue 
+| | TypeScript |
+| **Backend** | Golang (Go) |
 | | **Arquitetura:** API com autenticação JWT e camadas (Handlers, Services, Repositórios). | |
-| **Banco de Dados** | **PostgreSQL** | Relacional e robusto. |
-| **Infraestrutura** | **Docker** | Containerização para desenvolvimento e testes. |
-|  | Postman | Utilizado para requisições e validação das APIs. |
+| **Banco de Dados** | **PostgreSQL** 
+| **Infraestrutura** | **Docker** |
+|  | Postman | 
+| **Deploy** | Railway |
 
-## 📦 Funcionalidades e Requisitos
+## 📦 Funcionalidades 
 
-### Requisitos Principais
+### Funcionalidades Principais
 
 * ✔ Cadastro e autenticação de usuários com **validação documental**.
 * ✔ Criação e gestão de ofertas de venda de energia.
 * ✔ Filtros avançados: tipo de energia, submercado e data inicio/fim.
 * ✔ **Recomendação por Geolocalização** (ofertas próximas em destaque).
 * ✔ Emissão automática de **contratos e notas fiscais** após a transação.
-
-### 🧠 Requisitos Inovadores
-
-* **Transparência Total:** Redução de burocracia no ACL através da automação documental.
-* **Gestão Descentralizada:** Facilidade na comercialização de excedentes, mitigando riscos.
 
 ### 🌍 Agentes da CCEE Atendidos
 
@@ -106,7 +102,6 @@ A plataforma é projetada para atender:
 * Geradores
 * Comercializadores
 * Consumidores Livres
-* Consumidores Especiais
 
 ---
 
