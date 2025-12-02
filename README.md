@@ -25,9 +25,7 @@ O projeto cria um marketplace totalmente automatizado, onde geradores, comercial
 * [💡 Como Funciona](#-como-funciona)
 * [🛠️ Tecnologias Utilizadas](#-tecnologias-utilizadas)
 * [📦 Funcionalidades e Requisitos](#-funcionalidades-e-requisitos)
-* [📂 Arquitetura do Projeto](#-arquitetura-do-projeto)
 * [📸 Artefatos e Anexos](#-artefatos-e-anexos)
-* [🏗️ Como Rodar o Projeto](#-como-rodar-o-projeto)
 * [🔗 Links Importantes](#-links-importantes)
 
 ---
@@ -43,7 +41,6 @@ A Ecoply transforma esse processo, criando um marketplace centralizado onde:
 
 1.  **Vendedores** publicam ofertas de excedente com preço fixo.
 2.  **Compradores** adquirem a energia de forma instantânea.
-3.  A plataforma automatiza a **emissão de termos, documentos e guias** para registro oficial na CCEE (Contratos de Comercialização de Energia no Ambiente Livre - CCEAL).
 
 ## ⚡ Objetivo da Plataforma
 
@@ -64,7 +61,6 @@ Somente **Agentes da CCEE**, ativos e validados, podem operar na plataforma, gar
 
 * **Criação:** Vendedores criam ofertas com preço fixo por MWh e quantidade disponível.
 * **Compra:** Compradores filtram, visualizam e compram a energia.
-* **Regra de Submercado:** O submercado do comprador deve **coincidir** com o submercado onde a oferta foi criada.
 
 ### 📝 Contrato Bilateral Assistido
 
@@ -72,11 +68,6 @@ A compra gera automaticamente a documentação necessária:
 
 * **Termo de Acordo Digital:** Comprador, vendedor, quantidade e preço.
 * **Resumo Formatado:** Dados prontos para o registro na CCEE.
-* **Tutorial:** Guia passo a passo para finalizar o registro do CCEAL.
-
-### 💵 Liquidação Financeira
-
-A **liquidação financeira da energia** é realizada pela própria **CCEE** em seu ciclo mensal. A Ecoply fatura apenas a sua taxa de serviço (*fee*), atualmente R$0,10/kWh negociado, separadamente, através de uma fatura de prestação de serviços.
 
 ---
 
@@ -91,7 +82,7 @@ A **liquidação financeira da energia** é realizada pela própria **CCEE** em 
 | | **Arquitetura:** API com autenticação JWT e camadas (Handlers, Services, Repositórios). | |
 | **Banco de Dados** | **PostgreSQL** | Relacional e robusto. |
 | **Infraestrutura** | **Docker** | Containerização para desenvolvimento e testes. |
-| **Testes** | Postman | Utilizado para requisições e validação das APIs. |
+|  | Postman | Utilizado para requisições e validação das APIs. |
 
 ## 📦 Funcionalidades e Requisitos
 
@@ -127,25 +118,6 @@ A plataforma é projetada para atender:
 
 ---
 
-## 📂 Arquitetura do Projeto
-
-O projeto segue uma arquitetura separada entre Frontend e Backend:
-
-* Ecoply/
-* ├─ frontend/
-* │ ├─ src/
-* │ ├─ components/
-* │ ├─ pages/
-* │ └─ ...
-* ├─ backend/
-* │ ├─ cmd/
-* │ ├─ internal/
-* │ ├─ models/ 
-* │ ├─ handlers/
-* │ └─ ...
-* └─ anexos/ # Documentação, diagramas e prints
-
-
 ### 🗂️ Banco de Dados
 
 O banco de dados relacional utiliza do **PostgreSQL** e usa as seguintes entidades principais para o controle de usuários, transações e localizações:
@@ -168,34 +140,9 @@ O **Diagrama Físico** completo está disponível na seção de anexos.
 
 ---
 
-## 🏗️ Como Rodar o Projeto
-
-### 🔧 Pré-requisitos
-
-* **Node.js** (18+) e **npm** ou **yarn**
-* **Go** (1.22+)
-
-### 1. 🖥️ Rodando o Frontend (Vue + Vite)
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-* Acesse a aplicação em: 👉 http://localhost:5173/
-
-### 2. ⚙️ Rodando o Backend (Golang)
-
-```Bash
-
-cd backend
-go mod tidy
-go run cmd/main.go
-```
-
-A API estará rodando em: 👉 http://localhost:8080/
-
 ## 🔗 Links Importantes
+
+* 🌐 **Link do Webiste**: https://ecoply.app/
 
 * 📘 **Documentação interna**: https://docs.google.com/document/d/1UwBPm3Txfcy7cO2q9TO8K7J3G8PPCgLKKpbg-3Oc5T8/edit?usp=sharing
 
