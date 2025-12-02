@@ -37,9 +37,9 @@ const percentage = computed(() => {
 
 const heightClass = computed(() => {
   const heights = {
-    sm: "h-2",
-    md: "h-3",
-    lg: "h-4",
+    sm: "h-1.5 sm:h-2",
+    md: "h-2 sm:h-3",
+    lg: "h-3 sm:h-4",
   };
   return heights[props.height];
 });
@@ -49,11 +49,11 @@ const heightClass = computed(() => {
   <div>
     <div
       v-if="showLabel && label"
-      class="mb-2 text-sm font-medium text-neutral-600"
+      class="mb-1.5 text-xs font-medium text-neutral-600 sm:mb-2 sm:text-sm"
     >
       {{ label }}
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 sm:gap-3">
       <div
         :class="[
           'flex-1 overflow-hidden rounded-full bg-neutral-200',
@@ -63,14 +63,14 @@ const heightClass = computed(() => {
         <div
           :style="{ width: `${percentage}%` }"
           :class="[
-            'h-full bg-gradient-to-r transition-all',
+            'h-full bg-gradient-to-r transition-all duration-300',
             `from-${gradientFrom} to-${gradientTo}`,
           ]"
         ></div>
       </div>
       <span
         v-if="showPercentage"
-        class="text-sm font-semibold text-neutral-700"
+        class="min-w-[2.5rem] text-xs font-semibold text-neutral-700 sm:min-w-[3rem] sm:text-sm"
       >
         {{ percentage }}%
       </span>

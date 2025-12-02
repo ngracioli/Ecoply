@@ -22,34 +22,37 @@ const handleClose = () => {
   <Transition name="modal-fade">
     <div
       v-if="status !== 'idle'"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-6 backdrop-blur-sm sm:px-6"
       @click.self="status === 'error' ? handleClose() : null"
     >
       <div
-        class="relative mx-4 w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl"
+        class="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl sm:rounded-3xl"
       >
         <div
           v-if="status === 'processing'"
-          class="flex flex-col items-center justify-center p-12"
+          class="flex flex-col items-center justify-center p-6 sm:p-10 md:p-12"
         >
-          <div class="relative mb-6">
+          <div class="relative mb-4 sm:mb-6">
             <div
               class="absolute inset-0 animate-spin rounded-full border-4 border-emerald-200"
               style="animation-duration: 1.5s"
             ></div>
             <div
-              class="flex h-24 w-24 animate-pulse items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-green-500"
+              class="flex h-20 w-20 animate-pulse items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-green-500 sm:h-24 sm:w-24"
             >
-              <Zap :size="40" class="text-white" />
+              <Zap :size="36" class="text-white sm:hidden" />
+              <Zap :size="40" class="hidden text-white sm:block" />
             </div>
           </div>
-          <h3 class="mb-2 text-2xl font-bold text-neutral-900">
+          <h3
+            class="mb-2 px-2 text-center text-xl font-bold text-neutral-900 sm:text-2xl"
+          >
             Processando Pagamento
           </h3>
-          <p class="text-center text-neutral-600">
+          <p class="px-4 text-center text-sm text-neutral-600 sm:text-base">
             Aguarde enquanto confirmamos sua compra...
           </p>
-          <div class="mt-6 flex gap-2">
+          <div class="mt-4 flex gap-2 sm:mt-6">
             <div
               class="h-2 w-2 animate-bounce rounded-full bg-emerald-500"
               style="animation-delay: 0ms"
@@ -67,14 +70,14 @@ const handleClose = () => {
 
         <div
           v-else-if="status === 'success'"
-          class="flex flex-col items-center justify-center p-12"
+          class="flex flex-col items-center justify-center p-6 sm:p-10 md:p-12"
         >
-          <div class="relative mb-6">
+          <div class="relative mb-4 sm:mb-6">
             <div
-              class="animate-scale-in flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-green-500"
+              class="animate-scale-in flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-green-500 sm:h-24 sm:w-24"
             >
               <svg
-                class="animate-check-draw h-12 w-12 text-white"
+                class="animate-check-draw h-10 w-10 text-white sm:h-12 sm:w-12"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -90,24 +93,26 @@ const handleClose = () => {
               style="animation-iteration-count: 1; animation-duration: 1s"
             ></div>
           </div>
-          <h3 class="mb-2 text-2xl font-bold text-emerald-600">
+          <h3
+            class="mb-2 px-2 text-center text-xl font-bold text-emerald-600 sm:text-2xl"
+          >
             Compra Concluída!
           </h3>
-          <p class="text-center text-neutral-600">
+          <p class="px-4 text-center text-sm text-neutral-600 sm:text-base">
             Sua compra foi realizada com sucesso
           </p>
         </div>
 
         <div
           v-else-if="status === 'error'"
-          class="flex flex-col items-center justify-center p-12"
+          class="flex flex-col items-center justify-center p-6 sm:p-10 md:p-12"
         >
-          <div class="relative mb-6">
+          <div class="relative mb-4 sm:mb-6">
             <div
-              class="animate-scale-in flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-red-400 to-red-500"
+              class="animate-scale-in flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-red-400 to-red-500 sm:h-24 sm:w-24"
             >
               <svg
-                class="animate-x-draw h-12 w-12 text-white"
+                class="animate-x-draw h-10 w-10 text-white sm:h-12 sm:w-12"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -124,15 +129,17 @@ const handleClose = () => {
               style="animation-iteration-count: 1; animation-duration: 1s"
             ></div>
           </div>
-          <h3 class="mb-2 text-2xl font-bold text-red-600">
+          <h3
+            class="mb-2 px-2 text-center text-xl font-bold text-red-600 sm:text-2xl"
+          >
             Pagamento Recusado
           </h3>
-          <p class="text-center text-neutral-600">
+          <p class="px-4 text-center text-sm text-neutral-600 sm:text-base">
             {{ errorMessage || "Não foi possível processar sua compra" }}
           </p>
           <button
             @click="handleClose"
-            class="mt-6 rounded-lg bg-neutral-100 px-6 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-200"
+            class="mt-4 min-h-[44px] rounded-lg bg-neutral-100 px-6 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-200 active:bg-neutral-300 sm:mt-6 sm:min-h-0 sm:py-2.5"
           >
             Tentar Novamente
           </button>

@@ -76,31 +76,42 @@ const scrollToDashboard = () => {
 </script>
 
 <template>
-  <section id="offer-demonstration" class="bg-white px-8 py-24">
+  <section
+    id="offer-demonstration"
+    class="bg-white px-4 py-12 sm:px-6 sm:py-16 md:px-8 lg:py-24"
+  >
     <div class="mx-auto max-w-7xl">
-      <div class="mb-20 text-center">
+      <div class="mb-12 text-center sm:mb-16 lg:mb-20">
         <div
-          class="mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2"
+          class="mb-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 sm:mb-4 sm:gap-2 sm:px-4 sm:py-2"
         >
           <div
-            class="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500"
+            class="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 sm:h-6 sm:w-6"
           >
-            <i class="pi pi-shopping-cart text-xs text-white"></i>
+            <i
+              class="pi pi-shopping-cart text-[10px] text-white sm:text-xs"
+            ></i>
           </div>
-          <span class="text-sm font-medium text-emerald-700">
+          <span class="text-xs font-medium text-emerald-700 sm:text-sm">
             Marketplace
           </span>
         </div>
-        <h2 class="mb-4 text-5xl font-bold tracking-tight text-gray-900">
+        <h2
+          class="mb-3 text-3xl font-bold tracking-tight text-gray-900 sm:mb-4 sm:text-4xl lg:text-5xl"
+        >
           Marketplace de Energia
         </h2>
-        <p class="mx-auto max-w-2xl text-lg text-gray-600">
+        <p
+          class="mx-auto max-w-2xl px-4 text-base text-gray-600 sm:px-0 sm:text-lg"
+        >
           Explore ofertas reais de energia renovável com preços transparentes e
           transações seguras
         </p>
       </div>
 
-      <div class="mb-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+      <div
+        class="mb-8 grid gap-4 sm:mb-10 sm:gap-6 md:grid-cols-2 md:gap-8 lg:mb-12 lg:grid-cols-3"
+      >
         <div
           v-for="offer in mockOffers"
           :key="offer.uuid"
@@ -115,16 +126,17 @@ const scrollToDashboard = () => {
       </div>
 
       <div class="text-center">
-        <p class="mb-6 text-sm text-gray-600">
+        <p class="mb-4 text-xs text-gray-600 sm:mb-6 sm:text-sm">
           Mais de {{ offersText }} ofertas disponíveis na plataforma
         </p>
         <button
           @click="scrollToDashboard"
-          class="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-emerald-600 to-emerald-700 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/40"
+          class="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-600 to-emerald-700 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/40 active:scale-95 sm:gap-3 sm:px-8 sm:py-4 sm:text-base"
         >
-          Explorar Todas as Ofertas
+          <span class="hidden sm:inline">Explorar Todas as Ofertas</span>
+          <span class="sm:hidden">Ver Ofertas</span>
           <i
-            class="pi pi-arrow-right text-sm transition-transform duration-300 group-hover:translate-x-1"
+            class="pi pi-arrow-right text-xs transition-transform duration-300 group-hover:translate-x-1 sm:text-sm"
           ></i>
         </button>
       </div>

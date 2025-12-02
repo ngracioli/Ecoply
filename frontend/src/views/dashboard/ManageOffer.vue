@@ -235,54 +235,64 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-neutral-50">
-    <div class="mx-auto max-w-7xl p-8">
+  <div class="min-h-dvh bg-neutral-50">
+    <div class="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
       <button
         @click="goBack"
-        class="mb-6 flex items-center gap-2 text-sm font-medium text-neutral-600 transition-colors hover:text-neutral-900"
+        class="mb-4 flex items-center gap-2 text-xs font-medium text-neutral-600 transition-colors hover:text-neutral-900 sm:mb-6 sm:text-sm"
       >
-        <ArrowLeft :size="16" />
+        <ArrowLeft :size="16" class="hidden sm:block" />
+        <ArrowLeft :size="14" class="sm:hidden" />
         Voltar ao Dashboard
       </button>
 
-      <div v-if="loading" class="flex items-center justify-center py-20">
-        <div class="flex flex-col items-center gap-3">
+      <div
+        v-if="loading"
+        class="flex items-center justify-center py-12 sm:py-20"
+      >
+        <div class="flex flex-col items-center gap-2 sm:gap-3">
           <div
-            class="h-12 w-12 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"
+            class="h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent sm:h-12 sm:w-12"
           ></div>
-          <p class="text-sm text-neutral-500">Carregando oferta...</p>
+          <p class="text-xs text-neutral-500 sm:text-sm">
+            Carregando oferta...
+          </p>
         </div>
       </div>
 
       <div
         v-else-if="error"
-        class="rounded-xl border border-red-200 bg-red-50 p-8 text-center"
+        class="rounded-lg border border-red-200 bg-red-50 p-4 text-center sm:rounded-xl sm:p-8"
       >
-        <p class="text-sm text-red-600">{{ error }}</p>
+        <p class="text-xs text-red-600 sm:text-sm">{{ error }}</p>
         <button
           @click="loadOffer"
-          class="mt-4 rounded-lg bg-red-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-red-700"
+          class="mt-3 rounded-lg bg-red-600 px-4 py-2 text-xs font-medium text-white hover:bg-red-700 sm:mt-4 sm:px-6 sm:py-2.5 sm:text-sm"
         >
           Tentar Novamente
         </button>
       </div>
 
-      <div v-else-if="offer" class="flex flex-col gap-6">
+      <div v-else-if="offer" class="flex flex-col gap-4 sm:gap-6">
         <div
-          class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm"
+          class="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm sm:rounded-xl"
         >
           <div
-            :class="['h-3 w-full bg-gradient-to-r', typeConfig.gradient]"
+            :class="['h-2 w-full bg-gradient-to-r sm:h-3', typeConfig.gradient]"
           ></div>
 
-          <div class="p-8">
-            <div class="flex items-center gap-3">
-              <h1 class="text-3xl font-bold text-neutral-900">
+          <div class="p-4 sm:p-6 lg:p-8">
+            <div
+              class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3"
+            >
+              <h1
+                class="text-xl font-bold text-neutral-900 sm:text-2xl lg:text-3xl"
+              >
                 {{ offer.description }}
               </h1>
               <span
                 :class="[
-                  'rounded-full px-4 py-1.5 text-sm font-medium',
+                  'inline-flex w-fit rounded-full px-3 py-1 text-xs font-medium sm:px-4 sm:py-1.5 sm:text-sm',
                   typeConfig.badge,
                 ]"
               >
@@ -290,16 +300,18 @@ onMounted(() => {
               </span>
             </div>
 
-            <div class="mt-6 flex items-baseline gap-2">
-              <span class="text-4xl font-bold text-neutral-900">
+            <div class="mt-4 flex items-baseline gap-1 sm:mt-6 sm:gap-2">
+              <span
+                class="text-2xl font-bold text-neutral-900 sm:text-3xl lg:text-4xl"
+              >
                 {{ formatPrice(offer.price_per_mwh) }}
               </span>
-              <span class="text-lg text-neutral-500">/MWh</span>
+              <span class="text-base text-neutral-500 sm:text-lg">/MWh</span>
             </div>
 
-            <div class="mt-6">
+            <div class="mt-4 sm:mt-6">
               <div
-                class="flex items-center justify-between text-sm text-neutral-600"
+                class="flex items-center justify-between text-xs text-neutral-600 sm:text-sm"
               >
                 <span
                   >Disponível:
@@ -314,7 +326,7 @@ onMounted(() => {
                   }}</span></span
                 >
               </div>
-              <div class="mt-2">
+              <div class="mt-1.5 sm:mt-2">
                 <ProgressBar
                   :current-value="offer.remaining_quantity_mwh"
                   :total-value="offer.initial_quantity_mwh"
@@ -327,24 +339,32 @@ onMounted(() => {
             </div>
 
             <div
-              class="mt-6 flex flex-wrap items-center gap-6 border-t border-neutral-100 pt-6"
+              class="mt-4 flex flex-wrap items-center gap-3 border-t border-neutral-100 pt-4 sm:mt-6 sm:gap-6 sm:pt-6"
             >
-              <div class="flex items-center gap-2 text-sm">
+              <div
+                class="flex items-center gap-1.5 text-xs sm:gap-2 sm:text-sm"
+              >
                 <span class="font-medium text-neutral-600">Submercado:</span>
                 <SubmarketBadge
                   :offer-submarket="offer.submarket"
                   size="small"
                 />
               </div>
-              <div class="flex items-center gap-2 text-sm text-neutral-600">
-                <Calendar :size="18" class="text-neutral-400" />
+              <div
+                class="flex items-center gap-1.5 text-xs text-neutral-600 sm:gap-2 sm:text-sm"
+              >
+                <Calendar :size="16" class="text-neutral-400 sm:hidden" />
+                <Calendar :size="18" class="hidden text-neutral-400 sm:block" />
                 <span
                   ><span class="font-medium">Início:</span>
                   {{ formatDate(offer.period_start) }}</span
                 >
               </div>
-              <div class="flex items-center gap-2 text-sm text-neutral-600">
-                <Calendar :size="18" class="text-neutral-400" />
+              <div
+                class="flex items-center gap-1.5 text-xs text-neutral-600 sm:gap-2 sm:text-sm"
+              >
+                <Calendar :size="16" class="text-neutral-400 sm:hidden" />
+                <Calendar :size="18" class="hidden text-neutral-400 sm:block" />
                 <span
                   ><span class="font-medium">Término:</span>
                   {{ formatDate(offer.period_end) }}</span
@@ -352,7 +372,9 @@ onMounted(() => {
               </div>
             </div>
 
-            <div class="mt-6 flex gap-3 border-t border-neutral-100 pt-6">
+            <div
+              class="mt-4 flex flex-col gap-2 border-t border-neutral-100 pt-4 sm:mt-6 sm:flex-row sm:gap-3 sm:pt-6"
+            >
               <button
                 v-tooltip.top="{
                   value: isOfferEditable
@@ -366,13 +388,14 @@ onMounted(() => {
                 @click="openEditDialog"
                 :disabled="!isOfferEditable"
                 :class="[
-                  'flex items-center justify-center gap-2 rounded-lg border-2 px-6 py-2.5 text-sm font-medium transition-all duration-200',
+                  'flex flex-1 items-center justify-center gap-1.5 rounded-lg border-2 px-4 py-2 text-xs font-medium transition-all duration-200 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm',
                   isOfferEditable
                     ? 'border-blue-500 bg-transparent text-blue-600 hover:bg-blue-500 hover:text-white'
                     : 'cursor-not-allowed border-neutral-300 bg-neutral-100 text-neutral-400',
                 ]"
               >
-                <Edit :size="16" />
+                <Edit :size="14" class="sm:hidden" />
+                <Edit :size="16" class="hidden sm:block" />
                 Editar Oferta
               </button>
               <button
@@ -388,13 +411,14 @@ onMounted(() => {
                 @click="openDeleteDialog"
                 :disabled="!isOfferEditable"
                 :class="[
-                  'flex items-center justify-center gap-2 rounded-lg border-2 px-6 py-2.5 text-sm font-medium transition-all duration-200',
+                  'flex flex-1 items-center justify-center gap-1.5 rounded-lg border-2 px-4 py-2 text-xs font-medium transition-all duration-200 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm',
                   isOfferEditable
                     ? 'border-red-500 bg-transparent text-red-600 hover:bg-red-500 hover:text-white'
                     : 'cursor-not-allowed border-neutral-300 bg-neutral-100 text-neutral-400',
                 ]"
               >
-                <Trash2 :size="16" />
+                <Trash2 :size="14" class="sm:hidden" />
+                <Trash2 :size="16" class="hidden sm:block" />
                 Excluir Oferta
               </button>
             </div>

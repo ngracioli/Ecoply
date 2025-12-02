@@ -47,72 +47,98 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <div class="sticky top-8 space-y-6">
-    <div class="rounded-xl bg-white p-6 shadow-sm">
-      <h2 class="mb-6 text-lg font-semibold text-neutral-900">
+  <div class="sticky top-4 space-y-4 sm:top-8 sm:space-y-5 md:space-y-6">
+    <div class="rounded-lg bg-white p-4 shadow-sm sm:rounded-xl sm:p-5 md:p-6">
+      <h2
+        class="mb-4 text-base font-semibold text-neutral-900 sm:mb-5 sm:text-lg md:mb-6"
+      >
         Resumo do Pedido
       </h2>
 
-      <div class="space-y-4">
-        <div class="rounded-lg bg-neutral-50 p-4">
-          <p class="text-sm font-medium text-neutral-600">
+      <div class="space-y-3 sm:space-y-4">
+        <div class="rounded-lg bg-neutral-50 p-3 sm:p-4">
+          <p
+            class="text-xs font-medium break-words text-neutral-600 sm:text-sm"
+          >
             {{ getTypeLabel(offer.energy_type) }}
           </p>
-          <p class="mt-1 text-xs text-neutral-500">
+          <p class="mt-1 text-xs break-words text-neutral-500">
             {{ offer.description }}
           </p>
         </div>
 
-        <div class="space-y-3 border-t border-neutral-200 pt-4">
-          <div class="flex justify-between text-sm">
-            <span class="text-neutral-600">Quantidade</span>
-            <span class="font-medium text-neutral-900">
+        <div
+          class="space-y-2 border-t border-neutral-200 pt-3 sm:space-y-3 sm:pt-4"
+        >
+          <div
+            class="flex items-center justify-between gap-3 text-xs sm:text-sm"
+          >
+            <span class="shrink-0 text-neutral-600">Quantidade</span>
+            <span
+              class="min-w-0 text-right font-medium break-words text-neutral-900"
+            >
               {{ quantityMwh ? formatQuantity(quantityMwh) : "—" }}
             </span>
           </div>
 
-          <div class="flex justify-between text-sm">
-            <span class="text-neutral-600">Preço por MWh</span>
-            <span class="font-medium text-neutral-900">
+          <div
+            class="flex items-center justify-between gap-3 text-xs sm:text-sm"
+          >
+            <span class="shrink-0 text-neutral-600">Preço por MWh</span>
+            <span
+              class="min-w-0 text-right font-medium break-words text-neutral-900"
+            >
               {{ formatPrice(pricePerMwh) }}
             </span>
           </div>
 
           <div
             v-if="paymentMethod === 'card' && installments > 1"
-            class="flex justify-between text-sm"
+            class="flex items-center justify-between gap-3 text-xs sm:text-sm"
           >
-            <span class="text-neutral-600">Parcelas</span>
-            <span class="font-medium text-neutral-900">
+            <span class="shrink-0 text-neutral-600">Parcelas</span>
+            <span
+              class="min-w-0 text-right font-medium break-words text-neutral-900"
+            >
               {{ installments }}x sem juros
             </span>
           </div>
         </div>
 
-        <div class="flex justify-between border-t-2 border-neutral-200 pt-4">
-          <span class="text-lg font-semibold text-neutral-900">Total</span>
-          <span class="text-2xl font-bold text-emerald-600">
+        <div
+          class="flex items-center justify-between gap-3 border-t-2 border-neutral-200 pt-3 sm:pt-4"
+        >
+          <span
+            class="shrink-0 text-base font-semibold text-neutral-900 sm:text-lg"
+            >Total</span
+          >
+          <span
+            class="min-w-0 text-right text-xl font-bold break-words text-emerald-600 sm:text-2xl"
+          >
             {{ formatPrice(totalPrice) }}
           </span>
         </div>
 
         <div
           v-if="paymentMethod === 'card' && installments > 1"
-          class="text-center text-sm text-neutral-500"
+          class="text-center text-xs text-neutral-500 sm:text-sm"
         >
           {{ installments }}x de {{ formatPrice(installmentPrice) }}
         </div>
       </div>
     </div>
 
-    <div class="rounded-xl bg-emerald-50 p-6">
-      <div class="flex items-start gap-3">
-        <div class="rounded-lg bg-emerald-100 p-2">
-          <ShieldCheck class="text-emerald-600" :size="20" />
+    <div class="rounded-lg bg-emerald-50 p-4 sm:rounded-xl sm:p-5 md:p-6">
+      <div class="flex items-start gap-2.5 sm:gap-3">
+        <div class="shrink-0 rounded-lg bg-emerald-100 p-1.5 sm:p-2">
+          <ShieldCheck class="text-emerald-600" :size="18" />
+          <ShieldCheck class="hidden text-emerald-600 sm:block" :size="20" />
         </div>
-        <div>
-          <h3 class="font-semibold text-emerald-900">Compra Segura</h3>
-          <p class="mt-1 text-sm text-emerald-700">
+        <div class="min-w-0">
+          <h3 class="text-sm font-semibold text-emerald-900 sm:text-base">
+            Compra Segura
+          </h3>
+          <p class="mt-1 text-xs break-words text-emerald-700 sm:text-sm">
             Seus dados estão protegidos com criptografia de ponta a ponta
           </p>
         </div>
@@ -123,7 +149,7 @@ const handleSubmit = () => {
       @click="handleSubmit"
       :disabled="!isFormValid || processing"
       :class="[
-        'w-full rounded-xl py-4 font-semibold text-white shadow-lg transition-all',
+        'min-h-[44px] w-full touch-manipulation rounded-lg py-3 text-base font-semibold text-white shadow-lg transition-all active:scale-[0.98] sm:rounded-xl sm:py-3.5 md:py-4',
         isFormValid && !processing
           ? 'bg-gradient-to-r from-emerald-500 to-green-500 hover:shadow-xl hover:brightness-110'
           : 'cursor-not-allowed bg-neutral-300',
@@ -131,24 +157,25 @@ const handleSubmit = () => {
     >
       <span v-if="processing" class="flex items-center justify-center gap-2">
         <div
-          class="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"
+          class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent sm:h-5 sm:w-5"
         ></div>
         Processando...
       </span>
       <span v-else class="flex items-center justify-center gap-2">
-        <Lock :size="20" />
+        <Lock :size="18" />
+        <Lock class="hidden sm:block" :size="20" />
         Finalizar Compra
       </span>
     </button>
 
-    <div class="space-y-2">
+    <div class="space-y-1.5 sm:space-y-2">
       <p
         v-if="!acceptedTerms"
-        class="text-center text-xs font-medium text-amber-600"
+        class="px-2 text-center text-xs font-medium break-words text-amber-600"
       >
         ⚠️ Você precisa aceitar os termos e condições para finalizar
       </p>
-      <p v-else class="text-center text-xs text-neutral-500">
+      <p v-else class="px-2 text-center text-xs break-words text-neutral-500">
         Ao finalizar, você concorda com os termos do contrato
       </p>
     </div>

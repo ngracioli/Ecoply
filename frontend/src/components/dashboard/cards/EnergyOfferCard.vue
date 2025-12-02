@@ -95,20 +95,22 @@ const handleActionClick = () => {
 
 <template>
   <div
-    class="group relative overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
+    class="group relative overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg sm:rounded-xl"
   >
-    <div :class="['h-2 w-full bg-gradient-to-r', typeConfig.gradient]"></div>
+    <div
+      :class="['h-1.5 w-full bg-gradient-to-r sm:h-2', typeConfig.gradient]"
+    ></div>
 
-    <div class="p-6">
-      <div class="flex items-start justify-between gap-4">
-        <div class="flex-1">
+    <div class="p-4 sm:p-6">
+      <div class="flex items-start justify-between gap-3 sm:gap-4">
+        <div class="min-w-0 flex-1">
           <div class="flex items-baseline gap-1">
-            <span class="text-3xl font-bold text-neutral-900">
+            <span class="text-2xl font-bold text-neutral-900 sm:text-3xl">
               {{ displayData.price }}
             </span>
-            <span class="text-sm text-neutral-500">/MWh</span>
+            <span class="text-xs text-neutral-500 sm:text-sm">/MWh</span>
           </div>
-          <p class="mt-1 text-sm font-medium text-neutral-600">
+          <p class="mt-1 text-xs font-medium text-neutral-600 sm:text-sm">
             Disponível:
             <span class="font-semibold">{{ displayData.quantity }}</span> de
             <span class="font-semibold">{{ displayData.initialQuantity }}</span>
@@ -116,7 +118,7 @@ const handleActionClick = () => {
         </div>
         <span
           :class="[
-            'rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap',
+            'shrink-0 rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap sm:px-3',
             typeConfig.badge,
           ]"
         >
@@ -124,7 +126,7 @@ const handleActionClick = () => {
         </span>
       </div>
 
-      <div class="mt-4">
+      <div class="mt-3 sm:mt-4">
         <ProgressBar
           :current-value="offer.remaining_quantity_mwh"
           :total-value="offer.initial_quantity_mwh"
@@ -135,24 +137,34 @@ const handleActionClick = () => {
         />
       </div>
 
-      <div class="mt-6 flex flex-col gap-3 border-t border-neutral-100 pt-4">
+      <div
+        class="mt-4 flex flex-col gap-2.5 border-t border-neutral-100 pt-3 sm:mt-6 sm:gap-3 sm:pt-4"
+      >
         <div class="flex items-center gap-2">
-          <span class="text-sm text-neutral-500">Submercado:</span>
+          <span class="shrink-0 text-xs text-neutral-500 sm:text-sm"
+            >Submercado:</span
+          >
           <SubmarketBadge
             :offer-submarket="displayData.location"
             size="small"
           />
         </div>
-        <div class="flex items-center gap-2 text-sm text-neutral-600">
-          <Calendar :size="16" class="text-neutral-400" />
+        <div
+          class="flex items-center gap-2 text-xs text-neutral-600 sm:text-sm"
+        >
+          <Calendar :size="14" class="shrink-0 text-neutral-400 sm:hidden" />
+          <Calendar
+            :size="16"
+            class="hidden shrink-0 text-neutral-400 sm:block"
+          />
           <span>Válido até {{ displayData.deadline }}</span>
         </div>
       </div>
 
-      <div class="mt-6 flex flex-col gap-2">
+      <div class="mt-4 flex flex-col gap-2 sm:mt-6">
         <button
           @click="handleActionClick"
-          class="w-full rounded-lg border-2 border-emerald-500 bg-transparent py-2.5 text-sm font-medium text-emerald-600 transition-all duration-200 hover:bg-emerald-500 hover:text-white"
+          class="min-h-[44px] w-full touch-manipulation rounded-lg border-2 border-emerald-500 bg-transparent py-2.5 text-sm font-medium text-emerald-600 transition-all duration-200 hover:bg-emerald-500 hover:text-white active:scale-[0.98] sm:py-2.5"
         >
           {{ actionButtonText || "Ver Detalhes" }}
         </button>

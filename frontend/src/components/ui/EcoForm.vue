@@ -23,7 +23,11 @@ function onSubmit(ev: Event) {
 </script>
 
 <template>
-  <component :is="props.as" @submit.prevent="onSubmit" class="space-y-6">
+  <component
+    :is="props.as"
+    @submit.prevent="onSubmit"
+    class="space-y-4 sm:space-y-5 md:space-y-6"
+  >
     <slot />
   </component>
 </template>

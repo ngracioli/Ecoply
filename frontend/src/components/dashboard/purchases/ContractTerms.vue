@@ -47,15 +47,17 @@ const getTypeLabel = (type: string) => {
 </script>
 
 <template>
-  <div class="rounded-xl bg-white p-6 shadow-sm">
-    <h2 class="mb-4 text-lg font-semibold text-neutral-900">
+  <div class="rounded-lg bg-white p-4 shadow-sm sm:rounded-xl sm:p-5 md:p-6">
+    <h2
+      class="mb-3 text-base font-semibold text-neutral-900 sm:mb-4 sm:text-lg"
+    >
       Termos e Condições de Compra e Uso
     </h2>
 
     <div
-      class="max-h-96 space-y-4 overflow-y-auto rounded-lg bg-neutral-50 p-6 text-sm text-neutral-700"
+      class="max-h-80 space-y-3 overflow-y-auto rounded-lg bg-neutral-50 p-4 text-xs text-neutral-700 sm:max-h-96 sm:space-y-4 sm:p-5 sm:text-sm md:p-6"
     >
-      <h3 class="font-semibold text-neutral-900">
+      <h3 class="text-sm font-semibold text-neutral-900 sm:text-base">
         TERMOS E CONDIÇÕES DE COMPRA E USO
       </h3>
 
@@ -80,26 +82,35 @@ const getTypeLabel = (type: string) => {
         valores incluem tributos conforme a legislação vigente.
       </p>
 
-      <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-        <p class="mb-2 font-semibold text-emerald-900">
+      <div
+        class="rounded-lg border border-emerald-200 bg-emerald-50 p-3 sm:p-4"
+      >
+        <p class="mb-2 text-xs font-semibold text-emerald-900 sm:text-sm">
           Detalhes da sua compra:
         </p>
-        <ul class="list-inside list-disc space-y-1 pl-2 text-emerald-800">
-          <li>Tipo de energia: {{ getTypeLabel(offer.energy_type) }}</li>
-          <li>
+        <ul
+          class="list-inside list-disc space-y-1 pl-1 text-xs text-emerald-800 sm:pl-2 sm:text-sm"
+        >
+          <li class="break-words">
+            Tipo de energia: {{ getTypeLabel(offer.energy_type) }}
+          </li>
+          <li class="break-words">
             Quantidade: {{ quantityMwh ? formatQuantity(quantityMwh) : "—" }}
           </li>
-          <li>Preço unitário: {{ formatPrice(pricePerMwh) }}/MWh</li>
-          <li>Valor total: {{ formatPrice(totalPrice) }}</li>
-          <li class="flex items-center gap-2">
-            <span>Submercado:</span>
-            <SubmarketBadge
-              :offer-submarket="offer.submarket"
-              size="small"
-            />
+          <li class="break-words">
+            Preço unitário: {{ formatPrice(pricePerMwh) }}/MWh
           </li>
-          <li>Período: {{ offer.period_start }} até {{ offer.period_end }}</li>
-          <li>
+          <li class="break-words">
+            Valor total: {{ formatPrice(totalPrice) }}
+          </li>
+          <li class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <span>Submercado:</span>
+            <SubmarketBadge :offer-submarket="offer.submarket" size="small" />
+          </li>
+          <li class="break-words">
+            Período: {{ offer.period_start }} até {{ offer.period_end }}
+          </li>
+          <li class="break-words">
             Forma de pagamento:
             <span v-if="paymentMethod === 'pix'"
               >PIX com aprovação instantânea</span
@@ -155,20 +166,23 @@ const getTypeLabel = (type: string) => {
         o foro da comarca do domicílio do consumidor.
       </p>
 
-      <p class="mt-6 text-xs text-neutral-500 italic">
+      <p class="mt-4 text-xs text-neutral-500 italic sm:mt-6">
         Este é um ambiente de demonstração. Nenhuma transação real será
         realizada.
       </p>
     </div>
 
-    <div class="mt-4 flex items-start gap-3">
+    <div class="mt-3 flex items-start gap-2 sm:mt-4 sm:gap-3">
       <input
         id="accept-contract"
         v-model="acceptedTerms"
         type="checkbox"
-        class="mt-1 h-5 w-5 rounded border-neutral-300 text-emerald-500 focus:ring-emerald-500"
+        class="mt-0.5 h-5 w-5 shrink-0 touch-manipulation rounded border-neutral-300 text-emerald-500 focus:ring-emerald-500 sm:mt-1"
       />
-      <label for="accept-contract" class="text-sm text-neutral-700">
+      <label
+        for="accept-contract"
+        class="cursor-pointer text-xs text-neutral-700 select-none sm:text-sm"
+      >
         Li e aceito os termos e condições de compra e uso
         <span class="text-red-500">*</span>
       </label>

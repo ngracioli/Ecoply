@@ -8,6 +8,8 @@ import {
   LogOut,
   User,
   Zap,
+  Menu,
+  X,
 } from "lucide-vue-next";
 
 interface SubMenuItem {
@@ -34,6 +36,8 @@ const emit = defineEmits<{
   navigate: [key: string];
   logout: [];
 }>();
+
+const isMobileMenuOpen = ref(false);
 
 const store = useStore();
 const activeItem = ref<MenuItemKey>("overview");
@@ -72,6 +76,7 @@ const isProfileActive = computed(
 const handleItemClick = (key: string) => {
   activeItem.value = key as MenuItemKey;
   isProfileDropdownOpen.value = false;
+  isMobileMenuOpen.value = false;
   emit("navigate", key);
 };
 
@@ -91,26 +96,63 @@ const toggleProfileDropdown = () => {
 
 const handleSubItemClick = (key: string) => {
   activeItem.value = key as MenuItemKey;
+  isMobileMenuOpen.value = false;
   emit("navigate", key);
 };
 
 const handleLogout = () => {
+  isMobileMenuOpen.value = false;
   emit("logout");
+};
+
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value;
 };
 </script>
 
 <template>
-  <nav
-    class="flex h-screen w-64 flex-col justify-between border-r border-neutral-200 bg-white"
+  <button
+    @click="toggleMobileMenu"
+    class="fixed top-4 left-4 z-50 flex touch-manipulation items-center justify-center rounded-lg border border-neutral-200 bg-white p-2.5 shadow-lg md:hidden"
   >
-    <div class="p-6">
-      <div class="mb-8 flex items-center gap-3">
+    <Menu v-if="!isMobileMenuOpen" :size="24" class="text-neutral-700" />
+    <X v-else :size="24" class="text-neutral-700" />
+  </button>
+
+  <Transition
+    name="mobile-menu"
+    enter-active-class="transition-opacity duration-300"
+    leave-active-class="transition-opacity duration-200"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
+    leave-from-class="opacity-100"
+    leave-to-class="opacity-0"
+  >
+    <div
+      v-if="isMobileMenuOpen"
+      @click="isMobileMenuOpen = false"
+      class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+    ></div>
+  </Transition>
+
+  <nav
+    :class="[
+      'flex flex-col justify-between border-r border-neutral-200 bg-white transition-transform duration-300 ease-in-out',
+      'fixed inset-y-0 left-0 z-40 h-screen w-64 md:static md:h-screen',
+      isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+    ]"
+  >
+    <div class="p-4 sm:p-6">
+      <div class="mb-6 flex items-center gap-2.5 sm:mb-8 sm:gap-3">
         <div
-          class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md"
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md sm:h-10 sm:w-10"
         >
-          <Zap :size="24" :stroke-width="2.5" />
+          <Zap :size="22" class="sm:hidden" :stroke-width="2.5" />
+          <Zap :size="24" class="hidden sm:block" :stroke-width="2.5" />
         </div>
-        <span class="text-xl font-bold text-neutral-800">Ecoply</span>
+        <span class="text-lg font-bold text-neutral-800 sm:text-xl"
+          >Ecoply</span
+        >
       </div>
 
       <ul class="flex flex-col gap-1">
@@ -119,18 +161,29 @@ const handleLogout = () => {
             v-if="!item.hasDropdown"
             @click="handleItemClick(item.key)"
             :class="[
-              'group flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-all duration-200',
+              'group flex w-full touch-manipulation items-center gap-2.5 rounded-lg px-3 py-2.5 text-left transition-all duration-200 sm:gap-3 sm:px-4 sm:py-3',
               activeItem === item.key
                 ? 'bg-emerald-50 text-emerald-700 shadow-sm'
-                : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900',
+                : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 active:scale-[0.98]',
             ]"
           >
+            <component
+              :is="item.icon"
+              :size="18"
+              :stroke-width="2"
+              :class="[
+                'shrink-0 transition-colors duration-200 sm:hidden',
+                activeItem === item.key
+                  ? 'text-emerald-600'
+                  : 'text-neutral-400 group-hover:text-neutral-600',
+              ]"
+            />
             <component
               :is="item.icon"
               :size="20"
               :stroke-width="2"
               :class="[
-                'transition-colors duration-200',
+                'hidden shrink-0 transition-colors duration-200 sm:block',
                 activeItem === item.key
                   ? 'text-emerald-600'
                   : 'text-neutral-400 group-hover:text-neutral-600',
@@ -143,19 +196,30 @@ const handleLogout = () => {
             <button
               @click="toggleProfileDropdown"
               :class="[
-                'group flex w-full items-center justify-between rounded-lg px-4 py-3 text-left transition-all duration-200',
+                'group flex w-full touch-manipulation items-center justify-between rounded-lg px-3 py-2.5 text-left transition-all duration-200 sm:px-4 sm:py-3',
                 isProfileActive
                   ? 'bg-emerald-50 text-emerald-700 shadow-sm'
-                  : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900',
+                  : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 active:scale-[0.98]',
               ]"
             >
-              <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2.5 sm:gap-3">
+                <component
+                  :is="item.icon"
+                  :size="18"
+                  :stroke-width="2"
+                  :class="[
+                    'shrink-0 transition-colors duration-200 sm:hidden',
+                    isProfileActive
+                      ? 'text-emerald-600'
+                      : 'text-neutral-400 group-hover:text-neutral-600',
+                  ]"
+                />
                 <component
                   :is="item.icon"
                   :size="20"
                   :stroke-width="2"
                   :class="[
-                    'transition-colors duration-200',
+                    'hidden shrink-0 transition-colors duration-200 sm:block',
                     isProfileActive
                       ? 'text-emerald-600'
                       : 'text-neutral-400 group-hover:text-neutral-600',
@@ -166,7 +230,7 @@ const handleLogout = () => {
               <ChevronDown
                 :size="16"
                 :class="[
-                  'transition-transform duration-200',
+                  'shrink-0 transition-transform duration-200',
                   isProfileDropdownOpen ? 'rotate-180' : '',
                   isProfileActive
                     ? 'text-emerald-600'
@@ -184,10 +248,10 @@ const handleLogout = () => {
                 :key="subItem.key"
                 @click="handleSubItemClick(subItem.key)"
                 :class="[
-                  'group flex w-full items-center gap-3 rounded-lg py-2 pr-4 pl-12 text-left transition-all duration-200',
+                  'group flex w-full touch-manipulation items-center gap-2.5 rounded-lg py-2 pr-3 pl-10 text-left transition-all duration-200 sm:gap-3 sm:pr-4 sm:pl-12',
                   activeItem === subItem.key
                     ? 'bg-emerald-100 text-emerald-700'
-                    : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900',
+                    : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 active:scale-[0.98]',
                 ]"
               >
                 <span class="text-sm">{{ subItem.label }}</span>
@@ -198,15 +262,20 @@ const handleLogout = () => {
       </ul>
     </div>
 
-    <div class="border-t border-neutral-200 p-6">
+    <div class="border-t border-neutral-200 p-4 sm:p-6">
       <button
         @click="handleLogout"
-        class="group flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-neutral-600 transition-all duration-200 hover:bg-red-50 hover:text-red-600"
+        class="group flex w-full touch-manipulation items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-neutral-600 transition-all duration-200 hover:bg-red-50 hover:text-red-600 active:scale-[0.98] sm:gap-3 sm:px-4 sm:py-3"
       >
+        <LogOut
+          :size="18"
+          :stroke-width="2"
+          class="shrink-0 text-neutral-400 transition-colors duration-200 group-hover:text-red-500 sm:hidden"
+        />
         <LogOut
           :size="20"
           :stroke-width="2"
-          class="text-neutral-400 transition-colors duration-200 group-hover:text-red-500"
+          class="hidden shrink-0 text-neutral-400 transition-colors duration-200 group-hover:text-red-500 sm:block"
         />
         <span class="text-sm font-medium">Logout</span>
       </button>

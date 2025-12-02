@@ -105,7 +105,9 @@ const getPaymentMethodLabel = (method: string): string => {
 </script>
 
 <template>
-  <tr class="transition-colors duration-150 hover:bg-neutral-50">
+  <tr
+    class="hidden transition-colors duration-150 hover:bg-neutral-50 md:table-row"
+  >
     <td class="px-6 py-4">
       <div class="font-medium text-neutral-900">
         {{ props.viewMode === "compras" ? "Compra" : "Venda" }} de Energia
@@ -191,12 +193,135 @@ const getPaymentMethodLabel = (method: string): string => {
       </Button>
     </td>
   </tr>
+
+  <tr class="mb-4 block md:hidden">
+    <td colspan="100%" class="block p-0">
+      <div
+        class="mx-4 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm"
+      >
+        <div class="space-y-3 p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <div class="text-sm font-medium text-neutral-900">
+                {{ props.viewMode === "compras" ? "Compra" : "Venda" }} de
+                Energia
+              </div>
+              <div class="mt-0.5 text-xs text-neutral-500">
+                ID: {{ formatTransactionId(purchase.uuid) }}
+              </div>
+            </div>
+            <span
+              :class="[
+                'inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium',
+                getStatusConfig(purchase.status).bgColor,
+                getStatusConfig(purchase.status).textColor,
+              ]"
+            >
+              <component
+                :is="getStatusConfig(purchase.status).icon"
+                :size="12"
+                :class="getStatusConfig(purchase.status).iconColor"
+              />
+              {{ getStatusConfig(purchase.status).label }}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <div class="mb-1 text-xs text-neutral-500">
+                {{ props.viewMode === "compras" ? "Vendedor" : "Comprador" }}
+              </div>
+              <div class="font-medium break-words text-neutral-900">
+                {{ getPartnerName() }}
+              </div>
+            </div>
+            <div>
+              <div class="mb-1 text-xs text-neutral-500">Quantidade</div>
+              <div class="font-medium text-neutral-900">
+                {{ formatQuantity(purchase.quantity_mwh) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2 border-t border-neutral-100 pt-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-neutral-500">Valor Total</span>
+              <span class="text-base font-bold text-neutral-900">
+                {{
+                  formatCurrency(
+                    calculateTotalAmount(
+                      purchase.quantity_mwh,
+                      purchase.price_per_mwh,
+                    ),
+                  )
+                }}
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-neutral-500">Preço/MWh</span>
+              <span class="text-xs text-neutral-600">
+                {{ formatCurrency(purchase.price_per_mwh) }}
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-neutral-500">Data</span>
+              <span class="text-xs text-neutral-600">
+                {{ formatDate(purchase.created_at) }}
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-neutral-500">Pagamento</span>
+              <span class="text-xs font-medium text-neutral-600">
+                {{ getPaymentMethodLabel(purchase.payment_method) }}
+              </span>
+            </div>
+          </div>
+
+          <div
+            v-if="props.showCancelButton"
+            class="border-t border-neutral-100 pt-3"
+          >
+            <Button
+              v-if="purchase.status === 'completed'"
+              @click="emit('download-contract', purchase.uuid)"
+              label="Baixar Contrato"
+              severity="success"
+              size="small"
+              class="mobile-action-button download-button w-full touch-manipulation"
+            >
+              <template #icon>
+                <Download :size="16" />
+              </template>
+            </Button>
+            <Button
+              v-else
+              @click="emit('cancel', purchase.uuid)"
+              :disabled="purchase.status === 'canceled'"
+              label="Cancelar"
+              severity="danger"
+              size="small"
+              class="mobile-action-button cancel-button w-full touch-manipulation"
+            >
+              <template #icon>
+                <X :size="16" />
+              </template>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </td>
+  </tr>
 </template>
 
 <style scoped>
 .action-button {
   min-width: 160px !important;
   width: 160px !important;
+}
+
+.mobile-action-button {
+  min-height: 44px !important;
+  justify-content: center !important;
 }
 
 .cancel-button {
@@ -208,6 +333,10 @@ const getPaymentMethodLabel = (method: string): string => {
 .cancel-button:hover {
   background-color: #dc2626 !important;
   border-color: #dc2626 !important;
+}
+
+.cancel-button:active {
+  transform: scale(0.98);
 }
 
 .cancel-button:disabled {
@@ -224,6 +353,10 @@ const getPaymentMethodLabel = (method: string): string => {
   color: #a3a3a3 !important;
 }
 
+.cancel-button:disabled:active {
+  transform: none;
+}
+
 .download-button {
   background-color: #10b981 !important;
   border-color: #10b981 !important;
@@ -233,5 +366,9 @@ const getPaymentMethodLabel = (method: string): string => {
 .download-button:hover {
   background-color: #059669 !important;
   border-color: #059669 !important;
+}
+
+.download-button:active {
+  transform: scale(0.98);
 }
 </style>

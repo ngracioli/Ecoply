@@ -82,18 +82,24 @@ const login = async () => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-6">
-    <div class="mb-4 text-center">
+  <div class="flex flex-col gap-4 px-4 sm:gap-6 sm:px-0">
+    <div class="mb-2 text-center sm:mb-4">
       <div
-        class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-lg"
+        class="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-lg sm:mb-4 sm:h-16 sm:w-16"
       >
-        <i class="pi pi-lock !text-3xl text-white"></i>
+        <i class="pi pi-lock !text-2xl text-white sm:!text-3xl"></i>
       </div>
-      <h1 class="mb-2 text-3xl font-bold text-gray-900">Bem-vindo de volta</h1>
-      <p class="text-gray-600">Entre com suas credenciais para continuar</p>
+      <h1
+        class="mb-1 px-4 text-2xl font-bold text-gray-900 sm:mb-2 sm:px-0 sm:text-3xl"
+      >
+        Bem-vindo de volta
+      </h1>
+      <p class="px-2 text-sm text-gray-600 sm:px-0 sm:text-base">
+        Entre com suas credenciais para continuar
+      </p>
     </div>
 
-    <form @submit.prevent="login" class="flex flex-col gap-5">
+    <form @submit.prevent="login" class="flex flex-col gap-4 sm:gap-5">
       <Toast />
       <div class="flex flex-col gap-2">
         <label for="email" class="text-sm font-semibold text-gray-800"
@@ -106,10 +112,13 @@ const login = async () => {
           placeholder="seu@email.com"
           :invalid="!!errors.email || hasLoginError"
           :disabled="loading"
-          class="w-full !rounded-xl !border-2 !border-gray-300 !bg-white !py-3 transition-colors hover:!border-gray-400 focus:!border-emerald-500"
+          class="w-full touch-manipulation !rounded-xl !border-2 !border-gray-300 !bg-white !py-2.5 !text-base transition-colors hover:!border-gray-400 focus:!border-emerald-500 sm:!py-3"
           size="large"
         />
-        <small v-if="errors.email" class="font-medium text-red-500">
+        <small
+          v-if="errors.email"
+          class="text-xs font-medium text-red-500 sm:text-sm"
+        >
           {{ errors.email }}
         </small>
       </div>
@@ -128,10 +137,13 @@ const login = async () => {
           :feedback="false"
           toggleMask
           class="w-full"
-          inputClass="w-full !rounded-xl !border-2 !border-gray-300 focus:!border-emerald-500 !py-3 !bg-white hover:!border-gray-400 transition-colors"
+          inputClass="w-full !rounded-xl !border-2 !border-gray-300 focus:!border-emerald-500 !py-2.5 sm:!py-3 !bg-white hover:!border-gray-400 transition-colors !text-base touch-manipulation"
           size="large"
         />
-        <small v-if="errors.password" class="font-medium text-red-500">
+        <small
+          v-if="errors.password"
+          class="text-xs font-medium text-red-500 sm:text-sm"
+        >
           {{ errors.password }}
         </small>
       </div>
@@ -142,17 +154,17 @@ const login = async () => {
         icon="pi pi-sign-in"
         :loading="loading"
         :disabled="loading"
-        class="mt-4 w-full !rounded-xl !border-none !bg-gradient-to-r !from-emerald-600 !to-emerald-700 !py-3 !text-base !font-semibold shadow-lg transition-all duration-300 hover:!from-emerald-700 hover:!to-emerald-800 hover:shadow-xl"
+        class="mt-2 min-h-[44px] w-full touch-manipulation !rounded-xl !border-none !bg-gradient-to-r !from-emerald-600 !to-emerald-700 !py-3 !text-base !font-semibold shadow-lg transition-all duration-300 hover:!from-emerald-700 hover:!to-emerald-800 hover:shadow-xl active:scale-[0.98] sm:mt-4 sm:!py-3"
         size="large"
       />
     </form>
 
-    <div class="mt-4 text-center">
-      <p class="text-gray-700">
+    <div class="mt-2 text-center sm:mt-4">
+      <p class="px-2 text-sm text-gray-700 sm:px-0 sm:text-base">
         Não tem uma conta?
         <router-link
           to="/register"
-          class="ml-1 font-semibold text-emerald-600 transition-colors duration-200 hover:text-emerald-700"
+          class="-my-3 ml-1 inline-block min-h-[44px] touch-manipulation leading-[44px] font-semibold text-emerald-600 transition-colors duration-200 hover:text-emerald-700 active:text-emerald-800"
         >
           Cadastre-se gratuitamente
         </router-link>

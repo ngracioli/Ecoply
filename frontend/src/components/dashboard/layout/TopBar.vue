@@ -23,14 +23,19 @@ const userFullName = computed(() => store.getters["user/userName"] || "");
 
 <template>
   <header
-    class="flex items-center justify-between border-b border-neutral-200 bg-white px-8 py-4"
+    class="flex items-center justify-between border-b border-neutral-200 bg-white px-4 py-3 sm:px-6 sm:py-4 md:px-8"
   >
-    <div class="flex items-center gap-2">
-      <h1 class="text-2xl font-light text-neutral-800">
-        {{ greeting }},
-        <span class="font-semibold text-neutral-900">{{ userFullName }}</span>
+    <div class="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2">
+      <h1
+        class="min-w-0 text-base font-light text-neutral-800 sm:text-xl md:text-2xl"
+      >
+        <span class="inline sm:inline">{{ greeting }},</span>
+        <span
+          class="inline-block max-w-[150px] truncate align-bottom font-semibold text-neutral-900 sm:max-w-none"
+          >{{ userFullName }}</span
+        >
       </h1>
-      <span class="text-2xl">👋</span>
+      <span class="shrink-0 text-xl sm:text-2xl">👋</span>
     </div>
   </header>
 </template>

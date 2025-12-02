@@ -91,36 +91,47 @@ const handleCancel = () => {
     :draggable="false"
     :closable="!loading"
     :closeOnEscape="!loading"
-    class="w-full max-w-md"
+    :style="{ width: '90vw', maxWidth: '28rem' }"
+    :breakpoints="{ '640px': '90vw' }"
+    class="mx-4 sm:mx-0"
   >
     <template #header>
-      <div class="flex items-center gap-3">
-        <div :class="['rounded-full p-2', variantConfig.iconBg]">
+      <div class="flex items-center gap-2 px-2 sm:gap-3 sm:px-0">
+        <div
+          :class="['shrink-0 rounded-full p-1.5 sm:p-2', variantConfig.iconBg]"
+        >
+          <component
+            :is="variantConfig.icon"
+            :size="20"
+            :class="['sm:hidden', variantConfig.iconColor]"
+          />
           <component
             :is="variantConfig.icon"
             :size="24"
-            :class="variantConfig.iconColor"
+            :class="['hidden sm:block', variantConfig.iconColor]"
           />
         </div>
-        <h3 class="text-xl font-bold text-neutral-900">
+        <h3
+          class="min-w-0 flex-1 text-base font-bold text-neutral-900 sm:text-lg md:text-xl"
+        >
           {{ title }}
         </h3>
       </div>
     </template>
 
-    <div class="py-6">
-      <p class="text-base leading-relaxed text-neutral-600">
+    <div class="px-2 py-3 sm:px-0 sm:py-4 md:py-6">
+      <p class="text-sm leading-relaxed text-neutral-600 sm:text-base">
         {{ message }}
       </p>
     </div>
 
     <template #footer>
-      <div class="flex flex-col gap-3 sm:flex-row">
+      <div class="flex flex-col gap-2.5 px-2 sm:flex-row sm:gap-3 sm:px-0">
         <button
           v-if="cancelText"
           @click="handleCancel"
           :disabled="loading"
-          class="flex-1 rounded-lg border-2 border-neutral-300 bg-white px-6 py-3 text-sm font-medium whitespace-nowrap text-neutral-700 transition-all duration-200 hover:border-neutral-400 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+          class="order-2 min-h-[44px] flex-1 touch-manipulation rounded-lg border-2 border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-700 transition-all duration-200 hover:border-neutral-400 hover:bg-neutral-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:order-1 sm:px-5 sm:py-3 md:px-6"
         >
           {{ cancelText }}
         </button>
@@ -128,16 +139,19 @@ const handleCancel = () => {
           @click="handleConfirm"
           :disabled="loading"
           :class="[
-            cancelText ? 'flex-1' : 'w-full',
-            'rounded-lg px-6 py-3 text-sm font-medium whitespace-nowrap text-white shadow-md transition-all duration-200 hover:shadow-lg disabled:cursor-not-allowed disabled:shadow-none',
+            cancelText ? 'order-1 flex-1 sm:order-2' : 'w-full',
+            'min-h-[44px] touch-manipulation rounded-lg px-4 py-2.5 text-sm font-medium text-white shadow-md transition-all duration-200 hover:shadow-lg active:scale-[0.98] disabled:cursor-not-allowed disabled:shadow-none sm:px-5 sm:py-3 md:px-6',
             loading ? variantConfig.confirmBgDisabled : variantConfig.confirmBg,
           ]"
         >
-          <span v-if="loading" class="flex items-center justify-center gap-2">
+          <span
+            v-if="loading"
+            class="flex items-center justify-center gap-1.5 sm:gap-2"
+          >
             <div
               class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
             ></div>
-            Processando...
+            <span>Processando...</span>
           </span>
           <span v-else>{{ confirmText }}</span>
         </button>

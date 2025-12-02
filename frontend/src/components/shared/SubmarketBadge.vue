@@ -41,9 +41,9 @@ const badgeConfig = computed(() => {
 
 const sizeClasses = computed(() => {
   const sizes = {
-    small: "text-xs px-2 py-1",
-    medium: "text-sm px-3 py-1.5",
-    large: "text-base px-4 py-2",
+    small: "text-xs px-2 py-0.5 sm:py-1",
+    medium: "text-xs px-2.5 py-1 sm:text-sm sm:px-3 sm:py-1.5",
+    large: "text-sm px-3 py-1.5 sm:text-base sm:px-4 sm:py-2",
   };
   return sizes[props.size];
 });
@@ -57,10 +57,10 @@ const sizeClasses = computed(() => {
       hideDelay: 100,
       class: isMatchingSubmarket ? 'tooltip-success' : 'tooltip-danger',
     }"
-    class="inline-flex items-center gap-1.5"
+    class="inline-flex items-center gap-1 sm:gap-1.5"
     :class="[badgeConfig.class, sizeClasses]"
   >
-    <i :class="badgeConfig.icon" class="text-xs"></i>
+    <i :class="badgeConfig.icon" class="text-[10px] sm:text-xs"></i>
     <span class="font-medium">{{ offerSubmarket }}</span>
   </div>
 </template>
@@ -97,6 +97,15 @@ const sizeClasses = computed(() => {
   color: rgb(21 128 61) !important;
   border: 1px solid rgb(200 247 218) !important;
   box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15) !important;
+  font-size: 0.75rem !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+@media (min-width: 640px) {
+  .tooltip-success .p-tooltip-text {
+    font-size: 0.875rem !important;
+    padding: 0.625rem 0.875rem !important;
+  }
 }
 
 .tooltip-success .p-tooltip-arrow {
@@ -108,6 +117,15 @@ const sizeClasses = computed(() => {
   color: rgb(185 28 28) !important;
   border: 1px solid rgb(252 165 165) !important;
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15) !important;
+  font-size: 0.75rem !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+@media (min-width: 640px) {
+  .tooltip-danger .p-tooltip-text {
+    font-size: 0.875rem !important;
+    padding: 0.625rem 0.875rem !important;
+  }
 }
 
 .tooltip-danger .p-tooltip-arrow {

@@ -22,13 +22,13 @@ defineEmits<PaginationEmits>();
 
 <template>
   <div
-    class="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-6 py-4 shadow-sm"
+    class="flex flex-col items-stretch justify-between gap-3 rounded-lg border border-neutral-200 bg-white px-3 py-3 shadow-sm sm:flex-row sm:items-center sm:gap-4 sm:px-6 sm:py-4"
   >
     <button
       @click="$emit('prev')"
       :disabled="!hasPrev"
       :class="[
-        'flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
+        'flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200 active:scale-95 sm:gap-2 sm:px-4 sm:text-sm',
         hasPrev
           ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:shadow-md'
           : 'cursor-not-allowed bg-neutral-100 text-neutral-400',
@@ -36,8 +36,7 @@ defineEmits<PaginationEmits>();
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
+        class="h-3.5 w-3.5 sm:h-4 sm:w-4"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -47,20 +46,23 @@ defineEmits<PaginationEmits>();
       >
         <polyline points="15 18 9 12 15 6"></polyline>
       </svg>
-      Anterior
+      <span class="hidden sm:inline">Anterior</span>
+      <span class="sm:hidden">Ant.</span>
     </button>
 
-    <div class="flex flex-col items-center gap-1">
-      <div class="flex items-center gap-2">
-        <span class="text-sm font-medium text-neutral-600">Página</span>
+    <div class="flex flex-col items-center gap-1 sm:gap-1">
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <span class="text-xs font-medium text-neutral-600 sm:text-sm"
+          >Página</span
+        >
         <span
-          class="rounded-lg bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-600"
+          class="rounded-lg bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-600 sm:px-3 sm:py-1 sm:text-sm"
         >
           {{ currentPage }}
         </span>
       </div>
-      <span class="text-xs text-neutral-500">
-        Mostrando {{ itemsStart }} - {{ itemsEnd }} {{ itemLabel }}
+      <span class="text-[10px] text-neutral-500 sm:text-xs">
+        {{ itemsStart }} - {{ itemsEnd }} {{ itemLabel }}
       </span>
     </div>
 
@@ -68,17 +70,17 @@ defineEmits<PaginationEmits>();
       @click="$emit('next')"
       :disabled="!hasNext"
       :class="[
-        'flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
+        'flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200 active:scale-95 sm:gap-2 sm:px-4 sm:text-sm',
         hasNext
           ? 'bg-emerald-500 text-white hover:bg-emerald-600 hover:shadow-md'
           : 'cursor-not-allowed bg-neutral-100 text-neutral-400',
       ]"
     >
-      Próxima
+      <span class="hidden sm:inline">Próxima</span>
+      <span class="sm:hidden">Prox.</span>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
+        class="h-3.5 w-3.5 sm:h-4 sm:w-4"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"

@@ -56,29 +56,46 @@ const stats = computed(() => [
 </script>
 
 <template>
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <div
+    class="grid grid-cols-1 gap-3 px-4 sm:grid-cols-2 sm:gap-4 sm:px-0 lg:grid-cols-4"
+  >
     <div
       v-for="stat in stats"
       :key="stat.title"
-      class="group relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md"
+      class="group relative overflow-hidden rounded-lg border border-neutral-200 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-md sm:rounded-xl sm:p-6"
     >
       <div
         :class="[
-          'absolute top-0 right-0 h-24 w-24 translate-x-8 -translate-y-8 rounded-full bg-gradient-to-br opacity-10',
+          'absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-gradient-to-br opacity-10 sm:h-24 sm:w-24 sm:translate-x-8 sm:-translate-y-8',
           stat.gradient,
         ]"
       ></div>
 
       <div class="relative">
-        <div class="flex items-start justify-between">
-          <div class="flex-1">
-            <p class="text-sm font-medium text-neutral-500">{{ stat.title }}</p>
-            <p class="mt-2 text-2xl font-bold text-neutral-900">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0 flex-1">
+            <p class="text-xs font-medium text-neutral-500 sm:text-sm">
+              {{ stat.title }}
+            </p>
+            <p
+              class="mt-1.5 text-xl font-bold break-words text-neutral-900 sm:mt-2 sm:text-2xl"
+            >
               {{ stat.value }}
             </p>
           </div>
-          <div :class="['rounded-lg p-2', stat.bg]">
-            <component :is="stat.icon" :size="20" :class="stat.iconColor" />
+          <div :class="['shrink-0 rounded-lg p-1.5 sm:p-2', stat.bg]">
+            <component
+              :is="stat.icon"
+              :size="18"
+              class="sm:hidden"
+              :class="stat.iconColor"
+            />
+            <component
+              :is="stat.icon"
+              :size="20"
+              class="hidden sm:block"
+              :class="stat.iconColor"
+            />
           </div>
         </div>
       </div>

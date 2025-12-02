@@ -82,14 +82,18 @@ const formatQuantity = (mwh: number) => {
 </script>
 
 <template>
-  <div class="rounded-xl bg-white p-6 shadow-sm">
-    <h2 class="mb-6 text-lg font-semibold text-neutral-900">
+  <div class="rounded-lg bg-white p-4 shadow-sm sm:rounded-xl sm:p-5 md:p-6">
+    <h2
+      class="mb-4 text-base font-semibold text-neutral-900 sm:mb-5 sm:text-lg md:mb-6"
+    >
       Quantidade de Energia
     </h2>
 
-    <div class="space-y-4">
+    <div class="space-y-3 sm:space-y-4">
       <div>
-        <label class="mb-2 block text-sm font-medium text-neutral-700">
+        <label
+          class="mb-1.5 block text-xs font-medium text-neutral-700 sm:mb-2 sm:text-sm"
+        >
           Quantidade (MWh)
         </label>
         <input
@@ -101,16 +105,22 @@ const formatQuantity = (mwh: number) => {
           min="0.1"
           placeholder="Digite a quantidade desejada"
           :class="[
-            'w-full rounded-lg border px-4 py-3 text-lg transition-colors focus:outline-none',
+            'w-full touch-manipulation rounded-lg border px-3 py-2.5 text-base transition-colors focus:outline-none sm:px-4 sm:py-3 sm:text-lg',
             hasError
               ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
               : 'border-neutral-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20',
           ]"
         />
-        <p v-if="hasError" class="mt-2 text-sm font-medium text-red-600">
+        <p
+          v-if="hasError"
+          class="mt-1.5 text-xs font-medium break-words text-red-600 sm:mt-2 sm:text-sm"
+        >
           {{ errorMessage }}
         </p>
-        <p v-else class="mt-2 text-sm text-neutral-500">
+        <p
+          v-else
+          class="mt-1.5 text-xs break-words text-neutral-500 sm:mt-2 sm:text-sm"
+        >
           Disponível: {{ formatQuantity(maxQuantity) }} | Mínimo: 0.1 MWh
         </p>
       </div>

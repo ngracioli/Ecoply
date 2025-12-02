@@ -119,46 +119,54 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-6">
-    <div class="flex items-center justify-between">
+  <div class="flex flex-col gap-4 sm:gap-6">
+    <div
+      class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+    >
       <div>
-        <h2 class="text-2xl font-bold text-neutral-900">Minhas Ofertas</h2>
-        <p class="mt-1 text-sm text-neutral-500">
+        <h2 class="text-xl font-bold text-neutral-900 sm:text-2xl">
+          Minhas Ofertas
+        </h2>
+        <p class="mt-1 text-xs text-neutral-500 sm:text-sm">
           Gerencie todas as suas ofertas de energia
         </p>
       </div>
       <button
         @click="openCreateDialog"
-        class="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-all duration-200 hover:shadow-lg hover:brightness-110"
+        class="min-h-[44px] shrink-0 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-3 text-xs font-medium text-white shadow-md transition-all duration-200 hover:shadow-lg hover:brightness-110 active:brightness-95 sm:min-h-0 sm:px-6 sm:py-2.5 sm:text-sm"
       >
         Criar Nova Oferta
       </button>
     </div>
 
-    <div v-if="loading" class="flex items-center justify-center py-12">
+    <div v-if="loading" class="flex items-center justify-center py-8 sm:py-12">
       <div class="flex flex-col items-center gap-3">
         <div
-          class="h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"
+          class="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent sm:h-10 sm:w-10"
         ></div>
-        <p class="text-sm text-neutral-500">Carregando suas ofertas...</p>
+        <p class="text-xs text-neutral-500 sm:text-sm">
+          Carregando suas ofertas...
+        </p>
       </div>
     </div>
 
     <div
       v-else-if="error"
-      class="rounded-lg border border-red-200 bg-red-50 p-6 text-center"
+      class="rounded-lg border border-red-200 bg-red-50 p-4 text-center sm:p-6"
     >
-      <p class="text-sm text-red-600">{{ error }}</p>
+      <p class="text-xs text-red-600 sm:text-sm">{{ error }}</p>
       <button
         @click="loadMyOffers"
-        class="mt-3 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+        class="mt-3 min-h-[44px] rounded-lg bg-red-600 px-4 py-3 text-xs font-medium text-white hover:bg-red-700 active:bg-red-800 sm:min-h-0 sm:py-2 sm:text-sm"
       >
         Tentar Novamente
       </button>
     </div>
 
-    <div v-else-if="offers.length > 0" class="flex flex-col gap-6">
-      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+    <div v-else-if="offers.length > 0" class="flex flex-col gap-4 sm:gap-6">
+      <div
+        class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 xl:grid-cols-3"
+      >
         <EnergyOfferCard
           v-for="offer in offers"
           :key="offer.uuid"
@@ -181,14 +189,15 @@ onMounted(() => {
                 @click="openEditDialog(offer)"
                 :disabled="!isOfferEditable(offer)"
                 :class="[
-                  'flex flex-1 items-center justify-center gap-2 rounded-lg border-2 py-2.5 text-sm font-medium transition-all duration-200',
+                  'flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-lg border-2 py-3 text-xs font-medium transition-all duration-200 sm:min-h-0 sm:gap-2 sm:py-2.5 sm:text-sm',
                   isOfferEditable(offer)
-                    ? 'border-blue-500 bg-transparent text-blue-600 hover:bg-blue-500 hover:text-white'
+                    ? 'border-blue-500 bg-transparent text-blue-600 hover:bg-blue-500 hover:text-white active:bg-blue-600'
                     : 'cursor-not-allowed border-neutral-300 bg-neutral-100 text-neutral-400',
                 ]"
               >
-                <Edit :size="16" />
-                Editar
+                <Edit :size="14" class="sm:hidden" />
+                <Edit :size="16" class="hidden sm:block" />
+                <span>Editar</span>
               </button>
               <button
                 v-tooltip.top="{
@@ -203,14 +212,15 @@ onMounted(() => {
                 @click="deleteOffer(offer.uuid)"
                 :disabled="!isOfferEditable(offer)"
                 :class="[
-                  'flex flex-1 items-center justify-center gap-2 rounded-lg border-2 py-2.5 text-sm font-medium transition-all duration-200',
+                  'flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-lg border-2 py-3 text-xs font-medium transition-all duration-200 sm:min-h-0 sm:gap-2 sm:py-2.5 sm:text-sm',
                   isOfferEditable(offer)
-                    ? 'border-red-500 bg-transparent text-red-600 hover:bg-red-500 hover:text-white'
+                    ? 'border-red-500 bg-transparent text-red-600 hover:bg-red-500 hover:text-white active:bg-red-600'
                     : 'cursor-not-allowed border-neutral-300 bg-neutral-100 text-neutral-400',
                 ]"
               >
-                <Trash2 :size="16" />
-                Excluir
+                <Trash2 :size="14" class="sm:hidden" />
+                <Trash2 :size="16" class="hidden sm:block" />
+                <span>Excluir</span>
               </button>
             </div>
           </template>
@@ -220,12 +230,14 @@ onMounted(() => {
 
     <div
       v-else-if="!loading && offers.length === 0"
-      class="rounded-lg border border-neutral-200 bg-neutral-50 p-12 text-center"
+      class="rounded-lg border border-neutral-200 bg-neutral-50 p-8 text-center sm:p-12"
     >
-      <p class="text-neutral-600">Você ainda não criou nenhuma oferta.</p>
+      <p class="text-sm text-neutral-600 sm:text-base">
+        Você ainda não criou nenhuma oferta.
+      </p>
       <button
         @click="openCreateDialog"
-        class="mt-4 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600"
+        class="mt-4 min-h-[44px] rounded-lg bg-emerald-500 px-4 py-3 text-xs font-medium text-white hover:bg-emerald-600 active:bg-emerald-700 sm:min-h-0 sm:px-4 sm:py-2 sm:text-sm"
       >
         Criar Primeira Oferta
       </button>

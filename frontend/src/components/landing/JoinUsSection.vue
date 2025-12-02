@@ -11,7 +11,7 @@ const goToDashboard = () => {
 
 <template>
   <section
-    class="relative overflow-hidden bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-900 px-8 py-24"
+    class="relative overflow-hidden bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-900 px-4 py-12 sm:px-6 sm:py-16 md:px-8 lg:py-24"
   >
     <div
       class="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(16,185,129,0.15),transparent_50%)]"
@@ -21,32 +21,43 @@ const goToDashboard = () => {
     ></div>
 
     <div class="relative z-10 mx-auto max-w-5xl text-center">
-      <div class="mb-8 flex justify-center">
+      <div class="mb-6 flex justify-center sm:mb-8">
         <div
-          class="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/30"
+          class="flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/30 sm:h-20 sm:w-20 sm:rounded-2xl"
         >
-          <Zap :size="40" class="text-white" :stroke-width="2.5" />
+          <Zap :size="32" class="text-white sm:hidden" :stroke-width="2.5" />
+          <Zap
+            :size="40"
+            class="hidden text-white sm:block"
+            :stroke-width="2.5"
+          />
         </div>
       </div>
 
       <h2
-        class="mb-6 text-5xl leading-tight font-bold tracking-tight text-white"
+        class="mb-4 text-3xl leading-tight font-bold tracking-tight text-white sm:mb-6 sm:text-4xl md:text-5xl"
       >
-        Participe do Futuro da<br />Energia Descentralizada
+        Participe do Futuro da<br class="hidden sm:block" /><span
+          class="sm:hidden"
+        >
+        </span
+        >Energia Descentralizada
       </h2>
 
-      <p class="mx-auto mb-12 max-w-2xl text-lg text-emerald-100/90">
+      <p
+        class="mx-auto mb-8 max-w-2xl px-2 text-base text-emerald-100/90 sm:mb-12 sm:px-0 sm:text-lg"
+      >
         Junte-se à revolução da energia renovável. Seja parte de uma comunidade
         que valoriza sustentabilidade, transparência e prosperidade local.
       </p>
 
       <button
         @click="goToDashboard"
-        class="group inline-flex items-center gap-3 rounded-full bg-white px-10 py-5 text-lg font-semibold text-emerald-900 shadow-xl shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/40"
+        class="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-emerald-900 shadow-xl shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/40 active:scale-95 sm:gap-3 sm:px-10 sm:py-5 sm:text-lg"
       >
         Começar Agora
         <i
-          class="pi pi-arrow-right text-base transition-transform duration-300 group-hover:translate-x-1"
+          class="pi pi-arrow-right text-xs transition-transform duration-300 group-hover:translate-x-1 sm:text-base"
         ></i>
       </button>
     </div>

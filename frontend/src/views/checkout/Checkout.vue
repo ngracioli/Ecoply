@@ -154,41 +154,49 @@ const handlePendingClose = () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-neutral-50">
+  <div class="min-h-dvh bg-neutral-50">
     <header class="border-b border-neutral-200 bg-white">
-      <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <div class="flex items-center gap-4">
+      <div class="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-6 lg:px-8">
+        <div class="flex items-center gap-2 sm:gap-4">
           <button
             @click="goBack"
-            class="rounded-lg p-2 text-neutral-600 transition-colors hover:bg-neutral-100"
+            class="rounded-lg p-1.5 text-neutral-600 transition-colors hover:bg-neutral-100 sm:p-2"
           >
-            <ArrowLeft :size="24" />
+            <ArrowLeft :size="20" class="sm:hidden" />
+            <ArrowLeft :size="24" class="hidden sm:block" />
           </button>
-          <h1 class="text-2xl font-semibold text-neutral-900">
+          <h1
+            class="text-lg font-semibold text-neutral-900 sm:text-xl lg:text-2xl"
+          >
             Finalizar Compra
           </h1>
         </div>
       </div>
     </header>
 
-    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div v-if="loading" class="flex items-center justify-center py-20">
+    <main class="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
+      <div
+        v-if="loading"
+        class="flex items-center justify-center py-12 sm:py-20"
+      >
         <div class="text-center">
           <div
-            class="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-neutral-200 border-t-emerald-500"
+            class="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-neutral-200 border-t-emerald-500 sm:h-12 sm:w-12"
           ></div>
-          <p class="mt-4 text-neutral-600">Carregando...</p>
+          <p class="mt-3 text-sm text-neutral-600 sm:mt-4 sm:text-base">
+            Carregando...
+          </p>
         </div>
       </div>
 
       <div
         v-else-if="error"
-        class="rounded-xl border border-red-200 bg-red-50 p-6 text-center"
+        class="rounded-lg border border-red-200 bg-red-50 p-4 text-center sm:rounded-xl sm:p-6"
       >
-        <p class="text-red-700">{{ error }}</p>
+        <p class="text-sm text-red-700 sm:text-base">{{ error }}</p>
         <button
           @click="fetchOffer"
-          class="mt-4 rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
+          class="mt-3 rounded-lg bg-red-600 px-4 py-2 text-sm text-white transition-colors hover:bg-red-700 sm:mt-4 sm:text-base"
         >
           Tentar novamente
         </button>

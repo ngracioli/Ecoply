@@ -6,8 +6,10 @@ defineProps<{
 
 <template>
   <div
-    class="bg-primary-color flex h-20 w-20 items-center justify-center rounded-full"
+    class="bg-primary-color flex h-16 w-16 items-center justify-center rounded-full sm:h-20 sm:w-20"
   >
-    <i :class="['pi', icon, 'text-5xl', 'text-secondary-color']"></i>
+    <i
+      :class="['pi', icon, 'text-4xl sm:text-5xl', 'text-secondary-color']"
+    ></i>
   </div>
 </template>

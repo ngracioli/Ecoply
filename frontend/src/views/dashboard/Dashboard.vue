@@ -50,13 +50,13 @@ const logout = async () => {
 </script>
 
 <template>
-  <main class="flex h-screen w-full overflow-hidden bg-neutral-50">
+  <main class="flex h-dvh w-full overflow-hidden bg-neutral-50">
     <SideBarDashboard @navigate="handleNavigate" @logout="logout" />
 
     <div class="flex flex-1 flex-col overflow-hidden">
       <TopBar />
       <div class="flex-1 overflow-y-auto">
-        <div class="p-8">
+        <div class="p-3 sm:p-5 md:p-6 lg:p-8">
           <Transition
             name="fade"
             mode="out-in"

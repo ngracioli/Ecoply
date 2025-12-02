@@ -175,31 +175,36 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-6">
-    <div class="flex items-center justify-between">
+  <div class="flex flex-col gap-4 sm:gap-6">
+    <div
+      class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+    >
       <div>
-        <h2 class="text-2xl font-bold text-neutral-900">Ofertas de Energia</h2>
-        <p class="mt-1 text-sm text-neutral-500">
+        <h2 class="text-xl font-bold text-neutral-900 sm:text-2xl">
+          Ofertas de Energia
+        </h2>
+        <p class="mt-1 text-xs text-neutral-500 sm:text-sm">
           Encontre as melhores ofertas disponíveis
         </p>
       </div>
-      <div class="flex gap-3">
+      <div class="flex flex-col gap-2 sm:flex-row sm:gap-3">
         <button
           @click="openFilterDialog"
           :class="[
-            'flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-medium shadow-md transition-all duration-200 hover:shadow-lg',
+            'flex min-h-[44px] items-center justify-center gap-2 rounded-lg px-4 py-3 text-xs font-medium shadow-md transition-all duration-200 hover:shadow-lg sm:min-h-0 sm:px-6 sm:py-2.5 sm:text-sm',
             hasActiveFilters
-              ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:brightness-110'
-              : 'border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50',
+              ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:brightness-110 active:brightness-95'
+              : 'border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50 active:bg-neutral-100',
           ]"
         >
-          <Filter :size="18" />
+          <Filter :size="16" class="sm:hidden" />
+          <Filter :size="18" class="hidden sm:block" />
           {{ hasActiveFilters ? "Filtros Ativos" : "Filtrar" }}
         </button>
 
         <button
           @click="openCreateDialog"
-          class="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-all duration-200 hover:shadow-lg hover:brightness-110"
+          class="min-h-[44px] rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-3 text-xs font-medium text-white shadow-md transition-all duration-200 hover:shadow-lg hover:brightness-110 active:brightness-95 sm:min-h-0 sm:px-6 sm:py-2.5 sm:text-sm"
           v-if="userUserType === 'supplier'"
         >
           Criar Nova Oferta
@@ -207,59 +212,64 @@ onMounted(() => {
       </div>
     </div>
 
-    <div v-if="hasActiveFilters" class="flex items-center gap-2">
-      <span class="text-sm text-neutral-600">Filtros aplicados:</span>
+    <div
+      v-if="hasActiveFilters"
+      class="flex flex-col gap-2 sm:flex-row sm:items-center"
+    >
+      <span class="shrink-0 text-xs text-neutral-600 sm:text-sm"
+        >Filtros aplicados:</span
+      >
       <div class="flex flex-wrap items-center gap-2">
         <span
           v-if="activeFilters.submarket"
-          class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700"
+          class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 sm:px-3"
         >
           Submercado: {{ activeFilters.submarket }}
         </span>
         <span
           v-if="activeFilters.energy_type"
-          class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700"
+          class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 sm:px-3"
         >
           Tipo: {{ getEnergyTypeLabel(activeFilters.energy_type) }}
         </span>
         <span
           v-if="activeFilters.period_start"
-          class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700"
+          class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 sm:px-3"
         >
           De: {{ activeFilters.period_start }}
         </span>
         <span
           v-if="activeFilters.period_end"
-          class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700"
+          class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 sm:px-3"
         >
           Até: {{ activeFilters.period_end }}
         </span>
         <button
           @click="clearFilters"
-          class="bg-red-100 px-3 py-1 text-xs font-medium text-red-700 transition-colors hover:bg-red-200"
+          class="min-h-[32px] rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700 transition-colors hover:bg-red-200 active:bg-red-300 sm:px-3"
         >
           Limpar filtros
         </button>
       </div>
     </div>
 
-    <div v-if="loading" class="flex items-center justify-center py-12">
+    <div v-if="loading" class="flex items-center justify-center py-8 sm:py-12">
       <div class="flex flex-col items-center gap-3">
         <div
-          class="h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"
+          class="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent sm:h-10 sm:w-10"
         ></div>
-        <p class="text-sm text-neutral-500">Carregando ofertas...</p>
+        <p class="text-xs text-neutral-500 sm:text-sm">Carregando ofertas...</p>
       </div>
     </div>
 
     <div
       v-else-if="error"
-      class="rounded-lg border border-red-200 bg-red-50 p-6 text-center"
+      class="rounded-lg border border-red-200 bg-red-50 p-4 text-center sm:p-6"
     >
-      <p class="text-sm text-red-600">{{ error }}</p>
+      <p class="text-xs text-red-600 sm:text-sm">{{ error }}</p>
       <button
         @click="loadOffers"
-        class="mt-3 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+        class="mt-3 min-h-[44px] rounded-lg bg-red-600 px-4 py-3 text-xs font-medium text-white hover:bg-red-700 active:bg-red-800 sm:min-h-0 sm:py-2 sm:text-sm"
       >
         Tentar Novamente
       </button>
@@ -267,7 +277,7 @@ onMounted(() => {
 
     <div
       v-else-if="offers.length > 0"
-      class="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3"
+      class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 xl:grid-cols-3"
     >
       <EnergyOfferCard
         v-for="offer in offers"
@@ -291,9 +301,11 @@ onMounted(() => {
 
     <div
       v-else-if="!loading && offers.length === 0"
-      class="rounded-lg border border-neutral-200 bg-neutral-50 p-12 text-center"
+      class="rounded-lg border border-neutral-200 bg-neutral-50 p-8 text-center sm:p-12"
     >
-      <p class="text-neutral-600">Nenhuma oferta disponível no momento.</p>
+      <p class="text-sm text-neutral-600 sm:text-base">
+        Nenhuma oferta disponível no momento.
+      </p>
     </div>
 
     <CreateOfferDialog

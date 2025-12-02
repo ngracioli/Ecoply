@@ -351,37 +351,41 @@ watch(
     class="p-0"
   >
     <template #header>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2.5 px-2 sm:gap-3 sm:px-0">
         <div
-          class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600"
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 sm:h-12 sm:w-12 sm:rounded-xl"
         >
-          <Zap :size="24" class="text-white" />
+          <Zap :size="20" class="text-white sm:hidden" />
+          <Zap :size="24" class="hidden text-white sm:block" />
         </div>
-        <div>
-          <h3 class="text-xl font-bold text-neutral-900">{{ dialogTitle }}</h3>
-          <p class="text-sm text-neutral-500">
+        <div class="min-w-0 flex-1">
+          <h3 class="truncate text-lg font-bold text-neutral-900 sm:text-xl">
+            {{ dialogTitle }}
+          </h3>
+          <p class="truncate text-xs text-neutral-500 sm:text-sm">
             {{ dialogSubtitle }}
           </p>
         </div>
       </div>
     </template>
 
-    <div class="space-y-6 px-6 py-4">
+    <div class="space-y-5 px-4 py-3 sm:space-y-6 sm:px-6 sm:py-4">
       <div class="group">
         <label
           for="offer-type"
-          class="mb-2 flex items-center gap-2 text-sm font-semibold text-neutral-700"
+          class="mb-2 flex items-center gap-1.5 text-xs font-semibold text-neutral-700 sm:gap-2 sm:text-sm"
         >
-          <Zap :size="16" class="text-emerald-600" />
+          <Zap :size="14" class="text-emerald-600 sm:hidden" />
+          <Zap :size="16" class="hidden text-emerald-600 sm:block" />
           Tipo de Energia
           <span class="text-red-500">*</span>
         </label>
-        <div class="grid grid-cols-4 gap-3">
+        <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
           <label
             v-for="(config, type) in ENERGY_TYPES_CONFIG"
             :key="type"
             :class="[
-              'flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all duration-200',
+              'flex cursor-pointer touch-manipulation flex-col items-center gap-1.5 rounded-lg border-2 p-3 transition-all duration-200 sm:gap-2 sm:p-4',
               newOffer.energy_type === type
                 ? `${config.borderColor} ${config.bgColor} ring-4 ${config.ringColor}`
                 : `border-neutral-200 ${config.hoverBorder} ${config.hoverBg}`,
@@ -395,35 +399,42 @@ watch(
             />
             <div
               :class="[
-                'flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br',
+                'flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br sm:h-12 sm:w-12',
                 config.gradient,
               ]"
             >
-              <Zap :size="20" class="text-white" />
+              <Zap :size="18" class="text-white sm:hidden" />
+              <Zap :size="20" class="hidden text-white sm:block" />
             </div>
-            <span class="text-sm font-medium text-neutral-900">
+            <span
+              class="text-center text-xs font-medium text-neutral-900 sm:text-sm"
+            >
               {{ config.label }}
             </span>
           </label>
         </div>
-        <small v-if="errors.energy_type" class="mt-1 block text-red-600">
+        <small
+          v-if="errors.energy_type"
+          class="mt-1 block text-xs text-red-600 sm:text-sm"
+        >
           {{ errors.energy_type }}
         </small>
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div class="group">
           <label
             for="offer-price"
-            class="mb-2 flex items-center gap-2 text-sm font-semibold text-neutral-700"
+            class="mb-2 flex items-center gap-1.5 text-xs font-semibold text-neutral-700 sm:gap-2 sm:text-sm"
           >
-            <DollarSign :size="16" class="text-emerald-600" />
+            <DollarSign :size="14" class="text-emerald-600 sm:hidden" />
+            <DollarSign :size="16" class="hidden text-emerald-600 sm:block" />
             Preço por MWh
             <span class="text-red-500">*</span>
           </label>
           <div class="relative">
             <span
-              class="absolute top-1/2 left-4 -translate-y-1/2 text-neutral-500"
+              class="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-neutral-500 sm:left-4 sm:text-base"
             >
               R$
             </span>
@@ -436,10 +447,13 @@ watch(
               max="99999999.99"
               placeholder="10.35"
               :class="getInputClass(errors.price_per_mwh)"
-              class="w-full rounded-lg border-2 py-3 pr-4 pl-12"
+              class="w-full touch-manipulation rounded-lg border-2 py-2.5 pr-3 pl-10 text-base sm:py-3 sm:pr-4 sm:pl-12"
             />
           </div>
-          <small v-if="errors.price_per_mwh" class="mt-1 block text-red-600">
+          <small
+            v-if="errors.price_per_mwh"
+            class="mt-1 block text-xs text-red-600 sm:text-sm"
+          >
             {{ errors.price_per_mwh }}
           </small>
         </div>
@@ -447,9 +461,10 @@ watch(
         <div class="group">
           <label
             for="offer-quantity"
-            class="mb-2 flex items-center gap-2 text-sm font-semibold text-neutral-700"
+            class="mb-2 flex items-center gap-1.5 text-xs font-semibold text-neutral-700 sm:gap-2 sm:text-sm"
           >
-            <Package :size="16" class="text-emerald-600" />
+            <Package :size="14" class="text-emerald-600 sm:hidden" />
+            <Package :size="16" class="hidden text-emerald-600 sm:block" />
             Quantidade
             <span class="text-red-500">*</span>
           </label>
@@ -463,27 +478,31 @@ watch(
               max="9999999.999"
               placeholder="100.35"
               :class="getInputClass(errors.quantity_mwh)"
-              class="w-full rounded-lg border-2 px-4 py-3 pr-16"
+              class="w-full touch-manipulation rounded-lg border-2 px-3 py-2.5 pr-14 text-base sm:px-4 sm:py-3 sm:pr-16"
             />
             <span
-              class="absolute top-1/2 right-4 -translate-y-1/2 text-sm text-neutral-500"
+              class="absolute top-1/2 right-3 -translate-y-1/2 text-xs text-neutral-500 sm:right-4 sm:text-sm"
             >
               MWh
             </span>
           </div>
-          <small v-if="errors.quantity_mwh" class="mt-1 block text-red-600">
+          <small
+            v-if="errors.quantity_mwh"
+            class="mt-1 block text-xs text-red-600 sm:text-sm"
+          >
             {{ errors.quantity_mwh }}
           </small>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div class="group">
           <label
             for="period-start"
-            class="mb-2 flex items-center gap-2 text-sm font-semibold text-neutral-700"
+            class="mb-2 flex items-center gap-1.5 text-xs font-semibold text-neutral-700 sm:gap-2 sm:text-sm"
           >
-            <Calendar :size="16" class="text-emerald-600" />
+            <Calendar :size="14" class="text-emerald-600 sm:hidden" />
+            <Calendar :size="16" class="hidden text-emerald-600 sm:block" />
             Data de Início
             <span class="text-red-500">*</span>
           </label>
@@ -493,9 +512,12 @@ watch(
             type="date"
             lang="pt-BR"
             :class="getInputClass(errors.period_start)"
-            class="w-full rounded-lg border-2 px-4 py-3"
+            class="w-full touch-manipulation rounded-lg border-2 px-3 py-2.5 text-base sm:px-4 sm:py-3"
           />
-          <small v-if="errors.period_start" class="mt-1 block text-red-600">
+          <small
+            v-if="errors.period_start"
+            class="mt-1 block text-xs text-red-600 sm:text-sm"
+          >
             {{ errors.period_start }}
           </small>
         </div>
@@ -503,9 +525,10 @@ watch(
         <div class="group">
           <label
             for="period-end"
-            class="mb-2 flex items-center gap-2 text-sm font-semibold text-neutral-700"
+            class="mb-2 flex items-center gap-1.5 text-xs font-semibold text-neutral-700 sm:gap-2 sm:text-sm"
           >
-            <Calendar :size="16" class="text-emerald-600" />
+            <Calendar :size="14" class="text-emerald-600 sm:hidden" />
+            <Calendar :size="16" class="hidden text-emerald-600 sm:block" />
             Data de Término
             <span class="text-red-500">*</span>
           </label>
@@ -515,9 +538,12 @@ watch(
             type="date"
             lang="pt-BR"
             :class="getInputClass(errors.period_end)"
-            class="w-full rounded-lg border-2 px-4 py-3"
+            class="w-full touch-manipulation rounded-lg border-2 px-3 py-2.5 text-base sm:px-4 sm:py-3"
           />
-          <small v-if="errors.period_end" class="mt-1 block text-red-600">
+          <small
+            v-if="errors.period_end"
+            class="mt-1 block text-xs text-red-600 sm:text-sm"
+          >
             {{ errors.period_end }}
           </small>
         </div>
@@ -526,7 +552,7 @@ watch(
       <div class="group">
         <label
           for="offer-description"
-          class="mb-2 flex items-center gap-2 text-sm font-semibold text-neutral-700"
+          class="mb-2 flex items-center gap-1.5 text-xs font-semibold text-neutral-700 sm:gap-2 sm:text-sm"
         >
           Descrição
           <span class="text-red-500">*</span>
@@ -537,14 +563,17 @@ watch(
           rows="3"
           placeholder="Descreva sua oferta de energia renovável..."
           :class="getInputClass(errors.description)"
-          class="w-full resize-none rounded-lg border-2 px-4 py-3"
+          class="w-full touch-manipulation resize-none rounded-lg border-2 px-3 py-2.5 text-base sm:px-4 sm:py-3"
         ></textarea>
-        <div class="mt-1 flex items-center justify-between">
-          <small v-if="errors.description" class="text-red-600">
+        <div class="mt-1 flex items-center justify-between gap-2">
+          <small
+            v-if="errors.description"
+            class="min-w-0 flex-1 truncate text-xs text-red-600 sm:text-sm"
+          >
             {{ errors.description }}
           </small>
           <small
-            class="text-neutral-500"
+            class="shrink-0 text-xs text-neutral-500 sm:text-sm"
             :class="{ 'ml-auto': !errors.description }"
           >
             {{ newOffer.description.length }}/500
@@ -555,23 +584,25 @@ watch(
 
     <template #footer>
       <div
-        class="flex items-center justify-between gap-4 border-t border-neutral-100 px-6 py-4"
+        class="flex flex-col items-start justify-between gap-3 border-t border-neutral-100 px-4 py-3 sm:flex-row sm:items-center sm:gap-4 sm:px-6 sm:py-4"
       >
-        <p class="text-xs text-neutral-500">
+        <p class="order-2 text-xs text-neutral-500 sm:order-1">
           <span class="text-red-500">*</span> Campos obrigatórios
         </p>
-        <div class="flex shrink-0 gap-3">
+        <div
+          class="order-1 flex w-full shrink-0 gap-2.5 sm:order-2 sm:w-auto sm:gap-3"
+        >
           <button
             @click="closeDialog"
             :disabled="isSubmitting"
-            class="rounded-lg border-2 border-neutral-300 px-5 py-2.5 text-sm font-medium text-neutral-700 transition-all duration-200 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+            class="min-h-[44px] flex-1 touch-manipulation rounded-lg border-2 border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-700 transition-all duration-200 hover:bg-neutral-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:px-5"
           >
             Cancelar
           </button>
           <button
             @click="handleSubmit"
             :disabled="isSubmitting"
-            class="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-5 py-2.5 text-sm font-medium text-white shadow-md transition-all duration-200 hover:shadow-lg hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            class="min-h-[44px] flex-1 touch-manipulation rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2.5 text-sm font-medium whitespace-nowrap text-white shadow-md transition-all duration-200 hover:shadow-lg hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-initial sm:px-5"
           >
             {{ submitButtonText }}
           </button>

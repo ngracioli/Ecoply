@@ -242,24 +242,24 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-6">
+  <div class="flex flex-col gap-4 sm:gap-6">
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="text-2xl font-bold text-neutral-900">
+        <h2 class="text-xl font-bold text-neutral-900 sm:text-2xl">
           Histórico de Negociações
         </h2>
-        <p class="mt-1 text-sm text-neutral-500">
+        <p class="mt-1 text-xs text-neutral-500 sm:text-sm">
           Acompanhe todas as suas transações
         </p>
       </div>
     </div>
 
     <div v-if="userUserType === 'supplier'" class="flex justify-start">
-      <div class="inline-flex rounded-lg bg-neutral-100 p-1">
+      <div class="inline-flex w-full rounded-lg bg-neutral-100 p-1 sm:w-auto">
         <button
           @click="activeView = 'compras'"
           :class="[
-            'rounded-md px-6 py-2.5 text-sm font-medium transition-all duration-200',
+            'flex-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 sm:flex-initial sm:px-6 sm:py-2.5 sm:text-sm',
             activeView === 'compras'
               ? 'bg-white text-emerald-600 shadow-sm'
               : 'text-neutral-600 hover:text-neutral-900',
@@ -270,7 +270,7 @@ onMounted(() => {
         <button
           @click="activeView = 'vendas'"
           :class="[
-            'rounded-md px-6 py-2.5 text-sm font-medium transition-all duration-200',
+            'flex-1 rounded-md px-4 py-2 text-xs font-medium transition-all duration-200 sm:flex-initial sm:px-6 sm:py-2.5 sm:text-sm',
             activeView === 'vendas'
               ? 'bg-white text-emerald-600 shadow-sm'
               : 'text-neutral-600 hover:text-neutral-900',
@@ -281,12 +281,16 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+    <div
+      class="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm sm:p-4"
+    >
+      <div
+        class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4"
+      >
         <div>
           <label
             for="status-filter"
-            class="mb-1 block text-sm font-medium text-neutral-700"
+            class="mb-1 block text-xs font-medium text-neutral-700 sm:text-sm"
           >
             Status
           </label>
@@ -305,7 +309,7 @@ onMounted(() => {
         <div>
           <label
             for="payment-filter"
-            class="mb-1 block text-sm font-medium text-neutral-700"
+            class="mb-1 block text-xs font-medium text-neutral-700 sm:text-sm"
           >
             Método de Pagamento
           </label>
@@ -324,7 +328,7 @@ onMounted(() => {
         <div>
           <label
             for="price-order"
-            class="mb-1 block text-sm font-medium text-neutral-700"
+            class="mb-1 block text-xs font-medium text-neutral-700 sm:text-sm"
           >
             Ordenar por Preço
           </label>
@@ -342,7 +346,7 @@ onMounted(() => {
         <div>
           <label
             for="quantity-order"
-            class="mb-1 block text-sm font-medium text-neutral-700"
+            class="mb-1 block text-xs font-medium text-neutral-700 sm:text-sm"
           >
             Ordenar por Quantidade
           </label>
@@ -359,24 +363,29 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="flex flex-col gap-6">
-      <div v-if="loading" class="flex items-center justify-center py-12">
+    <div class="flex flex-col gap-4 sm:gap-6">
+      <div
+        v-if="loading"
+        class="flex items-center justify-center py-8 sm:py-12"
+      >
         <div class="flex flex-col items-center gap-3">
           <div
-            class="h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"
+            class="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent sm:h-10 sm:w-10"
           ></div>
-          <p class="text-sm text-neutral-500">Carregando histórico...</p>
+          <p class="text-xs text-neutral-500 sm:text-sm">
+            Carregando histórico...
+          </p>
         </div>
       </div>
 
       <div
         v-else-if="error"
-        class="rounded-lg border border-red-200 bg-red-50 p-6 text-center"
+        class="rounded-lg border border-red-200 bg-red-50 p-4 text-center sm:p-6"
       >
-        <p class="text-sm text-red-600">{{ error }}</p>
+        <p class="text-xs text-red-600 sm:text-sm">{{ error }}</p>
         <button
           @click="loadPurchases"
-          class="mt-3 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+          class="mt-3 min-h-[44px] rounded-lg bg-red-600 px-4 py-2.5 text-xs font-medium text-white hover:bg-red-700 active:bg-red-800 sm:min-h-0 sm:py-2 sm:text-sm"
         >
           Tentar Novamente
         </button>
@@ -384,45 +393,45 @@ onMounted(() => {
 
       <div
         v-else-if="purchases.length > 0"
-        class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm"
+        class="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm sm:rounded-xl"
       >
         <div class="overflow-x-auto">
-          <table class="w-full">
+          <table class="w-full min-w-[800px]">
             <thead class="bg-neutral-50">
               <tr>
                 <th
-                  class="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-600 uppercase"
+                  class="px-3 py-3 text-left text-xs font-semibold tracking-wider text-neutral-600 uppercase sm:px-6 sm:py-4"
                 >
                   Transação
                 </th>
                 <th
-                  class="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-600 uppercase"
+                  class="px-3 py-3 text-left text-xs font-semibold tracking-wider text-neutral-600 uppercase sm:px-6 sm:py-4"
                 >
                   Parceiro
                 </th>
                 <th
-                  class="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-600 uppercase"
+                  class="px-3 py-3 text-left text-xs font-semibold tracking-wider text-neutral-600 uppercase sm:px-6 sm:py-4"
                 >
                   Quantidade
                 </th>
                 <th
-                  class="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-600 uppercase"
+                  class="px-3 py-3 text-left text-xs font-semibold tracking-wider text-neutral-600 uppercase sm:px-6 sm:py-4"
                 >
                   Valor
                 </th>
                 <th
-                  class="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-600 uppercase"
+                  class="px-3 py-3 text-left text-xs font-semibold tracking-wider text-neutral-600 uppercase sm:px-6 sm:py-4"
                 >
                   Data
                 </th>
                 <th
-                  class="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-600 uppercase"
+                  class="px-3 py-3 text-left text-xs font-semibold tracking-wider text-neutral-600 uppercase sm:px-6 sm:py-4"
                 >
                   Status
                 </th>
                 <th
                   v-if="activeView === 'compras'"
-                  class="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-600 uppercase"
+                  class="px-3 py-3 text-left text-xs font-semibold tracking-wider text-neutral-600 uppercase sm:px-6 sm:py-4"
                 >
                   Ações
                 </th>
@@ -457,9 +466,11 @@ onMounted(() => {
 
       <div
         v-else-if="!loading && purchases.length === 0"
-        class="rounded-lg border border-neutral-200 bg-neutral-50 p-12 text-center"
+        class="rounded-lg border border-neutral-200 bg-neutral-50 p-8 text-center sm:p-12"
       >
-        <p class="text-neutral-600">Nenhuma transação encontrada.</p>
+        <p class="text-sm text-neutral-600 sm:text-base">
+          Nenhuma transação encontrada.
+        </p>
       </div>
     </div>
 
