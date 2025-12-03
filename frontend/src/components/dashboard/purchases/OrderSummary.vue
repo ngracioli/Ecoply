@@ -2,6 +2,7 @@
 import type { OfferListItem } from "../../../types/responses/offers";
 import type { PaymentMethod } from "../../../types/checkout";
 import { Lock, ShieldCheck } from "lucide-vue-next";
+import { useIconSize } from "../../../composables/useIconSize";
 
 interface Props {
   offer: OfferListItem;
@@ -22,6 +23,7 @@ interface Emits {
 
 defineProps<Props>();
 const emit = defineEmits<Emits>();
+const { iconSize } = useIconSize();
 
 const formatPrice = (price: number) => {
   return `R$ ${price.toFixed(2).replace(".", ",")}`;
@@ -131,8 +133,7 @@ const handleSubmit = () => {
     <div class="rounded-lg bg-emerald-50 p-4 sm:rounded-xl sm:p-5 md:p-6">
       <div class="flex items-start gap-2.5 sm:gap-3">
         <div class="shrink-0 rounded-lg bg-emerald-100 p-1.5 sm:p-2">
-          <ShieldCheck class="text-emerald-600" :size="18" />
-          <ShieldCheck class="hidden text-emerald-600 sm:block" :size="20" />
+          <ShieldCheck class="text-emerald-600" :size="iconSize(18, 20)" />
         </div>
         <div class="min-w-0">
           <h3 class="text-sm font-semibold text-emerald-900 sm:text-base">
@@ -162,8 +163,7 @@ const handleSubmit = () => {
         Processando...
       </span>
       <span v-else class="flex items-center justify-center gap-2">
-        <Lock :size="18" />
-        <Lock class="hidden sm:block" :size="20" />
+        <Lock :size="iconSize(18, 20)" />
         Finalizar Compra
       </span>
     </button>

@@ -512,7 +512,7 @@ watch(
             type="date"
             lang="pt-BR"
             :class="getInputClass(errors.period_start)"
-            class="w-full min-w-0 touch-manipulation rounded-lg border-2 px-3 py-2.5 text-base sm:px-4 sm:py-3"
+            class="w-full min-w-0 touch-manipulation rounded-lg border-2 px-3 py-2.5 text-base sm:px-4 sm:py-3 [&::-webkit-calendar-picker-indicator]:shrink-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
           />
           <small
             v-if="errors.period_start"
@@ -538,7 +538,7 @@ watch(
             type="date"
             lang="pt-BR"
             :class="getInputClass(errors.period_end)"
-            class="w-full min-w-0 touch-manipulation rounded-lg border-2 px-3 py-2.5 text-base sm:px-4 sm:py-3"
+            class="w-full min-w-0 touch-manipulation rounded-lg border-2 px-3 py-2.5 text-base sm:px-4 sm:py-3 [&::-webkit-calendar-picker-indicator]:shrink-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
           />
           <small
             v-if="errors.period_end"

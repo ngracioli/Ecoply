@@ -15,9 +15,11 @@ import ContractDownloadDialog from "../../components/dashboard/purchases/Contrac
 import ConfirmDialog from "../../components/shared/ConfirmDialog.vue";
 import { generateContract } from "../../utils/contractGenerator";
 import type { PurchaseFormData } from "../../components/dashboard/purchases/PurchaseForm.vue";
+import { useIconSize } from "../../composables/useIconSize";
 
 const route = useRoute();
 const router = useRouter();
+const { iconSize } = useIconSize();
 const offer = ref<OfferListItem | null>(null);
 const loading = ref(true);
 const processing = ref(false);
@@ -162,8 +164,7 @@ const handlePendingClose = () => {
             @click="goBack"
             class="rounded-lg p-1.5 text-neutral-600 transition-colors hover:bg-neutral-100 sm:p-2"
           >
-            <ArrowLeft :size="20" class="sm:hidden" />
-            <ArrowLeft :size="24" class="hidden sm:block" />
+            <ArrowLeft :size="iconSize(20, 24)" />
           </button>
           <h1
             class="text-lg font-semibold text-neutral-900 sm:text-xl lg:text-2xl"

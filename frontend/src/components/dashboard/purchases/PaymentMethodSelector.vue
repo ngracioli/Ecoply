@@ -2,6 +2,7 @@
 import { computed, watch } from "vue";
 import type { PaymentMethod, CardDetails } from "../../../types/checkout";
 import { CreditCard, FileText, Wallet, Check } from "lucide-vue-next";
+import { useIconSize } from "../../../composables/useIconSize";
 
 interface Props {
   modelValue: PaymentMethod;
@@ -18,6 +19,7 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
+const { iconSize } = useIconSize();
 
 const paymentMethod = computed({
   get: () => props.modelValue,
@@ -99,16 +101,7 @@ const formatPrice = (price: number) => {
             ]"
           >
             <Wallet
-              :size="18"
-              :class="
-                paymentMethod === 'pix'
-                  ? 'text-emerald-600'
-                  : 'text-neutral-600'
-              "
-            />
-            <Wallet
-              class="hidden sm:block"
-              :size="20"
+              :size="iconSize(18, 20)"
               :class="
                 paymentMethod === 'pix'
                   ? 'text-emerald-600'
@@ -125,13 +118,8 @@ const formatPrice = (price: number) => {
         </div>
         <Check
           v-if="paymentMethod === 'pix'"
-          :size="18"
+          :size="iconSize(18, 20)"
           class="shrink-0 text-emerald-500"
-        />
-        <Check
-          v-if="paymentMethod === 'pix'"
-          class="hidden shrink-0 text-emerald-500 sm:block"
-          :size="20"
         />
       </label>
 
@@ -157,16 +145,7 @@ const formatPrice = (price: number) => {
             ]"
           >
             <CreditCard
-              :size="18"
-              :class="
-                paymentMethod === 'card'
-                  ? 'text-emerald-600'
-                  : 'text-neutral-600'
-              "
-            />
-            <CreditCard
-              class="hidden sm:block"
-              :size="20"
+              :size="iconSize(18, 20)"
               :class="
                 paymentMethod === 'card'
                   ? 'text-emerald-600'
@@ -185,13 +164,8 @@ const formatPrice = (price: number) => {
         </div>
         <Check
           v-if="paymentMethod === 'card'"
-          :size="18"
+          :size="iconSize(18, 20)"
           class="shrink-0 text-emerald-500"
-        />
-        <Check
-          v-if="paymentMethod === 'card'"
-          class="hidden shrink-0 text-emerald-500 sm:block"
-          :size="20"
         />
       </label>
 
@@ -217,16 +191,7 @@ const formatPrice = (price: number) => {
             ]"
           >
             <FileText
-              :size="18"
-              :class="
-                paymentMethod === 'billet'
-                  ? 'text-emerald-600'
-                  : 'text-neutral-600'
-              "
-            />
-            <FileText
-              class="hidden sm:block"
-              :size="20"
+              :size="iconSize(18, 20)"
               :class="
                 paymentMethod === 'billet'
                   ? 'text-emerald-600'
@@ -245,13 +210,8 @@ const formatPrice = (price: number) => {
         </div>
         <Check
           v-if="paymentMethod === 'billet'"
-          :size="18"
+          :size="iconSize(18, 20)"
           class="shrink-0 text-emerald-500"
-        />
-        <Check
-          v-if="paymentMethod === 'billet'"
-          class="hidden shrink-0 text-emerald-500 sm:block"
-          :size="20"
         />
       </label>
     </div>

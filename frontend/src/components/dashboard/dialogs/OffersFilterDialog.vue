@@ -204,7 +204,7 @@ defineExpose({
                     id="period-start"
                     v-model="periodStart"
                     type="date"
-                    class="w-full min-w-0 touch-manipulation rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 transition-colors focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:text-base"
+                    class="w-full min-w-0 touch-manipulation rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 transition-colors focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:text-base [&::-webkit-calendar-picker-indicator]:shrink-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                   />
                 </div>
 
@@ -219,7 +219,7 @@ defineExpose({
                     id="period-end"
                     v-model="periodEnd"
                     type="date"
-                    class="w-full min-w-0 touch-manipulation rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 transition-colors focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:text-base"
+                    class="w-full min-w-0 touch-manipulation rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 transition-colors focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:text-base [&::-webkit-calendar-picker-indicator]:shrink-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                   />
                 </div>
               </div>
