@@ -496,7 +496,7 @@ watch(
       </div>
 
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div class="group">
+        <div class="group min-w-0">
           <label
             for="period-start"
             class="mb-2 flex items-center gap-1.5 text-xs font-semibold text-neutral-700 sm:gap-2 sm:text-sm"
@@ -506,14 +506,17 @@ watch(
             Data de Início
             <span class="text-red-500">*</span>
           </label>
-          <input
-            id="period-start"
-            v-model="newOffer.period_start"
-            type="date"
-            lang="pt-BR"
-            :class="getInputClass(errors.period_start)"
-            class="w-full min-w-0 touch-manipulation rounded-lg border-2 px-3 py-2.5 text-base sm:px-4 sm:py-3 [&::-webkit-calendar-picker-indicator]:shrink-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-          />
+          <div class="relative overflow-hidden">
+            <input
+              id="period-start"
+              v-model="newOffer.period_start"
+              type="date"
+              lang="pt-BR"
+              :class="getInputClass(errors.period_start)"
+              class="box-border w-full max-w-full min-w-0 touch-manipulation rounded-lg border-2 px-2 py-2.5 pr-8 text-base sm:px-4 sm:py-3"
+              style="font-size: 16px"
+            />
+          </div>
           <small
             v-if="errors.period_start"
             class="mt-1 block text-xs text-red-600 sm:text-sm"
@@ -522,7 +525,7 @@ watch(
           </small>
         </div>
 
-        <div class="group">
+        <div class="group min-w-0">
           <label
             for="period-end"
             class="mb-2 flex items-center gap-1.5 text-xs font-semibold text-neutral-700 sm:gap-2 sm:text-sm"
@@ -532,14 +535,17 @@ watch(
             Data de Término
             <span class="text-red-500">*</span>
           </label>
-          <input
-            id="period-end"
-            v-model="newOffer.period_end"
-            type="date"
-            lang="pt-BR"
-            :class="getInputClass(errors.period_end)"
-            class="w-full min-w-0 touch-manipulation rounded-lg border-2 px-3 py-2.5 text-base sm:px-4 sm:py-3 [&::-webkit-calendar-picker-indicator]:shrink-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-          />
+          <div class="relative overflow-hidden">
+            <input
+              id="period-end"
+              v-model="newOffer.period_end"
+              type="date"
+              lang="pt-BR"
+              :class="getInputClass(errors.period_end)"
+              class="box-border w-full max-w-full min-w-0 touch-manipulation rounded-lg border-2 px-2 py-2.5 pr-8 text-base sm:px-4 sm:py-3"
+              style="font-size: 16px"
+            />
+          </div>
           <small
             v-if="errors.period_end"
             class="mt-1 block text-xs text-red-600 sm:text-sm"
@@ -610,4 +616,34 @@ watch(
   </Dialog>
 </template>
 
-<style scoped></style>
+<style scoped>
+input[type="date"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 28px;
+}
+
+@media (max-width: 639px) {
+  input[type="date"] {
+    font-size: 16px !important;
+    padding-right: 32px !important;
+  }
+}
+</style>

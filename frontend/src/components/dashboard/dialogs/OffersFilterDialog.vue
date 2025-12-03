@@ -193,34 +193,40 @@ defineExpose({
                 Período de Fornecimento
               </h3>
               <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                <div class="space-y-2">
+                <div class="min-w-0 space-y-2">
                   <label
                     for="period-start"
                     class="block text-xs font-medium text-neutral-600 sm:text-sm"
                   >
                     Data Início
                   </label>
-                  <input
-                    id="period-start"
-                    v-model="periodStart"
-                    type="date"
-                    class="w-full min-w-0 touch-manipulation rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 transition-colors focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:text-base [&::-webkit-calendar-picker-indicator]:shrink-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                  />
+                  <div class="relative overflow-hidden">
+                    <input
+                      id="period-start"
+                      v-model="periodStart"
+                      type="date"
+                      class="box-border w-full max-w-full min-w-0 touch-manipulation rounded-lg border border-neutral-300 bg-white px-2 py-2.5 pr-8 text-sm text-neutral-900 transition-colors focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:text-base"
+                      style="font-size: 14px"
+                    />
+                  </div>
                 </div>
 
-                <div class="space-y-2">
+                <div class="min-w-0 space-y-2">
                   <label
                     for="period-end"
                     class="block text-xs font-medium text-neutral-600 sm:text-sm"
                   >
                     Data Fim
                   </label>
-                  <input
-                    id="period-end"
-                    v-model="periodEnd"
-                    type="date"
-                    class="w-full min-w-0 touch-manipulation rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 transition-colors focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:text-base [&::-webkit-calendar-picker-indicator]:shrink-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                  />
+                  <div class="relative overflow-hidden">
+                    <input
+                      id="period-end"
+                      v-model="periodEnd"
+                      type="date"
+                      class="box-border w-full max-w-full min-w-0 touch-manipulation rounded-lg border border-neutral-300 bg-white px-2 py-2.5 pr-8 text-sm text-neutral-900 transition-colors focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none sm:px-4 sm:text-base"
+                      style="font-size: 14px"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -276,5 +282,35 @@ defineExpose({
 .dialog-content-leave-to {
   opacity: 0;
   transform: scale(0.95) translateY(1rem);
+}
+
+input[type="date"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 28px;
+}
+
+@media (max-width: 639px) {
+  input[type="date"] {
+    font-size: 14px !important;
+    padding-right: 32px !important;
+  }
 }
 </style>
