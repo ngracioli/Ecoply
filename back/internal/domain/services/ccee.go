@@ -5,18 +5,10 @@ import (
 	"ecoply/internal/domain/merr"
 	"ecoply/internal/domain/resources"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
 	"time"
-)
-
-var (
-	ErrFailedToFetchCcee = errors.New("failed to fetch CCEE data from external service")
-	ErrCceeNotFound      = errors.New("CNPJ not found in CCEE records")
-	ErrFailedToParseCcee = errors.New("failed to parse CCEE response")
-	ErrInvalidCnpj       = errors.New("invalid CNPJ format")
 )
 
 type CceeService interface {

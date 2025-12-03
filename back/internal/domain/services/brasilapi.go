@@ -5,19 +5,9 @@ import (
 	"ecoply/internal/domain/merr"
 	"ecoply/internal/domain/resources"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
-)
-
-var (
-	ErrFailedToFetchBrasilApi = errors.New("Erro ao buscar dados. Tente novamente.")
-	ErrBrasilApiNotFound      = errors.New("Dados não encontrados")
-	ErrFailedToParseBrasilApi = errors.New("Erro ao processar dados. Tente novamente.")
-	ErrInvalidCepFormat       = errors.New("CEP inválido")
-	ErrCepNotFound            = errors.New("CEP não encontrado")
-	ErrCnpjNotFound           = errors.New("CNPJ não encontrado")
 )
 
 type BrasilApiService interface {

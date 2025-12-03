@@ -5,15 +5,7 @@ import (
 	"ecoply/internal/domain/resources"
 
 	"encoding/json"
-	"errors"
 	"net/http"
-)
-
-var (
-	ErrFailedToFetchCnpj = errors.New("failed to fetch cnpj from external service")
-	ErrCnpjNotFound      = errors.New("cnpj not found")
-	ErrInvalidCep        = errors.New("invalid CEP")
-	ErrFailedToParseCnpj = errors.New("failed to parse cnpj response")
 )
 
 type CnpjData struct {

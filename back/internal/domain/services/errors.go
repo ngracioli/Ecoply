@@ -56,4 +56,25 @@ var (
 	// Contract
 	ErrUserIsNotContractMember = errors.New("user is not a member of the contract")
 	ErrPurchaseIsNotCompleted  = errors.New("purchase is not completed")
+
+	// CNPJ related errors
+	ErrInvalidCnpj       = errors.New("invalid CNPJ format")
+	ErrCnpjNotFound      = errors.New("CNPJ not found")
+	ErrFailedToFetchCnpj = errors.New("failed to fetch CNPJ from external service")
+	ErrFailedToParseCnpj = errors.New("failed to parse CNPJ response")
+
+	// CEP related errors
+	ErrInvalidCep       = errors.New("invalid CEP")
+	ErrInvalidCepFormat = errors.New("invalid CEP format")
+	ErrCepNotFound      = errors.New("CEP not found")
+
+	// Brasil API errors
+	ErrFailedToFetchBrasilApi = errors.New("Erro ao buscar dados. Tente novamente.")
+	ErrBrasilApiNotFound      = errors.New("Dados não encontrados")
+	ErrFailedToParseBrasilApi = errors.New("Erro ao processar dados. Tente novamente.")
+
+	// CCEE errors
+	ErrFailedToFetchCcee = errors.New("failed to fetch CCEE data from external service")
+	ErrCceeNotFound      = errors.New("CNPJ not found in CCEE records")
+	ErrFailedToParseCcee = errors.New("failed to parse CCEE response")
 )
