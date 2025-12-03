@@ -80,10 +80,10 @@ Somente **Agentes da CCEE**, ativos e validados, podem operar na plataforma, gar
 
 ### Funcionalidades Principais
 
-* ✔ Cadastro e autenticação de usuários com **validação documental**.
+* ✔ Cadastro e autenticação de usuários a partir do **CNPJ e agente CCEE**.
 * ✔ Criação e gestão de ofertas de venda de energia.
 * ✔ Filtros avançados: tipo de energia, submercado e data inicio/fim.
-* ✔ **Recomendação por **preço** (ofertas próximas em destaque).
+* ✔ Recomendação por **preço**.
 * ✔ Emissão automática de **contratos** após a transação.
 
 ### 🌍 Agentes da CCEE Atendidos
@@ -98,11 +98,7 @@ A plataforma é projetada para atender:
 
 ### 🗂️ Banco de Dados
 
-O banco de dados relacional utiliza do **PostgreSQL** e usa as seguintes entidades principais para o controle de usuários, transações e localizações:
-
-* `users`, `agents`, `user_types`
-* `offers`, `purchases`
-* `submarkets`, `addresses`
+O banco de dados relacional utiliza do **PostgreSQL** e usa entidades para o controle de usuários, transações e localizações:
 
 O **Diagrama Físico** completo está disponível na seção de anexos.
 
@@ -124,4 +120,4 @@ O **Diagrama Físico** completo está disponível na seção de anexos.
 
 * 📘 **Documentação interna**: https://docs.google.com/document/d/1UwBPm3Txfcy7cO2q9TO8K7J3G8PPCgLKKpbg-3Oc5T8/edit?usp=sharing
 
-* 📄 **Link do Trello**: https://trello.com/b/QihAB3w8/pi2s2025
+* 📄 **Link do Trello**: https://trello.com/b/QihAB3w8/pi2s202
