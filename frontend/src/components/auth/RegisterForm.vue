@@ -13,11 +13,10 @@ import { z } from "zod";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import type { RegisterRequest } from "../../types/requests/auth";
-import axios from "axios";
 import api from "../../axios";
 import type { StateConsult } from "../../types/responses/brazilStates";
 import type { CCEEAgentsResponse, CCEEAgent } from "../../types/responses/ccee";
-import { CCEE_ENDPOINTS } from "../../api/endpoints";
+import { CCEE_ENDPOINTS, BRASILAPI_ENDPOINTS } from "../../api/endpoints";
 
 const toast = useToast();
 const store = useStore();
@@ -25,11 +24,11 @@ const router = useRouter();
 
 async function loadStates() {
   try {
-    const resp = await axios.get<StateConsult>(
-      "https://brasilapi.com.br/api/ibge/uf/v1",
+    const resp = await api.get<{ data: StateConsult }>(
+      BRASILAPI_ENDPOINTS.STATES,
     );
 
-    brazilStates.value = resp.data.sort(
+    brazilStates.value = resp.data.data.sort(
       (a: { sigla: string }, b: { sigla: string }) =>
         a.sigla.localeCompare(b.sigla),
     );
@@ -243,15 +242,9 @@ async function confirmCnpj() {
   try {
     const cnpjDigits = onlyDigits(form.agent.cnpj);
 
-    const respBrasil = await fetch(
-      `https://brasilapi.com.br/api/cnpj/v1/${cnpjDigits}`,
-    );
-    if (!respBrasil.ok) {
-      const errorData = await respBrasil.json().catch(() => ({}));
-      errors["agent.cnpj"] = errorData.message || "Erro ao consultar CNPJ.";
-      return;
-    }
-    const dataBrasil = await respBrasil.json();
+    const respBrasil = await api.get<{
+      data: { razao_social: string; nome_fantasia: string };
+    }>(BRASILAPI_ENDPOINTS.CNPJ(cnpjDigits));
 
     const respCCEE = await api.get<CCEEAgentsResponse>(
       CCEE_ENDPOINTS.AGENTS(cnpjDigits),
@@ -267,7 +260,9 @@ async function confirmCnpj() {
     }
 
     form.agent.company_name =
-      dataBrasil.razao_social || dataBrasil.nome_fantasia || "";
+      respBrasil.data.data.razao_social ||
+      respBrasil.data.data.nome_fantasia ||
+      "";
 
     cceeAgents.value = respCCEE.data.data;
 
@@ -280,7 +275,11 @@ async function confirmCnpj() {
     step.value = 3;
   } catch (err: any) {
     if (err.response?.status === 404) {
-      errors["agent.cnpj"] = "CNPJ não está vinculado a nenhum agente CCEE.";
+      if (err.config?.url?.includes("/brasilapi/cnpj/")) {
+        errors["agent.cnpj"] = "CNPJ não encontrado.";
+      } else {
+        errors["agent.cnpj"] = "CNPJ não está vinculado a nenhum agente CCEE.";
+      }
     } else {
       errors["agent.cnpj"] =
         err.response?.data?.message ||
@@ -301,15 +300,16 @@ async function fetchCep() {
 
   loading.value = true;
   try {
-    const resp = await fetch(
-      `https://brasilapi.com.br/api/cep/v1/${cepDigits}`,
-    );
-    if (!resp.ok) {
-      const errorData = await resp.json().catch(() => ({}));
-      errors["address.cep"] = errorData.message || "CEP não encontrado.";
-      return;
-    }
-    const data = await resp.json();
+    const resp = await api.get<{
+      data: {
+        street: string;
+        neighborhood: string;
+        city: string;
+        state: string;
+      };
+    }>(BRASILAPI_ENDPOINTS.CEP(cepDigits));
+
+    const data = resp.data.data;
 
     form.address.street = data.street || "";
     form.address.neighborhood = data.neighborhood || "";
@@ -323,7 +323,12 @@ async function fetchCep() {
     }
     showSuccess("Endereço preenchido a partir do CEP.");
   } catch (err: any) {
-    errors["address.cep"] = "Erro ao consultar CEP.";
+    if (err.response?.status === 404) {
+      errors["address.cep"] = "CEP não encontrado.";
+    } else {
+      errors["address.cep"] =
+        err.response?.data?.message || "Erro ao consultar CEP.";
+    }
   } finally {
     loading.value = false;
   }

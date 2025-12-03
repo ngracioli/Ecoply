@@ -26,6 +26,7 @@ type ServerServices struct {
 	services.ContractService
 	services.AnalyticsService
 	services.CceeService
+	services.BrasilApiService
 }
 
 type ServerHandlers struct {
@@ -36,6 +37,7 @@ type ServerHandlers struct {
 	handlers.ContractHandlers
 	handlers.AnalyticsHandlers
 	handlers.CceeHandlers
+	handlers.BrasilApiHandlers
 }
 
 type ServerContext struct {

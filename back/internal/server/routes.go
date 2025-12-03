@@ -20,6 +20,7 @@ func registerRoutes(router *gin.Engine, s *ServerContext) {
 	var offerHandlers handlers.OfferHandlers = s.Handlers.OfferHandlers
 	var cnpjHandlers handlers.CnpjHandlers = s.Handlers.CnpjHandlers
 	var cceeHandlers handlers.CceeHandlers = s.Handlers.CceeHandlers
+	var brasilApiHandlers handlers.BrasilApiHandlers = s.Handlers.BrasilApiHandlers
 	var purchaseHandlers handlers.PurchaseHandlers = s.Handlers.PurchaseHandlers
 	var contractHandlers handlers.ContractHandlers = s.Handlers.ContractHandlers
 	var analyticsHandlers handlers.AnalyticsHandlers = s.Handlers.AnalyticsHandlers
@@ -62,6 +63,13 @@ func registerRoutes(router *gin.Engine, s *ServerContext) {
 		ccee := v1.Group("ccee")
 		{
 			ccee.GET("agents/:cnpj", cceeHandlers.GetAgentsByCnpj)
+		}
+
+		brasilapi := v1.Group("brasilapi")
+		{
+			brasilapi.GET("states", brasilApiHandlers.GetStates)
+			brasilapi.GET("cnpj/:cnpj", brasilApiHandlers.GetCnpjData)
+			brasilapi.GET("cep/:cep", brasilApiHandlers.GetCepData)
 		}
 
 		offer := v1.Group("offers", middlewares.JwtAuthMiddleware(

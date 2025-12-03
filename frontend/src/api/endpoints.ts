@@ -31,3 +31,9 @@ export const PURCHASE_ENDPOINTS = {
 export const CCEE_ENDPOINTS = {
   AGENTS: (cnpj: string) => `/api/v1/ccee/agents/${cnpj}`,
 } as const;
+
+export const BRASILAPI_ENDPOINTS = {
+  STATES: "/api/v1/brasilapi/states",
+  CNPJ: (cnpj: string) => `/api/v1/brasilapi/cnpj/${cnpj}`,
+  CEP: (cep: string) => `/api/v1/brasilapi/cep/${cep}`,
+} as const;
