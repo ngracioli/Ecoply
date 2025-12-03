@@ -96,3 +96,59 @@ a:disabled,
 .disabled {
   cursor: not-allowed;
 }
+
+@media (max-width: 768px) {
+  .mobile-scrollable,
+  .p-dialog-content,
+  .dialog-backdrop > div > div,
+  form {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(16, 185, 129, 0.8) rgba(229, 231, 235, 0.4);
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-scrollable::-webkit-scrollbar,
+  .p-dialog-content::-webkit-scrollbar,
+  .dialog-backdrop > div > div::-webkit-scrollbar,
+  form::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    -webkit-appearance: none;
+  }
+
+  .mobile-scrollable::-webkit-scrollbar-track,
+  .p-dialog-content::-webkit-scrollbar-track,
+  .dialog-backdrop > div > div::-webkit-scrollbar-track,
+  form::-webkit-scrollbar-track {
+    background: rgba(229, 231, 235, 0.4);
+    border-radius: 10px;
+    margin: 8px 0;
+  }
+
+  .mobile-scrollable::-webkit-scrollbar-thumb,
+  .p-dialog-content::-webkit-scrollbar-thumb,
+  .dialog-backdrop > div > div::-webkit-scrollbar-thumb,
+  form::-webkit-scrollbar-thumb {
+    background-color: rgba(16, 185, 129, 0.8);
+    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    background-clip: padding-box;
+    min-height: 40px;
+  }
+
+  .mobile-scrollable::-webkit-scrollbar-thumb:active,
+  .p-dialog-content::-webkit-scrollbar-thumb:active,
+  .dialog-backdrop > div > div::-webkit-scrollbar-thumb:active,
+  form::-webkit-scrollbar-thumb:active {
+    background-color: rgba(16, 185, 129, 1);
+  }
+
+  .mobile-scrollable::-webkit-scrollbar-thumb,
+  .p-dialog-content::-webkit-scrollbar-thumb,
+  .dialog-backdrop > div > div::-webkit-scrollbar-thumb,
+  form::-webkit-scrollbar-thumb {
+    visibility: visible !important;
+    display: block !important;
+  }
+}

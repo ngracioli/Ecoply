@@ -650,4 +650,12 @@ input[type="date"]::-webkit-date-and-time-value {
     padding-right: 32px !important;
   }
 }
+
+@media (max-width: 768px) {
+  :deep(.p-dialog-content) {
+    max-height: 60vh;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}
 </style>

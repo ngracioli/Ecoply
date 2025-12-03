@@ -112,7 +112,7 @@ defineExpose({
       >
         <div
           v-if="visible"
-          class="relative w-full max-w-2xl rounded-lg bg-white shadow-2xl sm:rounded-xl"
+          class="mobile-scrollable relative w-full max-w-2xl rounded-lg bg-white shadow-2xl sm:rounded-xl"
           @click.stop
         >
           <div
@@ -143,7 +143,9 @@ defineExpose({
             </button>
           </div>
 
-          <div class="space-y-5 p-4 sm:space-y-6 sm:p-6">
+          <div
+            class="mobile-scrollable max-h-[60vh] space-y-5 overflow-y-auto p-4 sm:space-y-6 sm:p-6"
+          >
             <div class="space-y-2">
               <label
                 for="submarket"

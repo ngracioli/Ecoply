@@ -99,7 +99,10 @@ const login = async () => {
       </p>
     </div>
 
-    <form @submit.prevent="login" class="flex flex-col gap-4 sm:gap-5">
+    <form
+      @submit.prevent="login"
+      class="mobile-scrollable flex flex-col gap-4 sm:gap-5"
+    >
       <Toast />
       <div class="flex flex-col gap-2">
         <label for="email" class="text-sm font-semibold text-gray-800"

@@ -424,7 +424,7 @@ async function submitFinal() {
 
     <form
       @submit.prevent="step < 4 ? next() : submitFinal()"
-      class="flex flex-col gap-4 sm:gap-5"
+      class="mobile-scrollable flex flex-col gap-4 sm:gap-5"
     >
       <Toast />
 

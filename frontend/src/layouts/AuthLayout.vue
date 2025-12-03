@@ -100,8 +100,16 @@ section {
     0 20px 60px -10px rgba(0, 0, 0, 0.05);
 }
 
+.scrollbar-custom {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #059669 rgba(0, 0, 0, 0.05);
+}
+
 .scrollbar-custom::-webkit-scrollbar {
   width: 8px;
+  -webkit-appearance: none;
 }
 
 .scrollbar-custom::-webkit-scrollbar-track {
@@ -114,14 +122,25 @@ section {
   background: linear-gradient(180deg, #059669, #10b981);
   border-radius: 10px;
   transition: all 0.3s ease;
+  min-height: 40px;
 }
 
-.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+.scrollbar-custom::-webkit-scrollbar-thumb:active {
   background: linear-gradient(180deg, #047857, #059669);
 }
 
-.scrollbar-custom {
-  scrollbar-width: thin;
-  scrollbar-color: #059669 rgba(0, 0, 0, 0.05);
+@media (max-width: 768px) {
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 8px;
+  }
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.8);
+    border: 2px solid rgba(0, 0, 0, 0.05);
+    background-clip: padding-box;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb:active {
+    background: rgba(16, 185, 129, 1);
+  }
 }
 </style>
