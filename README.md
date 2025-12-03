@@ -62,13 +62,6 @@ Somente **Agentes da CCEE**, ativos e validados, podem operar na plataforma, gar
 * **Criação:** Vendedores criam ofertas com preço fixo por MWh e quantidade disponível.
 * **Compra:** Compradores filtram, visualizam e compram a energia.
 
-### 📝 Contrato Bilateral Assistido
-
-A compra gera automaticamente a documentação necessária:
-
-* **Termo de Acordo Digital:** Comprador, vendedor, quantidade e preço.
-* **Resumo Formatado:** Dados prontos para o registro na CCEE.
-
 ---
 
 ## 🛠️ Tecnologias Utilizadas
@@ -79,10 +72,8 @@ A compra gera automaticamente a documentação necessária:
 | | Vite, TailwindCSS, PrimeVue 
 | | TypeScript |
 | **Backend** | Golang (Go) |
-| | **Arquitetura:** API com autenticação JWT e camadas (Handlers, Services, Repositórios). | |
 | **Banco de Dados** | **PostgreSQL** 
-| **Infraestrutura** | **Docker** |
-|  | Postman | 
+| **Infraestrutura** | **Docker** | 
 | **Deploy** | Railway |
 
 ## 📦 Funcionalidades 
@@ -92,8 +83,8 @@ A compra gera automaticamente a documentação necessária:
 * ✔ Cadastro e autenticação de usuários com **validação documental**.
 * ✔ Criação e gestão de ofertas de venda de energia.
 * ✔ Filtros avançados: tipo de energia, submercado e data inicio/fim.
-* ✔ **Recomendação por Geolocalização** (ofertas próximas em destaque).
-* ✔ Emissão automática de **contratos e notas fiscais** após a transação.
+* ✔ **Recomendação por **preço** (ofertas próximas em destaque).
+* ✔ Emissão automática de **contratos** após a transação.
 
 ### 🌍 Agentes da CCEE Atendidos
 
