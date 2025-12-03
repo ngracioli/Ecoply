@@ -590,12 +590,16 @@ watch(
 
     <template #footer>
       <div
-        class="flex flex-col-reverse items-stretch justify-between gap-3 border-t border-neutral-100 px-4 py-3 sm:flex-row sm:items-center sm:gap-4 sm:px-6 sm:py-4"
+        class="flex flex-col items-stretch justify-between gap-3 border-t border-neutral-100 px-4 py-3 sm:flex-row sm:items-center sm:gap-4 sm:px-6 sm:py-4"
       >
-        <p class="text-center text-xs text-neutral-500 sm:text-left">
+        <p
+          class="order-2 text-center text-xs text-neutral-500 sm:order-1 sm:text-left"
+        >
           <span class="text-red-500">*</span> Campos obrigatórios
         </p>
-        <div class="flex w-full shrink-0 gap-2.5 sm:w-auto sm:gap-3">
+        <div
+          class="order-1 flex w-full shrink-0 gap-2.5 sm:order-2 sm:w-auto sm:gap-3"
+        >
           <button
             @click="closeDialog"
             :disabled="isSubmitting"
