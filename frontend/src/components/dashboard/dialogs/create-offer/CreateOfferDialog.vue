@@ -2,7 +2,8 @@
 import { reactive, ref, watch, computed } from "vue";
 import Dialog from "primevue/dialog";
 import { useToast } from "primevue/usetoast";
-import { Calendar, DollarSign, Package, Zap } from "lucide-vue-next";
+import { Calendar, DollarSign, Package, Zap, Plus } from "lucide-vue-next";
+import { useIconSize } from "../../../../composables/useIconSize";
 import api from "../../../../axios";
 import { OFFER_ENDPOINTS } from "../../../../api/endpoints";
 import type { EnergyType } from "../../../../types/offer";
@@ -101,6 +102,7 @@ const ENERGY_TYPES_CONFIG: Record<EnergyType, EnergyTypeConfig> = {
 const props = defineProps<CreateOfferDialogProps>();
 const emit = defineEmits<CreateOfferDialogEmits>();
 const toast = useToast();
+const { iconSize } = useIconSize();
 
 const newOffer = reactive<OfferForm>({ ...INITIAL_FORM_STATE });
 const originalOffer = ref<OfferForm | null>(null);
@@ -353,10 +355,9 @@ watch(
     <template #header>
       <div class="flex items-center gap-2.5 px-2 sm:gap-3 sm:px-0">
         <div
-          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 sm:h-12 sm:w-12 sm:rounded-xl"
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 p-1.5 sm:h-auto sm:w-auto sm:p-2"
         >
-          <Zap :size="20" class="text-white sm:hidden" />
-          <Zap :size="24" class="hidden text-white sm:block" />
+          <Plus :size="iconSize(20, 24)" class="text-emerald-600" />
         </div>
         <div class="min-w-0 flex-1">
           <h3 class="truncate text-lg font-bold text-neutral-900 sm:text-xl">
@@ -375,8 +376,7 @@ watch(
           for="offer-type"
           class="mb-2 flex items-center gap-1.5 text-xs font-semibold text-neutral-700 sm:gap-2 sm:text-sm"
         >
-          <Zap :size="14" class="text-emerald-600 sm:hidden" />
-          <Zap :size="16" class="hidden text-emerald-600 sm:block" />
+          <Zap :size="iconSize(14, 16)" class="text-emerald-600" />
           Tipo de Energia
           <span class="text-red-500">*</span>
         </label>
@@ -403,8 +403,7 @@ watch(
                 config.gradient,
               ]"
             >
-              <Zap :size="18" class="text-white sm:hidden" />
-              <Zap :size="20" class="hidden text-white sm:block" />
+              <Zap :size="iconSize(18, 20)" class="text-white" />
             </div>
             <span
               class="text-center text-xs font-medium text-neutral-900 sm:text-sm"
@@ -427,8 +426,7 @@ watch(
             for="offer-price"
             class="mb-2 flex items-center gap-1.5 text-xs font-semibold text-neutral-700 sm:gap-2 sm:text-sm"
           >
-            <DollarSign :size="14" class="text-emerald-600 sm:hidden" />
-            <DollarSign :size="16" class="hidden text-emerald-600 sm:block" />
+            <DollarSign :size="iconSize(14, 16)" class="text-emerald-600" />
             Preço por MWh
             <span class="text-red-500">*</span>
           </label>
@@ -463,8 +461,7 @@ watch(
             for="offer-quantity"
             class="mb-2 flex items-center gap-1.5 text-xs font-semibold text-neutral-700 sm:gap-2 sm:text-sm"
           >
-            <Package :size="14" class="text-emerald-600 sm:hidden" />
-            <Package :size="16" class="hidden text-emerald-600 sm:block" />
+            <Package :size="iconSize(14, 16)" class="text-emerald-600" />
             Quantidade
             <span class="text-red-500">*</span>
           </label>
@@ -501,8 +498,7 @@ watch(
             for="period-start"
             class="mb-2 flex items-center gap-1.5 text-xs font-semibold text-neutral-700 sm:gap-2 sm:text-sm"
           >
-            <Calendar :size="14" class="text-emerald-600 sm:hidden" />
-            <Calendar :size="16" class="hidden text-emerald-600 sm:block" />
+            <Calendar :size="iconSize(14, 16)" class="text-emerald-600" />
             Data de Início
             <span class="text-red-500">*</span>
           </label>
@@ -530,8 +526,7 @@ watch(
             for="period-end"
             class="mb-2 flex items-center gap-1.5 text-xs font-semibold text-neutral-700 sm:gap-2 sm:text-sm"
           >
-            <Calendar :size="14" class="text-emerald-600 sm:hidden" />
-            <Calendar :size="16" class="hidden text-emerald-600 sm:block" />
+            <Calendar :size="iconSize(14, 16)" class="text-emerald-600" />
             Data de Término
             <span class="text-red-500">*</span>
           </label>

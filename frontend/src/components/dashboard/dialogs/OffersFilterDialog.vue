@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { X, Filter } from "lucide-vue-next";
+import { useIconSize } from "../../../composables/useIconSize";
 
 interface FilterOptions {
   submarket?: string;
@@ -20,6 +21,7 @@ const emit = defineEmits<{
   (e: "apply-filters", filters: FilterOptions): void;
 }>();
 
+const { iconSize } = useIconSize();
 const selectedSubmarket = ref<string>("");
 const selectedEnergyType = ref<string>("");
 const periodStart = ref<string>("");
@@ -120,8 +122,7 @@ defineExpose({
           >
             <div class="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
               <div class="shrink-0 rounded-lg bg-emerald-100 p-1.5 sm:p-2">
-                <Filter class="text-emerald-600" :size="20" />
-                <Filter class="hidden text-emerald-600 sm:block" :size="24" />
+                <Filter class="text-emerald-600" :size="iconSize(20, 24)" />
               </div>
               <div class="min-w-0 flex-1">
                 <h2
@@ -138,8 +139,7 @@ defineExpose({
               @click="closeDialog"
               class="shrink-0 touch-manipulation rounded-lg p-1.5 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-600 active:scale-95 sm:p-2"
             >
-              <X :size="20" class="sm:hidden" />
-              <X :size="24" class="hidden sm:block" />
+              <X :size="iconSize(20, 24)" />
             </button>
           </div>
 
