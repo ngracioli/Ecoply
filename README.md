@@ -12,6 +12,8 @@
   <img src="https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white"/>
 </p>
 
+(Este repositório não concede permissões de uso, cópia, modificação ou redistribuição. Todo conteúdo é protegido por copyright)
+
 A Ecoply é uma plataforma digital que conecta agentes do Mercado Livre de Energia (ACL) para comprar e vender **energia excedente renovável** de forma rápida, transparente e segura.
 
 O projeto cria um marketplace totalmente automatizado, onde geradores, comercializadores e consumidores livres podem negociar excedentes energéticos sem a burocracia dos contratos tradicionais.
